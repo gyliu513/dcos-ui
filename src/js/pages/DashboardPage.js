@@ -32,6 +32,22 @@ function getMesosState() {
   };
 }
 
+function getKubernetesState() {
+  let states = MesosSummaryStore.get('states');
+  let last = states.lastSuccessful();
+
+  return {
+    hostsCount: states.getActiveNodesByState(),
+    refreshRate: Config.getRefreshRate(),
+    services: last.getServiceList(),
+    usedResourcesStates: states.getResourceStatesForNodeIDs(),
+    usedResources: last.getSlaveUsedResources(),
+    totalResources: last.getSlaveTotalResources(),
+    activeSlaves: last.getActiveSlaves(),
+    statesProcessed: MesosSummaryStore.get('statesProcessed')
+  };
+}
+
 var DashboardPage = React.createClass({
 
   displayName: 'DashboardPage',
@@ -85,6 +101,11 @@ var DashboardPage = React.createClass({
 
   onSummaryStoreSuccess: function () {
     this.internalStorage_update(getMesosState());
+  },
+
+  onKubernetesStateChange: function () {
+    this.internalStorage_update(getKubernetesState());
+    this.forceUpdate();
   },
 
   getServicesList: function () {

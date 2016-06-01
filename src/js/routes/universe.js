@@ -4,6 +4,8 @@ import InstalledPackagesTab from '../pages/universe/InstalledPackagesTab';
 import PackageDetailTab from '../pages/universe/PackageDetailTab';
 import PackagesTab from '../pages/universe/PackagesTab';
 import UniversePage from '../pages/UniversePage';
+import KubernetesTab from '../pages/universe/KubernetesTab';
+import KubernetesDetailTab from '../pages/universe/KubernetesDetailTab';
 
 let universeRoutes = {
   type: Route,
@@ -50,6 +52,18 @@ let universeRoutes = {
     },
     {
       type: Route,
+      name: 'kubernetes-packages',
+      path: 'kubernetes/?',
+      handler: KubernetesTab
+    },
+    {
+      type: Route,
+      name: 'kubernetes-packages-detail',
+      path: 'kubernetes/:packageName?:packageVersion?',
+      handler: KubernetesDetailTab
+    },
+    {
+      type: Route,
       name: 'universe-installed-packages',
       path: 'installed-packages/?',
       handler: InstalledPackagesTab
@@ -57,7 +71,7 @@ let universeRoutes = {
     {
       type: Redirect,
       from: '/universe/?',
-      to: 'universe-packages'
+      to: 'kubernetes-packages'
     }
   ]
 };

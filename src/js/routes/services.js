@@ -30,6 +30,12 @@ function buildServiceCrumbs(router) {
   });
 }
 
+import {Redirect} from 'react-router';
+import PodsTab from '../pages/services/PodsTab';
+import RCsTab from '../pages/services/RCsTab';
+import JobsTab from '../pages/services/JobsTab';
+import KServicesTab from '../pages/services/KServicesTab';
+
 let serviceRoutes = {
   type: Route,
   name: 'services-page',
@@ -56,7 +62,22 @@ let serviceRoutes = {
     },
     {
       type: Route,
+      name: 'services-pods',
+      path: 'pods/?',
+      handler: PodsTab,
+      children: [
+        {
+          type: Route,
+          name: 'services-pods-detail',
+          path: ':namespace/:name/?'
+        }
+      ]
+    },
+    {
+      type: Route,
       handler: ServicesTab,
+      name: 'services-marathon',
+      path: 'service/?',
       children: [
         {
           type: Route,
@@ -190,6 +211,49 @@ let serviceRoutes = {
           ]
         }
       ]
+    },
+    {
+      type: Route,
+      name: 'services-rcs',
+      path: 'rcs/?',
+      handler: RCsTab,
+      children: [
+        {
+          type: Route,
+          name: 'services-rcs-detail',
+          path: ':namespace/:name/?'
+        }
+      ]
+    },
+    {
+      type: Route,
+      name: 'services-kservices',
+      path: 'kservices/',
+      handler: KServicesTab,
+      children: [
+        {
+          type: Route,
+          name: 'services-kservices-detail',
+          path: ':namespace/:name/?'
+        }
+      ]
+    },
+    {
+      type: Route,
+      name: 'services-jobs',
+      path: 'jobs/',
+      handler: JobsTab
+    },
+    {
+      type: Route,
+      name: 'services-rss',
+      path: 'rss/',
+      handler: JobsTab
+    },
+    {
+      type: Redirect,
+      from: '/services/?',
+      to: 'services-pods'
     }
   ]
 };

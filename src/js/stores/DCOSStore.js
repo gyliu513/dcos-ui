@@ -2,6 +2,7 @@ import {EventEmitter} from 'events';
 
 import {
   CHRONOS_JOBS_CHANGE,
+  KUBERNETES_CHANGE,
   DCOS_CHANGE,
   MESOS_SUMMARY_CHANGE,
   MARATHON_DEPLOYMENTS_CHANGE,
@@ -10,6 +11,7 @@ import {
   MARATHON_SERVICE_VERSION_CHANGE,
   MARATHON_SERVICE_VERSIONS_CHANGE
 } from '../constants/EventTypes';
+import KubernetesStore from '../stores/KubernetesStore';
 import ChronosStore from '../stores/ChronosStore';
 import DeploymentsList from '../structs/DeploymentsList';
 import Framework from '../structs/Framework';
@@ -22,6 +24,7 @@ import ServiceTree from '../structs/ServiceTree';
 import SummaryList from '../structs/SummaryList';
 
 const METHODS_TO_BIND = [
+  'onKubernetesChange',
   'onChronosChange',
   'onMarathonGroupsChange',
   'onMarathonQueueChange',
@@ -55,6 +58,14 @@ class DCOSStore extends EventEmitter {
 
   getProxyListeners() {
     let proxyListeners = [];
+
+    if (Hooks.applyFilter('hasCapability', false, 'kubernetesAPI')) {
+      proxyListeners.push({
+        event: KUBERNETES_CHANGE,
+        handler: this.onKubernetesChange,
+        store: KubernetesStore
+      });
+    }
 
     if (Hooks.applyFilter('hasCapability', false, 'chronosAPI')) {
       proxyListeners.push({
@@ -218,6 +229,10 @@ class DCOSStore extends EventEmitter {
     this.emit(DCOS_CHANGE);
   }
 
+  onKubernetesChange() {
+    this.emit(DCOS_CHANGE);
+  }
+
   onChronosChange() {
     this.data.chronos = ChronosStore.jobTree;
     this.emit(DCOS_CHANGE);
@@ -274,6 +289,55 @@ class DCOSStore extends EventEmitter {
     }
 
     return this;
+  }
+
+  /**
+   * @type {PVTree}
+   */
+  get pvTree() {
+    return KubernetesStore.pvTree;
+  }
+
+  /**
+   * @type {PVCTree}
+   */
+  get pvcTree() {
+    return KubernetesStore.pvcTree;
+  }
+
+  /**
+   * @type {PodsList}
+   */
+  get podList() {
+    return KubernetesStore.podList;
+  }
+
+  /**
+   * @type {KServicesList}
+   */
+  get kserviceList() {
+    return KubernetesStore.kserviceList;
+  }
+
+  /**
+   * @type {RCsList}
+   */
+  get rcList() {
+    return KubernetesStore.rcList;
+  }
+
+  /**
+   * @type {PolicyList}
+   */
+  get policyList() {
+    return KubernetesStore.policyList;
+  }
+
+  /**
+   * @type {LogPolicyList}
+   */
+  get logPolicyList() {
+    return KubernetesStore.LogPolicyList;
   }
 
   /**

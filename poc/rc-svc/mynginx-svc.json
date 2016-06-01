@@ -1,0 +1,22 @@
+{
+    "kind": "Service",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "gyliu-nginx",
+        "labels": {
+            "app": "gyliu-nginx"
+        }
+    },
+    "spec": {
+        "ports": [
+            {
+                "protocol": "TCP",
+                "port": 4040,
+                "targetPort": 80
+            }
+        ],
+        "selector": {
+            "app": "gyliu-nginx"
+        }
+    }
+}

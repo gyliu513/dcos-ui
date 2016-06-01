@@ -20,10 +20,12 @@ var SidebarActions = require('../events/SidebarActions');
 let defaultMenuItems = [
   'dashboard',
   'services-page',
-  'jobs-page',
+  'policies',
+  'images-page',
   'nodes-list',
   'network',
   'universe',
+  'storage-page',
   'system'
 ];
 

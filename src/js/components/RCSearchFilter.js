@@ -1,0 +1,65 @@
+import mixin from 'reactjs-mixin';
+/* eslint-disable no-unused-vars */
+import React from 'react';
+/* eslint-enable no-unused-vars */
+
+import FilterInputText from './FilterInputText';
+import QueryParamsMixin from '../mixins/QueryParamsMixin';
+import RCFilterTypes from '../constants/RCFilterTypes';
+
+const METHODS_TO_BIND = ['setSearchString'];
+
+class RCSearchFilter extends mixin(QueryParamsMixin) {
+  constructor() {
+    super();
+
+    this.state = {
+      searchString: ''
+    };
+
+    METHODS_TO_BIND.forEach((method) => {
+      this[method] = this[method].bind(this);
+    });
+  }
+
+  componentDidMount() {
+    this.updateFilterStatus();
+  }
+
+  componentWillReceiveProps() {
+    this.updateFilterStatus();
+  }
+
+  setSearchString(filterValue) {
+    this.setQueryParam(RCFilterTypes.TEXT, filterValue);
+    this.props.handleFilterChange(filterValue, RCFilterTypes.TEXT);
+  }
+
+  updateFilterStatus() {
+    let {state} = this;
+    let searchString =
+      this.getQueryParamObject()[RCFilterTypes.TEXT] || '';
+
+    if (searchString !== state.searchString) {
+      this.setState({searchString},
+        this.props.handleFilterChange.bind(null, searchString, RCFilterTypes.TEXT));
+    }
+  }
+
+  render() {
+    return (
+      <FilterInputText
+        className="flush-bottom"
+        handleFilterChange={this.setSearchString}
+        inverseStyle={true}
+        placeholder="Search"
+        searchString={this.state.searchString} />
+    );
+  }
+};
+
+RCSearchFilter.propTypes = {
+  handleFilterChange: React.PropTypes.func.isRequired
+};
+
+module.exports = RCSearchFilter;

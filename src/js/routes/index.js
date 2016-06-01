@@ -7,31 +7,37 @@ import Network from './factories/network';
 import nodes from './nodes';
 import NotFoundPage from '../pages/NotFoundPage';
 import System from './factories/system';
+import Policies from './factories/policies';
 import services from './services';
-import jobs from './jobs';
+import images from './images';
 import universe from './universe';
+import storage from './storage';
+
+// Statically defined routes
+let applicationRoutes = [
+  dashboard,
+  services,
+  nodes,
+  images,
+  universe,
+  storage,
+  {
+    type: Redirect,
+    from: '/',
+    to: 'dashboard'
+  },
+  {
+    type: NotFoundRoute,
+    handler: NotFoundPage
+  }
+];
 
 // Modules that produce routes
-let routeFactories = [System, Network];
+let routeFactories = [System, Network, Policies];
 
 function getApplicationRoutes() {
   // Statically defined routes
-  let routes = [
-    dashboard,
-    services,
-    jobs,
-    nodes,
-    universe,
-    {
-      type: Redirect,
-      from: '/',
-      to: Hooks.applyFilter('applicationRedirectRoute', 'dashboard')
-    },
-    {
-      type: NotFoundRoute,
-      handler: NotFoundPage
-    }
-  ];
+  let routes = applicationRoutes.slice();
 
   routeFactories.forEach(function (routeFactory) {
     routes.push(routeFactory.getRoutes());

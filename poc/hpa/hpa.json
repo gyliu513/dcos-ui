@@ -1,0 +1,20 @@
+{
+  "apiVersion": "extensions/v1beta1",
+  "kind": "HorizontalPodAutoscaler",
+  "metadata": {
+    "name": "gyliu-nginx",
+    "namespace": "default"
+  },
+  "spec": {
+    "scaleRef": {
+      "kind": "ReplicationController",
+      "name": "gyliu-nginx",
+      "subresource": "scale"
+    },
+    "minReplicas": 1,
+    "maxReplicas": 10,
+    "cpuUtilization": {
+      "targetPercentage": 50
+    }
+  }
+}

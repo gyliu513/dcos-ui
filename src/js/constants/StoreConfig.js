@@ -37,6 +37,8 @@ import {
   COSMOS_REPOSITORY_ADD_ERROR,
   COSMOS_REPOSITORY_DELETE_SUCCESS,
   COSMOS_REPOSITORY_DELETE_ERROR,
+  COSMOS_INSTALL_KUBERNETES_SUCCESS,
+  COSMOS_INSTALL_KUBERNETES_ERROR,
 
   HEALTH_NODE_ERROR,
   HEALTH_NODE_SUCCESS,
@@ -104,7 +106,27 @@ import {
   VIRTUAL_NETWORKS_CHANGE,
   VIRTUAL_NETWORKS_REQUEST_ERROR,
 
-  VISIBILITY_CHANGE
+  VISIBILITY_CHANGE,
+
+  KUBERNETES_SERVICE_CREATE_ERROR,
+  KUBERNETES_SERVICE_CREATE_SUCCESS,
+  KUBERNETES_SERVICE_DELETE_ERROR,
+  KUBERNETES_SERVICE_DELETE_SUCCESS,
+
+  KUBERNETES_RC_CREATE_ERROR,
+  KUBERNETES_RC_CREATE_SUCCESS,
+  KUBERNETES_RC_DELETE_ERROR,
+  KUBERNETES_RC_DELETE_SUCCESS,
+
+  KUBERNETES_POD_CREATE_ERROR,
+  KUBERNETES_POD_CREATE_SUCCESS,
+  KUBERNETES_POD_DELETE_ERROR,
+  KUBERNETES_POD_DELETE_SUCCESS,
+
+  KUBERNETES_POLICY_CREATE_ERROR,
+  KUBERNETES_POLICY_CREATE_SUCCESS,
+  KUBERNETES_POLICY_DELETE_ERROR,
+  KUBERNETES_POLICY_DELETE_SUCCESS,
 } from './EventTypes';
 import AuthStore from '../stores/AuthStore';
 import ChronosStore from '../stores/ChronosStore';
@@ -112,6 +134,7 @@ import ConfigStore from '../stores/ConfigStore';
 import DCOSStore from '../stores/DCOSStore';
 import HistoryStore from '../stores/HistoryStore';
 import MarathonStore from '../stores/MarathonStore';
+import KubernetesStore from '../stores/KubernetesStore';
 import MesosLogStore from '../stores/MesosLogStore';
 import MesosStateStore from '../stores/MesosStateStore';
 import MesosSummaryStore from '../stores/MesosSummaryStore';
@@ -226,6 +249,9 @@ const ListenersDescription = {
       uninstallError: COSMOS_UNINSTALL_ERROR,
       uninstallSuccess: COSMOS_UNINSTALL_SUCCESS,
 
+      installKubernetesSuccess: COSMOS_INSTALL_KUBERNETES_SUCCESS,
+      installKubernetesError: COSMOS_INSTALL_KUBERNETES_ERROR,
+
       repositoriesSuccess: COSMOS_REPOSITORIES_SUCCESS,
       repositoriesError: COSMOS_REPOSITORIES_ERROR,
       repositoryAddSuccess: COSMOS_REPOSITORY_ADD_SUCCESS,
@@ -329,6 +355,32 @@ const ListenersDescription = {
       if (event === 'appsSuccess') {
         return store.hasProcessedApps();
       }
+      return true;
+    },
+    listenAlways: true
+  },
+
+  kubernetes: {
+    store: KubernetesStore,
+    events: {
+      serviceCreateSuccess: KUBERNETES_SERVICE_CREATE_SUCCESS,
+      serviceCreateError: KUBERNETES_SERVICE_CREATE_ERROR,
+      serviceDeleteSuccess: KUBERNETES_SERVICE_DELETE_SUCCESS,
+      serviceDeleteError: KUBERNETES_SERVICE_DELETE_ERROR,
+      rcCreateSuccess: KUBERNETES_RC_CREATE_SUCCESS,
+      rcCreateError: KUBERNETES_RC_CREATE_ERROR,
+      rcDeleteSuccess: KUBERNETES_RC_DELETE_SUCCESS,
+      rcDeleteError: KUBERNETES_RC_DELETE_ERROR,
+      podCreateSuccess: KUBERNETES_POD_CREATE_SUCCESS,
+      podCreateError: KUBERNETES_POD_CREATE_ERROR,
+      podDeleteSuccess: KUBERNETES_POD_DELETE_SUCCESS,
+      podDeleteError: KUBERNETES_POD_DELETE_ERROR,
+      policyCreateError: KUBERNETES_POLICY_CREATE_ERROR,
+      policyCreateSuccess: KUBERNETES_POLICY_CREATE_SUCCESS,
+      policyDeleteError: KUBERNETES_POLICY_DELETE_ERROR,
+      policyDeleteSuccess: KUBERNETES_POLICY_DELETE_SUCCESS
+    },
+    unmountWhen: function () {
       return true;
     },
     listenAlways: true

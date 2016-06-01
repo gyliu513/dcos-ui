@@ -18,7 +18,10 @@ import {
   COSMOS_REPOSITORY_ADD_SUCCESS,
   COSMOS_REPOSITORY_ADD_ERROR,
   COSMOS_REPOSITORY_DELETE_SUCCESS,
-  COSMOS_REPOSITORY_DELETE_ERROR
+  COSMOS_REPOSITORY_DELETE_ERROR,
+  COSMOS_INSTALL_KUBERNETES_ERROR,
+  COSMOS_INSTALL_KUBERNETES_SUCCESS
+
 } from '../constants/EventTypes';
 import {
   REQUEST_COSMOS_PACKAGES_LIST_ERROR,
@@ -38,6 +41,8 @@ import {
   REQUEST_COSMOS_REPOSITORY_ADD_ERROR,
   REQUEST_COSMOS_REPOSITORY_DELETE_SUCCESS,
   REQUEST_COSMOS_REPOSITORY_DELETE_ERROR,
+  REQUEST_COSMOS_KUBERNETES_PACKAGE_INSTALL_SUCCESS,
+  REQUEST_COSMOS_KUBERNETES_PACKAGE_INSTALL_ERROR,
 
   SERVER_ACTION
 } from '../constants/ActionTypes';
@@ -166,8 +171,32 @@ class CosmosPackagesStore extends GetSetBaseStore {
             COSMOS_REPOSITORY_DELETE_ERROR, data, action.name, action.uri
           );
           break;
+        case REQUEST_COSMOS_REPOSITORY_DELETE_ERROR:
+          this.emit(
+            COSMOS_REPOSITORY_DELETE_ERROR, data, action.name, action.uri
+          );
+          break;
+        case REQUEST_COSMOS_REPOSITORY_DELETE_ERROR:
+          this.emit(
+            COSMOS_REPOSITORY_DELETE_ERROR, data, action.name, action.uri
+          );
+          break;
+        case REQUEST_COSMOS_KUBERNETES_PACKAGE_INSTALL_SUCCESS:
+          this.emit(
+            COSMOS_INSTALL_KUBERNETES_SUCCESS,
+            action.packageName,
+            action.packageVersion
+          );
+          break;
+        case REQUEST_COSMOS_KUBERNETES_PACKAGE_INSTALL_ERROR:
+          this.emit(
+            COSMOS_INSTALL_KUBERNETES_ERROR,
+            data,
+            action.packageName,
+            action.packageVersion
+          );
+          break;
       }
-
       return true;
     });
   }
@@ -197,8 +226,16 @@ class CosmosPackagesStore extends GetSetBaseStore {
     return CosmosPackagesActions.installPackage(...arguments);
   }
 
+  installKubernetesPackage() {
+    return CosmosPackagesActions.installKubernetesPackage(...arguments);
+  }
+
   uninstallPackage() {
     return CosmosPackagesActions.uninstallPackage(...arguments);
+  }
+
+  uninstallKubernetesPackage() {
+    return CosmosPackagesActions.uninstallKubernetesPackage(...arguments);
   }
 
   fetchRepositories() {
