@@ -8,6 +8,7 @@ import NotFoundPage from '../pages/NotFoundPage';
 import System from './factories/system';
 import services from './services';
 import jobs from './jobs';
+import images from './images';
 import policies from './policies';
 import universe from './universe';
 
@@ -18,7 +19,7 @@ let applicationRoutes = [
   jobs,
   policies,
   nodes,
-
+  images,
   universe,
   {
     type: Redirect,
