@@ -21,6 +21,7 @@ let defaultMenuItems = [
   'dashboard',
   'services-page',
   'jobs-page',
+  'policies-page',
   'nodes-list',
   'universe',
   'system'
