@@ -9,19 +9,17 @@ import FilterHeadline from '../../components/FilterHeadline';
 import QueryParamsMixin from '../../mixins/QueryParamsMixin';
 import SaveStateMixin from '../../mixins/SaveStateMixin';
 import {
-  SERVICE_FORM_MODAL,
-  SERVICE_GROUP_FORM_MODAL
+  POD_FORM_MODAL
 } from '../../constants/ModalKeys';
-import Service from '../../structs/Service';
-import ServiceDetail from '../../components/ServiceDetail';
-import ServiceFilterTypes from '../../constants/ServiceFilterTypes';
-import ServiceFormModal from '../../components/modals/ServiceFormModal';
-import ServiceSearchFilter from '../../components/ServiceSearchFilter';
-import ServiceSidebarFilters from '../../components/ServiceSidebarFilters';
-import ServicesBreadcrumb from '../../components/ServicesBreadcrumb';
-import ServiceGroupFormModal from '../../components/modals/ServiceGroupFormModal';
-import ServicesTable from '../../components/ServicesTable';
-import ServiceTree from '../../structs/ServiceTree';
+import Pod from '../../structs/Pod';
+import PodDetail from '../../components/PodDetail';
+import PodFilterTypes from '../../constants/PodFilterTypes';
+import PodFormModal from '../../components/modals/PodFormModal';
+import PodSearchFilter from '../../components/PodSearchFilter';
+import PodSidebarFilters from '../../components/ServiceSidebarFilters';
+import PodsBreadcrumb from '../../components/PodsBreadcrumb';
+import PodsTable from '../../components/PodsTable';
+import PodTree from '../../structs/PodTree';
 import SidebarActions from '../../events/SidebarActions';
 import SidePanels from '../../components/SidePanels';
 
@@ -36,7 +34,7 @@ var PodsTab = React.createClass({
 
   displayName: 'PodsTab',
 
-  saveState_key: 'servicesPage',
+  saveState_key: 'podsPage',
 
   saveState_properties,
 
@@ -58,8 +56,7 @@ var PodsTab = React.createClass({
 
   getInitialState: function () {
     return Object.assign({}, DEFAULT_FILTER_OPTIONS, {
-      isServiceGroupFormModalShown: false,
-      isServiceFormModalShown: false
+      isPodFormModalShown: false
     });
   },
 
@@ -78,12 +75,8 @@ var PodsTab = React.createClass({
     });
   },
 
-  handleCloseServiceFormModal: function () {
-    this.setState({isServiceFormModalShown: false});
-  },
-
-  handleCloseGroupFormModal: function () {
-    this.setState({isServiceGroupFormModalShown: false});
+  handleClosePodFormModal: function () {
+    this.setState({isPodFormModalShown: false});
   },
 
   handleFilterChange: function (filterValues, filterType) {
@@ -95,8 +88,7 @@ var PodsTab = React.createClass({
 
   handleOpenModal: function (id) {
     let modalStates = {
-      isServiceFormModalShown: SERVICE_FORM_MODAL === id,
-      isServiceGroupFormModalShown: SERVICE_GROUP_FORM_MODAL === id
+      isPodFormModalShown: POD_FORM_MODAL === id
     };
 
     this.setState(modalStates);
@@ -106,7 +98,7 @@ var PodsTab = React.createClass({
     let router = this.context.router;
     let queryParams = router.getCurrentQuery();
 
-    Object.values(ServiceFilterTypes).forEach(function (filterKey) {
+    Object.values(PodFilterTypes).forEach(function (filterKey) {
       delete queryParams[filterKey];
     });
 
@@ -121,13 +113,9 @@ var PodsTab = React.createClass({
   getAlertPanelFooter: function () {
     return (
       <div className="button-collection flush-bottom">
-        <button className="button button-stroke button-inverse"
-          onClick={() => this.handleOpenModal(SERVICE_GROUP_FORM_MODAL)}>
-          Create Group
-        </button>
         <button className="button button-success"
-          onClick={() => this.handleOpenModal(SERVICE_FORM_MODAL)}>
-          Deploy Service
+          onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
+          Deploy Pods
         </button>
       </div>
     );
@@ -154,37 +142,36 @@ var PodsTab = React.createClass({
       );
     }
 
-    // Render service table
-    if (item instanceof ServiceTree && item.getItems().length > 0) {
-      return this.getServiceTreeView(item);
+    // Render pod table
+    if (item instanceof PodTree && item.getItems().length > 0) {
+      return this.getPodTreeView(item);
     }
 
-    // Render service detail
-    if (item instanceof Service) {
-      return (<ServiceDetail service={item} />);
+    // Render pod detail
+    if (item instanceof Pod) {
+      return (<PodDetail service={item} />);
     }
 
     // Render empty panel
     return (
       <div>
-        <ServicesBreadcrumb serviceTreeItem={item} />
+        <PodsBreadcrumb podTreeItem={item} />
         <AlertPanel
-          title="No Services Deployed"
+          title="No Pods Deployed"
           footer={this.getAlertPanelFooter()}
           iconClassName="icon icon-sprite icon-sprite-jumbo
           icon-sprite-jumbo-white icon-services flush-top">
           <p className="flush-bottom">
-            Create groups to organize your services or
-            deploy a new service.
+            Deploy a new pod.
           </p>
         </AlertPanel>
       </div>
     );
   },
 
-  getHeadline: function (item, filteredServices) {
+  getHeadline: function (item, filteredPods) {
     let {state} = this;
-    let services = item.getItems();
+    let pods = item.getItems();
 
     const hasFiltersApplied = Object.keys(DEFAULT_FILTER_OPTIONS)
       .some((filterKey) => {
@@ -196,46 +183,42 @@ var PodsTab = React.createClass({
         <FilterHeadline
           inverseStyle={true}
           onReset={this.resetFilter}
-          name="Services"
-          currentLength={filteredServices.length}
-          totalLength={services.length} />
+          name="Pods"
+          currentLength={filteredPods.length}
+          totalLength={pods.length} />
       );
     }
 
     return (
-      <ServicesBreadcrumb serviceTreeItem={item} />
+      <PodsBreadcrumb podTreeItem={item} />
     );
   },
 
-  getServiceTreeView(item) {
+  getPodTreeView(item) {
     let {state} = this;
-    let services = item.getItems();
-    let filteredServices = item.filterItemsByFilter({
+    let pods = item.getItems();
+    let filteredPods = item.filterItemsByFilter({
       health: state.filterHealth,
       id: state.searchString
     }).getItems();
 
     return (
       <div className="flex-box flush flex-mobile-column">
-        <ServiceSidebarFilters
+        <PodSidebarFilters
           handleFilterChange={this.handleFilterChange}
-          services={services} />
+          services={pods} />
         <div className="flex-grow">
-          {this.getHeadline(item, filteredServices)}
-          <FilterBar rightAlignLastNChildren={2}>
-            <ServiceSearchFilter
+          {this.getHeadline(item, filteredPods)}
+          <FilterBar rightAlignLastNChildren={1}>
+            <PodSearchFilter
               handleFilterChange={this.handleFilterChange} />
-            <button className="button button-stroke button-inverse"
-              onClick={() => this.handleOpenModal(SERVICE_GROUP_FORM_MODAL)}>
-              Create Group
-            </button>
             <button className="button button-success"
-              onClick={() => this.handleOpenModal(SERVICE_FORM_MODAL)}>
-              Deploy Service
+              onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
+              Deploy Pods
             </button>
           </FilterBar>
-          <ServicesTable
-            services={filteredServices} />
+          <PodsTable
+            services={filteredPods} />
         </div>
         <SidePanels
           params={this.props.params}
@@ -255,12 +238,8 @@ var PodsTab = React.createClass({
     return (
       <div>
         {this.getContents(item)}
-        <ServiceGroupFormModal
-          open={state.isServiceGroupFormModalShown}
-          parentGroupId={item.getId()}
-          onClose={this.handleCloseGroupFormModal}/>
-        <ServiceFormModal open={state.isServiceFormModalShown}
-          onClose={this.handleCloseServiceFormModal}/>
+        <PodFormModal open={state.isPodFormModalShown}
+          onClose={this.handleClosePodFormModal}/>
       </div>
     );
   }

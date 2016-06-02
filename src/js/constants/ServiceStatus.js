@@ -1,7 +1,7 @@
 import ServiceStatusLabels from './ServiceStatusLabels';
 import ServiceStatusTypes from './ServiceStatusTypes';
 
-var SERVICE_STATUS = {
+var POD_STATUS = {
   RUNNING: {
     key: ServiceStatusTypes.RUNNING,
     displayName: ServiceStatusLabels.RUNNING
@@ -20,4 +20,4 @@ var SERVICE_STATUS = {
   }
 };
 
-module.exports = SERVICE_STATUS;
+module.exports = POD_STATUS;
