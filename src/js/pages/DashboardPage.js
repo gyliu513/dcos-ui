@@ -257,7 +257,7 @@ var DashboardPage = React.createClass({
           <div className="grid-item column-mini-6 column-large-4 column-x-large-3">
             <Panel
               className="panel panel-inverse dashboard-panel dashboard-panel-list dashboard-panel-list-service-health allow-overflow"
-              heading={this.getHeading('Services Health')}
+              heading={this.getHeading('Kubernetes&Marathon Services Health')}
               headingClass="panel-header panel-header-bottom-border inverse short-top short-bottom">
               <ServiceList
                 healthProcessed={appsProcessed}
