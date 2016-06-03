@@ -85,7 +85,10 @@ import {
   USERS_CHANGE,
   USERS_REQUEST_ERROR,
 
-  VISIBILITY_CHANGE
+  VISIBILITY_CHANGE,
+
+  KUBERNETES_POD_CREATE_ERROR,
+  KUBERNETES_POD_CREATE_SUCCESS,
 } from './EventTypes';
 import AuthStore from '../stores/AuthStore';
 import ChronosStore from '../stores/ChronosStore';
@@ -93,6 +96,7 @@ import ConfigStore from '../stores/ConfigStore';
 import DCOSStore from '../stores/DCOSStore';
 import HistoryStore from '../stores/HistoryStore';
 import MarathonStore from '../stores/MarathonStore';
+import KubernetesStore from '../stores/KubernetesStore';
 import MesosLogStore from '../stores/MesosLogStore';
 import MesosStateStore from '../stores/MesosStateStore';
 import MesosSummaryStore from '../stores/MesosSummaryStore';
@@ -291,6 +295,21 @@ const ListenersDescription = {
     },
     unmountWhen: function (store, event) {
       if (event === 'appsSuccess') {
+        return store.hasProcessedApps();
+      }
+      return true;
+    },
+    listenAlways: true
+  },
+
+  kubernetes: {
+    store: KubernetesStore,
+    events: {
+      podeCreateSuccess: KUBERNETES_POD_CREATE_SUCCESS,
+      podCreateError: KUBERNETES_POD_CREATE_ERROR
+    },
+    unmountWhen: function (store, event) {
+      if (event === 'podsSuccess') {
         return store.hasProcessedApps();
       }
       return true;

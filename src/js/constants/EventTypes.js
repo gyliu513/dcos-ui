@@ -83,7 +83,9 @@ let EventTypes = {};
   'USER_DELETE_SUCCESS',
   'USERS_CHANGE',
   'USERS_REQUEST_ERROR',
-  'VISIBILITY_CHANGE'
+  'VISIBILITY_CHANGE',
+  'KUBERNETES_POD_CREATE_ERROR',
+  'KUBERNETES_POD_CREATE_SUCCESS',
 ].forEach(function (eventType) {
   EventTypes[eventType] = eventType;
 });

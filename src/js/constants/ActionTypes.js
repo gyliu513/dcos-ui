@@ -89,7 +89,9 @@ let ActionTypes = {};
   'REQUEST_VERSIONS_SUCCESS',
   'SERVER_ACTION',
   'SIDEBAR_WIDTH_CHANGE',
-  'SIDEBAR_ACTION'
+  'SIDEBAR_ACTION',
+  'REQUEST_KUBERNETES_POD_CREATE_ERROR',
+  'REQUEST_KUBERNETES_POD_CREATE_SUCCESS',
 ].forEach(function (actionType) {
   ActionTypes[actionType] = actionType;
 });
