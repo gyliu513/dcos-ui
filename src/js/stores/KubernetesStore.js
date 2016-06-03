@@ -50,7 +50,7 @@ function stopPolling() {
   }
 }
 
-class MarathonStore extends BaseStore {
+class KubernetesStore extends BaseStore {
   constructor() {
     super(...arguments);
 
@@ -350,4 +350,4 @@ class MarathonStore extends BaseStore {
 
 }
 
-module.exports = new MarathonStore();
+module.exports = new KubernetesStore();
