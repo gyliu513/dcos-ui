@@ -21,7 +21,7 @@ let defaultMenuItems = [
   'dashboard',
   'services-page',
   'jobs-page',
-  'policies-page',
+  'policies',
   'images-page',
   'nodes-list',
   'universe',
@@ -107,6 +107,7 @@ var Sidebar = React.createClass({
       let notificationCount = NotificationStore.getNotificationCount(routeKey);
       var route = this.context.router.namedRoutes[routeKey];
       // Figure out if current route is active
+      // console.log(JSON.stringify(route));
       var isActive = route.handler.routeConfig.matches.test(currentPath);
       var iconClasses = {
         'sidebar-menu-item-icon icon icon-sprite icon-sprite-medium': true,

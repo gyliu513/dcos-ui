@@ -6,10 +6,10 @@ import Index from '../pages/Index';
 import nodes from './nodes';
 import NotFoundPage from '../pages/NotFoundPage';
 import System from './factories/system';
+import Policies from './factories/policies';
 import services from './services';
 import jobs from './jobs';
 import images from './images';
-import policies from './policies';
 import universe from './universe';
 
 // Statically defined routes
@@ -17,7 +17,6 @@ let applicationRoutes = [
   dashboard,
   services,
   jobs,
-  policies,
   nodes,
   images,
   universe,
@@ -33,12 +32,13 @@ let applicationRoutes = [
 ];
 
 // Modules that produce routes
-let routeFactories = [System];
+let routeFactories = [System, Policies];
 
 function getApplicationRoutes() {
   let routes = applicationRoutes.slice();
 
   routeFactories.forEach(function (routeFactory) {
+    // console.log(JSON.stringify(routeFactory.getRoutes()));
     routes.push(routeFactory.getRoutes());
   });
 
