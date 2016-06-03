@@ -8,7 +8,7 @@ import 'brace/mode/json';
 import 'brace/theme/monokai';
 import 'brace/ext/language_tools';
 
-import MarathonStore from '../../stores/MarathonStore';
+import KubernetesStore from '../../stores/KubernetesStore';
 import SchemaForm from '../SchemaForm';
 import Service from '../../structs/Service';
 import ServiceUtil from '../../utils/ServiceUtil';
@@ -22,8 +22,8 @@ const METHODS_TO_BIND = [
   'handleJSONChange',
   'handleJSONToggle',
   'handleSubmit',
-  'onMarathonStoreServiceCreateError',
-  'onMarathonStoreServiceCreateSuccess'
+  'onKuberntesStorePodCreateError',
+  'onKuberntesStorePodCreateSuccess'
 ];
 
 class ServiceFormModal extends mixin(StoreMixin) {
@@ -100,12 +100,12 @@ class ServiceFormModal extends mixin(StoreMixin) {
     this.setState(nextState);
   }
 
-  onMarathonStoreServiceCreateSuccess() {
+  onKubernetesStorePodCreateSuccess() {
     this.resetState();
     this.props.onClose();
   }
 
-  onMarathonStoreServiceCreateError(errorMessage) {
+  onKubernetesStorePodCreateError(errorMessage) {
     this.setState({
       errorMessage
     });
@@ -118,7 +118,7 @@ class ServiceFormModal extends mixin(StoreMixin) {
   handleSubmit() {
     if (this.state.jsonMode) {
       let jsonDefinition = this.state;
-      MarathonStore.createService(JSON.parse(jsonDefinition));
+      KubernetesStore.createPod(JSON.parse(jsonDefinition));
       this.setState({
         errorMessage: null,
         jsonDefinition,
@@ -130,8 +130,8 @@ class ServiceFormModal extends mixin(StoreMixin) {
       let {model} = this.triggerSubmit();
       let service = ServiceUtil.createServiceFromFormModel(model);
       this.setState({service, model, errorMessage: null});
-      MarathonStore
-        .createService(ServiceUtil.getAppDefinitionFromService(service));
+      KubernetesStore
+        .createPod(ServiceUtil.getAppDefinitionFromService(service));
     }
   }
 
