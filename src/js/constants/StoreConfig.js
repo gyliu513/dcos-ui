@@ -305,11 +305,11 @@ const ListenersDescription = {
   kubernetes: {
     store: KubernetesStore,
     events: {
-      podeCreateSuccess: KUBERNETES_POD_CREATE_SUCCESS,
+      podCreateSuccess: KUBERNETES_POD_CREATE_SUCCESS,
       podCreateError: KUBERNETES_POD_CREATE_ERROR
     },
     unmountWhen: function (store, event) {
-      if (event === 'podsSuccess') {
+      if (event === 'podCreateSuccess') {
         return store.hasProcessedApps();
       }
       return true;
