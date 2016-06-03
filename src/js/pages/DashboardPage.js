@@ -156,6 +156,27 @@ var DashboardPage = React.createClass({
     return sortedServices.slice(0, this.props.servicesListLength);
   },
 
+  getK8SPodsList: function (services) {
+    // Pick out only the data we need.
+    let servicesMap = services.map(function (service) {
+      return {
+        name: service.get('name'),
+        webui_url: service.get('webui_url'),
+        TASK_RUNNING: service.get('TASK_RUNNING'),
+        id: service.get('id')
+      };
+    });
+
+    let sortedServices = servicesMap.sort(function (service, other) {
+      let health = MarathonStore.getServiceHealth(service.name);
+      let otherHealth = MarathonStore.getServiceHealth(other.name);
+
+      return HealthSorting[health.key] - HealthSorting[otherHealth.key];
+    });
+
+    return sortedServices.slice(0, this.props.servicesListLength);
+  },
+
   getUnits: function () {
     return UnitHealthStore.getUnits();
   },
@@ -346,7 +367,7 @@ var DashboardPage = React.createClass({
               headingClass="panel-header panel-header-bottom-border inverse short-top short-bottom">
               <ServiceList
                 healthProcessed={appsProcessed}
-                services={this.getServicesList(data.services.getItems())} />
+                services={this.getK8SPodsList(data.services.getItems())} />
               {this.getViewAllK8SPodsBtn()}
             </Panel>
           </div>
