@@ -156,9 +156,9 @@ var DashboardPage = React.createClass({
     return sortedServices.slice(0, this.props.servicesListLength);
   },
 
-  getK8SPodsList: function (services) {
+  getK8SPodsList: function (pods) {
     // Pick out only the data we need.
-    let servicesMap = services.map(function (service) {
+    let servicesMap = pods.map(function (service) {
       return {
         name: service.get('name'),
         webui_url: service.get('webui_url'),
@@ -175,6 +175,20 @@ var DashboardPage = React.createClass({
     });
 
     return sortedServices.slice(0, this.props.servicesListLength);
+  },
+
+  getK8SService: function (pods) {
+    // Pick out only the data we need.
+    let servicesMap = pods.map(function (service) {
+      return {
+        name: 'Kubernetes',
+        webui_url: 'http://9.21.58.21:8888/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard/',
+        TASK_RUNNING: service.get('TASK_RUNNING'),
+        id: service.get('id')
+      };
+    });
+
+    return servicesMap.slice(0, this.props.servicesListLength);
   },
 
   getUnits: function () {
@@ -347,6 +361,16 @@ var DashboardPage = React.createClass({
                 healthProcessed={appsProcessed}
                 services={this.getServicesList(data.services.getItems())} />
               {this.getViewAllServicesBtn()}
+            </Panel>
+          </div>
+          <div className="grid-item column-mini-6 column-large-4 column-x-large-3">
+            <Panel
+              className="panel panel-inverse dashboard-panel dashboard-panel-list dashboard-panel-list-service-health allow-overflow"
+              heading={this.getHeading('Kubernetes Health')}
+              headingClass="panel-header panel-header-bottom-border inverse short-top short-bottom">
+              <ServiceList
+                healthProcessed={appsProcessed}
+                services={this.getK8SService(data.services.getItems())} />
             </Panel>
           </div>
           <div className="grid-item column-mini-6 column-large-4 column-x-large-3">
