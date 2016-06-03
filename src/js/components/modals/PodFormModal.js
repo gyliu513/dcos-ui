@@ -22,8 +22,8 @@ const METHODS_TO_BIND = [
   'handleJSONChange',
   'handleJSONToggle',
   'handleSubmit',
-  'onKuberntesStorePodCreateError',
-  'onKuberntesStorePodCreateSuccess'
+  'onKubernetesStorePodCreateError',
+  'onKubernetesStorePodCreateSuccess'
 ];
 
 class ServiceFormModal extends mixin(StoreMixin) {
