@@ -47,6 +47,7 @@ class KubernetesStore extends BaseStore {
   }
 
   createPod() {
+    console.log('Staring to create Pod');
     return KubernetesActions.createPod(...arguments);
   }
 }
