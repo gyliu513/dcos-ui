@@ -197,6 +197,69 @@ var DashboardPage = React.createClass({
     );
   },
 
+  getViewAllK8SPodsBtn: function () {
+    var data = this.internalStorage_get();
+    let servicesCount = data.services.getItems().length;
+    if (!servicesCount) {
+      return null;
+    }
+
+    var textContent = 'View all ';
+    if (servicesCount > this.props.servicesListLength) {
+      textContent += servicesCount + ' ';
+    }
+    textContent += 'Kubernetes Pods';
+
+    return (
+      <Link to="services-page"
+        className="button button-wide button-inverse more-button">
+        {textContent}
+      </Link>
+    );
+  },
+
+  getViewAllK8SServicesBtn: function () {
+    var data = this.internalStorage_get();
+    let servicesCount = data.services.getItems().length;
+    if (!servicesCount) {
+      return null;
+    }
+
+    var textContent = 'View all ';
+    if (servicesCount > this.props.servicesListLength) {
+      textContent += servicesCount + ' ';
+    }
+    textContent += 'Kubernetes Services';
+
+    return (
+      <Link to="services-page"
+        className="button button-wide button-inverse more-button">
+        {textContent}
+      </Link>
+    );
+  },
+
+  getViewAllK8SRCsBtn: function () {
+    var data = this.internalStorage_get();
+    let servicesCount = data.services.getItems().length;
+    if (!servicesCount) {
+      return null;
+    }
+
+    var textContent = 'View all ';
+    if (servicesCount > this.props.servicesListLength) {
+      textContent += servicesCount + ' ';
+    }
+    textContent += 'Kubernetes RCs';
+
+    return (
+      <Link to="services-page"
+        className="button button-wide button-inverse more-button">
+        {textContent}
+      </Link>
+    );
+  },
+
   getHeading: function (title) {
     return (
       <h5 className="flush inverse">
@@ -273,7 +336,7 @@ var DashboardPage = React.createClass({
               <ServiceList
                 healthProcessed={appsProcessed}
                 services={this.getServicesList(data.services.getItems())} />
-              {this.getViewAllServicesBtn()}
+              {this.getViewAllK8SServicesBtn()}
             </Panel>
           </div>
           <div className="grid-item column-mini-6 column-large-4 column-x-large-3">
@@ -284,7 +347,7 @@ var DashboardPage = React.createClass({
               <ServiceList
                 healthProcessed={appsProcessed}
                 services={this.getServicesList(data.services.getItems())} />
-              {this.getViewAllServicesBtn()}
+              {this.getViewAllK8SPodsBtn()}
             </Panel>
           </div>
           <div className="grid-item column-mini-6 column-large-4 column-x-large-3">
@@ -295,7 +358,7 @@ var DashboardPage = React.createClass({
               <ServiceList
                 healthProcessed={appsProcessed}
                 services={this.getServicesList(data.services.getItems())} />
-              {this.getViewAllServicesBtn()}
+              {this.getViewAllK8SRCsBtn()}
             </Panel>
           </div>
           <div className="grid-item column-mini-6 column-large-4 column-x-large-3">
