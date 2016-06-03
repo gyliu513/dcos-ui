@@ -12,6 +12,10 @@ kubectl --server=9.21.58.21:8888 delete -f /root/gyliu/conf/k8s/nginx.json
 
 curl 9.21.58.21:8888/api/v1/namespaces/default/pods -XPOST -H'Content-Type: application/json' -d@nginx.json
 
+curl -vv 9.21.58.21:8888/api/v1/namespaces/default/pods -XPOST -H'Content-Type: application/json' -d@nginx.json
+
+curl -vv 9.21.58.21:8888/api/v1/namespaces/default/pods
+
 cat nginx.json
 
 {

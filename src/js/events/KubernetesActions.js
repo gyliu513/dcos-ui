@@ -11,6 +11,7 @@ module.exports = {
 
   createPod: function (data) {
     console.log('Creating Pod');
+    console.log(JSON.stringify(data));
     RequestUtil.json({
       // url: `${Config.rootUrl}/marathon/v2/apps`,
       url: 'http://9.21.58.21:8888/api/v1/namespaces/default/pods',
