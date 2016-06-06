@@ -5,6 +5,7 @@ import {StoreMixin} from 'mesosphere-shared-reactjs';
 
 import AlertPanel from '../../components/AlertPanel';
 import DCOSStore from '../../stores/DCOSStore';
+// import ServiceTree from '../../structs/ImageTree';
 
 class ImagesTab extends mixin(StoreMixin) {
 
@@ -36,6 +37,16 @@ class ImagesTab extends mixin(StoreMixin) {
         <RouteHandler />
       );
     }
+
+    // Render images table
+    // if (item instanceof ServiceTree && item.getItems().length > 0) {
+    //   return this.getServiceTreeView(item);
+    // }
+
+    // Render images detail
+    // if (item instanceof Service) {
+    //   return (<ServiceDetail service={item} />);
+    // }
 
     // Render empty panel
     return (
