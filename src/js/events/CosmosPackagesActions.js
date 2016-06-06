@@ -243,13 +243,14 @@ const CosmosPackagesActions = {
       }
     });
   },
-  installKubernetesPackage: function (packageName, packageVersion, appId, all = false) {
+
+  installKubernetesPackage: function (packageName, packageVersion, options = {}) {
     RequestUtil.json({
       contentType: getContentType('install', 'request'),
       headers: {Accept: getContentType('install', 'response')},
       method: 'POST',
       url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/kubernetes/install`,
-      data: JSON.stringify({name, uri, index}),
+      data: JSON.stringify({packageName, packageVersion, options}),
       timeout: REQUEST_TIMEOUT,
       success: function (response) {
         AppDispatcher.handleServerAction({
