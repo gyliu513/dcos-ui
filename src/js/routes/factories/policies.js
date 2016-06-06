@@ -4,7 +4,7 @@ import {Hooks} from 'PluginSDK';
 import RepositoriesTab from '../../pages/system/RepositoriesTab';
 import PoliciesPage from '../../pages/PoliciesPage';
 import UnitsHealthTab from '../../pages/system/UnitsHealthTab';
-import UsersTab from '../../pages/system/UsersTab';
+import AlertPage1 from '../../pages/policies/AlertPage1';
 
 let RouteFactory = {
 
@@ -17,7 +17,7 @@ let RouteFactory = {
             type: Route,
             name: 'policies-policy-page1',
             path: 'page1/?',
-            handler: UnitsHealthTab
+            handler: AlertPage1
           },
           {
             type: Route,
@@ -44,7 +44,7 @@ let RouteFactory = {
             type: Route,
             name: 'policies-alert-page1',
             path: 'page1/?',
-            handler: UsersTab
+            handler: UnitsHealthTab
           },
           {
             type: Route,
