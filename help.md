@@ -1,20 +1,20 @@
 k8s
 
-http://9.21.58.21:8888/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard/ 
+http://9.21.58.21:8080/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard/ 
 
-kubectl --server=9.21.58.21:8888 get nodes,pods
+kubectl --server=9.21.58.21:8080 get nodes,pods
 
 https://github.com/kubernetes/kubernetes/issues/17404
 
-curl 9.21.58.21:8888/api/v1/namespaces/default/pods
+curl 9.21.58.21:8080/api/v1/namespaces/default/pods
 
-kubectl --server=9.21.58.21:8888 delete -f /root/gyliu/conf/k8s/nginx.json
+kubectl --server=9.21.58.21:8080 delete -f /root/gyliu/conf/k8s/nginx.json
 
-curl 9.21.58.21:8888/api/v1/namespaces/default/pods -XPOST -H'Content-Type: application/json' -d@nginx.json
+curl 9.21.58.21:8080/api/v1/namespaces/default/pods -XPOST -H'Content-Type: application/json' -d@nginx.json
 
-curl -vv 9.21.58.21:8888/api/v1/namespaces/default/pods -XPOST -H'Content-Type: application/json' -d@nginx.json
+curl -vv 9.21.58.21:8080/api/v1/namespaces/default/pods -XPOST -H'Content-Type: application/json' -d@nginx.json
 
-curl -vv 9.21.58.21:8888/api/v1/namespaces/default/pods
+curl -vv 9.21.58.21:8080/api/v1/namespaces/default/pods
 
 cat nginx.json
 
