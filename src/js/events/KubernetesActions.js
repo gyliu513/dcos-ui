@@ -5,7 +5,7 @@ import {
   REQUEST_KUBERNETES_POD_CREATE_SUCCESS,
 } from '../constants/ActionTypes';
 var AppDispatcher = require('./AppDispatcher');
-// var Config = require('../config/Config');
+var Config = require('../config/Config');
 
 module.exports = {
 
@@ -13,8 +13,7 @@ module.exports = {
     console.log('Creating Pod');
     console.log(JSON.stringify(data));
     RequestUtil.json({
-      // url: `${Config.rootUrl}/marathon/v2/apps`,
-      url: 'http://9.21.58.21:8888/api/v1/namespaces/default/pods',
+      url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/pods`,
       method: 'POST',
       data,
       success: function () {
