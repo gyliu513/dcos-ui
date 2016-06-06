@@ -7,7 +7,7 @@ import {StoreMixin} from 'mesosphere-shared-reactjs';
 import CosmosErrorMessage from '../../components/CosmosErrorMessage';
 import CosmosPackagesStore from '../../stores/CosmosPackagesStore';
 import FilterInputText from '../../components/FilterInputText';
-import InstallPackageModal from '../../components/modals/InstallPackageModal';
+import InstallKubernetesPackageModal from '../../components/modals/InstallKubernetesPackageModal';
 import DisplayPackagesTable from '../../components/DisplayPackagesTable';
 import Panel from '../../components/Panel';
 import StringUtil from '../../utils/StringUtil';
@@ -207,7 +207,7 @@ class KubernetesTab extends mixin(StoreMixin) {
             inverseStyle={true} />
         </div>
         {this.getPackagesTable(tablePackages)}
-        <InstallPackageModal
+        <InstallKubernetesPackageModal
           open={!!state.installModalPackage}
           packageName={packageName}
           packageVersion={packageVersion}

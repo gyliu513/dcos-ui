@@ -17,7 +17,9 @@ import {
   REQUEST_COSMOS_REPOSITORY_ADD_SUCCESS,
   REQUEST_COSMOS_REPOSITORY_ADD_ERROR,
   REQUEST_COSMOS_REPOSITORY_DELETE_SUCCESS,
-  REQUEST_COSMOS_REPOSITORY_DELETE_ERROR
+  REQUEST_COSMOS_REPOSITORY_DELETE_ERROR,
+  REQUEST_COSMOS_KUBERNETES_PACKAGE_INSTALL_SUCCESS,
+  REQUEST_COSMOS_KUBERNETES_PACKAGE_INSTALL_ERROR
 } from '../constants/ActionTypes';
 import AppDispatcher from './AppDispatcher';
 import Config from '../config/Config';
@@ -237,6 +239,61 @@ const CosmosPackagesActions = {
           data: RequestUtil.getErrorFromXHR(xhr),
           name,
           uri
+        });
+      }
+    });
+  },
+  installKubernetesPackage: function (packageName, packageVersion, appId, all = false) {
+    RequestUtil.json({
+      contentType: getContentType('install', 'request'),
+      headers: {Accept: getContentType('install', 'response')},
+      method: 'POST',
+      url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/kubernetes/install`,
+      data: JSON.stringify({name, uri, index}),
+      timeout: REQUEST_TIMEOUT,
+      success: function (response) {
+        AppDispatcher.handleServerAction({
+          type: REQUEST_COSMOS_KUBERNETES_PACKAGE_INSTALL_SUCCESS,
+          data: response,
+          packageName,
+          packageVersion
+        });
+      },
+      error: function (xhr) {
+        AppDispatcher.handleServerAction({
+          type: REQUEST_COSMOS_KUBERNETES_PACKAGE_INSTALL_ERROR,
+          data: RequestUtil.getErrorFromXHR(xhr),
+          packageName,
+          packageVersion
+        });
+      }
+    });
+  },
+
+  uninstallKubernetesPackage: function (packageName, packageVersion, appId, all = false) {
+    RequestUtil.json({
+      contentType: getContentType('uninstall', 'request'),
+      headers: {Accept: getContentType('uninstall', 'response')},
+      method: 'POST',
+      url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/kubernetes/uninstall`,
+      data: JSON.stringify({packageName, packageVersion, appId, all}),
+      timeout: REQUEST_TIMEOUT,
+      success: function (response) {
+        AppDispatcher.handleServerAction({
+          type: REQUEST_COSMOS_KUBERNETES_PACKAGE_UNINSTALL_SUCCESS,
+          data: response,
+          packageName,
+          packageVersion,
+          appId
+        });
+      },
+      error: function (xhr) {
+        AppDispatcher.handleServerAction({
+          type: REQUEST_COSMOS_KUBERNETES_PACKAGE_UNINSTALL_ERROR,
+          data: RequestUtil.parseResponseBody(xhr),
+          packageName,
+          packageVersion,
+          appId
         });
       }
     });

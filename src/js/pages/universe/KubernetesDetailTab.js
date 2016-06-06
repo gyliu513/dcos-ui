@@ -6,7 +6,7 @@ import {StoreMixin} from 'mesosphere-shared-reactjs';
 
 import CosmosPackagesStore from '../../stores/CosmosPackagesStore';
 import ImageViewer from '../../components/ImageViewer';
-import InstallPackageModal from '../../components/modals/InstallPackageModal';
+import InstallKubernetesPackageModal from '../../components/modals/InstallKubernetesPackageModal';
 import RequestErrorMsg from '../../components/RequestErrorMsg';
 import StringUtil from '../../utils/StringUtil';
 
@@ -235,7 +235,7 @@ class KubernetesDetailTab extends mixin(StoreMixin) {
           {this.getItems(definition, this.getItem)}
           <ImageViewer images={cosmosPackage.getScreenshots()} />
         </div>
-        <InstallPackageModal
+        <InstallKubernetesPackageModal
           open={state.openInstallModal}
           packageName={packageDetails.name}
           packageVersion={packageDetails.version}

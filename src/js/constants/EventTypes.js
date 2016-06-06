@@ -86,6 +86,8 @@ let EventTypes = {};
   'VISIBILITY_CHANGE',
   'KUBERNETES_POD_CREATE_ERROR',
   'KUBERNETES_POD_CREATE_SUCCESS',
+  'COSMOS_INSTALL_KUBERNETES_ERROR',
+  'COSMOS_INSTALL_KUBERNETES_SUCCESS',
 ].forEach(function (eventType) {
   EventTypes[eventType] = eventType;
 });
