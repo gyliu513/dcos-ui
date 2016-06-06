@@ -16,6 +16,8 @@ curl -vv 9.21.58.21:8080/api/v1/namespaces/default/pods -XPOST -H'Content-Type: 
 
 curl -vv 9.21.58.21:8080/api/v1/namespaces/default/pods
 
+http://kubernetes.io/docs/getting-started-guides/ubuntu/
+
 cat nginx.json
 
 {
