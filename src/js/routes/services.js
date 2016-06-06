@@ -3,6 +3,7 @@ import {Route} from 'react-router';
 import DeploymentsTab from '../pages/services/DeploymentsTab';
 import PodsTab from '../pages/services/PodsTab';
 import RCsTab from '../pages/services/RCsTab';
+import KservicesTab from '../pages/services/KservicesTab';
 import ServiceOverlay from '../components/ServiceOverlay';
 import ServicesPage from '../pages/ServicesPage';
 import ServicesTab from '../pages/services/ServicesTab';
@@ -31,6 +32,12 @@ let serviceRoutes = {
       name: 'services-rcs',
       path: 'rcs/',
       handler: RCsTab
+    },
+    {
+      type: Route,
+      name: 'services-kservices',
+      path: 'kservices/',
+      handler: KservicesTab
     },
     {
       type: Route,
