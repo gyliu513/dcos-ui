@@ -16,7 +16,7 @@ import PodDetail from '../../components/PodDetail';
 import PodFilterTypes from '../../constants/PodFilterTypes';
 import PodFormModal from '../../components/modals/PodFormModal';
 import PodSearchFilter from '../../components/PodSearchFilter';
-import PodSidebarFilters from '../../components/ServiceSidebarFilters';
+// import PodSidebarFilters from '../../components/PodSidebarFilters';
 import PodsBreadcrumb from '../../components/PodsBreadcrumb';
 import PodsTable from '../../components/PodsTable';
 import PodTree from '../../structs/PodTree';
@@ -202,11 +202,11 @@ var PodsTab = React.createClass({
       id: state.searchString
     }).getItems();
 
+    console.log(pods);
+    console.log(filteredPods);
+
     return (
       <div className="flex-box flush flex-mobile-column">
-        <PodSidebarFilters
-          handleFilterChange={this.handleFilterChange}
-          services={pods} />
         <div className="flex-grow">
           {this.getHeadline(item, filteredPods)}
           <FilterBar rightAlignLastNChildren={1}>
@@ -233,7 +233,8 @@ var PodsTab = React.createClass({
     let {state} = this;
 
     // Find item in root tree and default to root tree if there is no match
-    let item = DCOSStore.serviceTree.findItemById(id) || DCOSStore.serviceTree;
+    // let item = DCOSStore.serviceTree.findItemById(id) || DCOSStore.serviceTree;
+    let item = DCOSStore.podTree.findItemById(id) || DCOSStore.podTree;
 
     return (
       <div>

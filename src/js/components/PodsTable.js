@@ -150,46 +150,25 @@ var PodsTable = React.createClass({
 
     return [
       {
-        className,
+        className: 'name',
         headerClassName: className,
         prop: 'name',
-        render: this.renderHeadline,
         sortable: true,
         sortFunction: ServiceTableUtil.propCompareFunctionFactory,
         heading
       },
       {
-        className,
+        className: 'namespace',
         headerClassName: className,
-        prop: 'status',
-        render: this.renderStatus,
+        prop: 'namespace',
         sortable: true,
         sortFunction: ServiceTableUtil.propCompareFunctionFactory,
         heading
       },
       {
-        className,
+        className: 'uid',
         headerClassName: className,
-        prop: 'disk',
-        render: this.renderStats,
-        sortable: true,
-        sortFunction: ServiceTableUtil.propCompareFunctionFactory,
-        heading
-      },
-      {
-        className,
-        headerClassName: className,
-        prop: 'cpus',
-        render: this.renderStats,
-        sortable: true,
-        sortFunction: ServiceTableUtil.propCompareFunctionFactory,
-        heading
-      },
-      {
-        className,
-        headerClassName: className,
-        prop: 'mem',
-        render: this.renderStats,
+        prop: 'uid',
         sortable: true,
         sortFunction: ServiceTableUtil.propCompareFunctionFactory,
         heading
@@ -203,14 +182,14 @@ var PodsTable = React.createClass({
         <col />
         <col className="status-bar-column"/>
         <col style={{width: '100px'}} />
-        <col className="hidden-mini" style={{width: '120px'}} />
-        <col className="hidden-mini" style={{width: '120px'}} />
-        <col className="hidden-mini" style={{width: '120px'}} />
       </colgroup>
     );
   },
 
   render: function () {
+    console.log(222222222222222222);
+    console.log(this.props.services.slice());
+    console.log(222222222222222222);
     return (
       <div>
         <Table

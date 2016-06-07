@@ -1,7 +1,7 @@
 import Application from './Application';
 import Framework from './Framework';
-import HealthSorting from '../constants/HealthSorting';
-import HealthStatus from '../constants/HealthStatus';
+// import HealthSorting from '../constants/HealthSorting';
+// import HealthStatus from '../constants/HealthStatus';
 import Service from './Service';
 import ServiceStatus from '../constants/ServiceStatus';
 import Tree from './Tree';
@@ -12,7 +12,6 @@ module.exports = class PodTree extends Tree {
    * @param {{
    *          id:string,
    *          items:array<({id:string, items:array}|*)>,
-   *          groups:array<({id:string, groups:array, apps:array}|*)>,
    *          apps:array,
    *          filterProperties:{propertyName:(null|string|function)}
    *        }} options
@@ -27,16 +26,6 @@ module.exports = class PodTree extends Tree {
       this.id = options.id;
     }
 
-    // Append Marathon groups
-    if (options.groups) {
-      this.list = this.list.concat(options.groups);
-    }
-
-    // Append applications
-    if (options.apps) {
-      this.list = this.list.concat(options.apps);
-    }
-
     // Converts items into instances of PodTree, Application or Framework
     // based on their properties.
     this.list = this.list.map((item) => {
@@ -46,9 +35,7 @@ module.exports = class PodTree extends Tree {
 
       // Check item properties and convert items with an items array or an apps
       // and groups array (Marathon group structure) into PodTree instances.
-      if ((item.items != null && Array.isArray(item.items)) ||
-          (item.groups != null && Array.isArray(item.groups) &&
-          item.apps != null && Array.isArray(item.apps))) {
+      if (item.items != null && Array.isArray(item.items)) {
         return new this.constructor(
           Object.assign({filterProperties: this.getFilterProperties()}, item)
         );
@@ -64,29 +51,6 @@ module.exports = class PodTree extends Tree {
     });
   }
 
-  getDeployments() {
-    return this.reduceItems(function (deployments, item) {
-      if (item instanceof Service && item.getDeployments() != null) {
-        deployments = deployments.concat(item.getDeployments());
-      }
-
-      return deployments;
-    }, []);
-  }
-
-  getHealth() {
-    return this.reduceItems(function (aggregatedHealth, item) {
-      if (item instanceof Service) {
-        let health = item.getHealth();
-        if (HealthSorting[aggregatedHealth.key] > HealthSorting[health.key]) {
-          aggregatedHealth = health;
-        }
-      }
-
-      return aggregatedHealth;
-    }, HealthStatus.NA);
-  }
-
   getId() {
     return this.id;
   }
@@ -99,6 +63,15 @@ module.exports = class PodTree extends Tree {
     return this.findItem(function (item) {
       return item.getId() === id;
     });
+  }
+
+  filterItemsByFilter(filter) {
+    let pods = this.getItems();
+
+    if (filter.id) {
+    }
+
+    return new this.constructor(Object.assign({}, this, {items: pods}));
   }
 
   getInstancesCount() {
@@ -130,44 +103,9 @@ module.exports = class PodTree extends Tree {
   }
 
   getStatus() {
-    let {tasksRunning} = this.getTasksSummary();
-    let deployments = this.getDeployments();
-
-    if (deployments.length > 0) {
-      return ServiceStatus.DEPLOYING.displayName;
-    }
-
-    if (tasksRunning > 0) {
-      return ServiceStatus.RUNNING.displayName;
-    }
-
     let instances = this.getInstancesCount();
     if (instances === 0) {
       return ServiceStatus.SUSPENDED.displayName;
     }
-
-  }
-
-  getTasksSummary() {
-    return this.reduceItems(function (taskSummary, item) {
-      if (item instanceof Service) {
-        let {
-          tasksHealthy = 0,
-          tasksRunning = 0,
-          tasksStaged = 0,
-          tasksUnhealthy = 0
-        } = item.getTasksSummary();
-
-        taskSummary.tasksHealthy += tasksHealthy;
-        taskSummary.tasksRunning += tasksRunning;
-        taskSummary.tasksStaged += tasksStaged;
-        taskSummary.tasksUnhealthy += tasksUnhealthy;
-        taskSummary.tasksUnknown += tasksRunning -
-          tasksHealthy - tasksUnhealthy;
-      }
-
-      return taskSummary;
-    }, {tasksHealthy: 0, tasksRunning: 0, tasksStaged: 0, tasksUnhealthy: 0,
-      tasksUnknown: 0});
   }
 };

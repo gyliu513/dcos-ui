@@ -1,22 +1,41 @@
+import {EventEmitter} from 'events';
+
 import AppDispatcher from '../events/AppDispatcher';
 import ActionTypes from '../constants/ActionTypes';
-import BaseStore from './BaseStore';
-import DeploymentsList from '../structs/DeploymentsList';
-import ServiceTree from '../structs/ServiceTree';
+import Config from '../config/Config';
+import PodTree from '../structs/PodTree';
 import {
+  KUBERNETES_POD_CHANGE,
 	KUBERNETES_POD_CREATE_ERROR,
 	KUBERNETES_POD_CREATE_SUCCESS
 } from '../constants/EventTypes';
 var KubernetesActions = require('../events/KubernetesActions');
 
-class KubernetesStore extends BaseStore {
+let requestInterval;
+
+function startPolling() {
+  if (!requestInterval) {
+    KubernetesActions.fetchPods();
+    requestInterval = global.setInterval(
+      KubernetesActions.fetchPods,
+      Config.getRefreshRate()
+    );
+  }
+}
+
+function stopPolling() {
+  if (requestInterval) {
+    global.clearInterval(requestInterval);
+    requestInterval = null;
+  }
+}
+
+class KubernetesStore extends EventEmitter {
   constructor() {
     super(...arguments);
 
-    this.getSet_data = {
-      apps: {},
-      deployments: new DeploymentsList(),
-      groups: new ServiceTree()
+    this.data = {
+      podTree: {id: '/', items: []}
     };
 
     this.dispatcherIndex = AppDispatcher.register((payload) => {
@@ -30,25 +49,48 @@ class KubernetesStore extends BaseStore {
           this.emit(KUBERNETES_POD_CREATE_ERROR, action.data);
           break;
         case ActionTypes.REQUEST_KUBERNETES_POD_CREATE_SUCCESS:
+          this.data.podTree = action.data;
           this.emit(KUBERNETES_POD_CREATE_SUCCESS);
           break;
       }
 
       return true;
     });
+  }
 
-    this.dispatcherIndex = AppDispatcher.register((payload) => {
-      if (payload.source !== ActionTypes.SERVER_ACTION) {
-        return false;
-      }
+  addChangeListener(eventName, callback) {
+    this.on(eventName, callback);
 
-      return true;
-    });
+    // Start polling if there is at least one listener
+    if (this.shouldPoll()) {
+      startPolling();
+    }
+  }
+
+  removeChangeListener(eventName, callback) {
+    this.removeListener(eventName, callback);
+
+    // Stop polling if no one is listening
+    if (!this.shouldPoll()) {
+      stopPolling();
+    }
+  }
+
+  shouldPoll() {
+    return !!this.listeners(KUBERNETES_POD_CHANGE).length;
   }
 
   createPod() {
     console.log('Staring to create Pod');
     return KubernetesActions.createPod(...arguments);
+  }
+
+  get podTree() {
+    return new PodTree(this.data.podTree);
+  }
+
+  get storeID() {
+    return 'kubernetes';
   }
 }
 
