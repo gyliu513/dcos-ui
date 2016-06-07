@@ -1,5 +1,9 @@
 k8s
 
+ kill -9 `ps -ef | grep kube | awk '{print $2}'`
+ kill -9 `ps -ef | grep flannel | awk '{print $2}'`
+kill -9 `ps -ef | grep etcd  | awk '{print $2}'`
+
 http://kubernetes.io/docs/admin/cluster-large/
 
 http://9.21.58.21:8080/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard/ 
