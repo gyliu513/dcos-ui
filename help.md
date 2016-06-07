@@ -18,6 +18,8 @@ curl -vv 9.21.58.21:8080/api/v1/namespaces/default/pods
 
 http://kubernetes.io/docs/getting-started-guides/ubuntu/
 
+npm run scaffold
+
 cat nginx.json
 
 {
