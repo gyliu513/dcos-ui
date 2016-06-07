@@ -1,5 +1,7 @@
 k8s
 
+ docker stop `docker ps -a -q`; docker rm `docker ps -a -q`
+`
  kill -9 `ps -ef | grep kube | awk '{print $2}'`
  kill -9 `ps -ef | grep flannel | awk '{print $2}'`
 kill -9 `ps -ef | grep etcd  | awk '{print $2}'`
