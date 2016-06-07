@@ -9,7 +9,7 @@ import IconNewWindow from './icons/IconNewWindow';
 var MarathonStore = require('../stores/MarathonStore');
 var ResourceTableUtil = require('../utils/ResourceTableUtil');
 var PodTableHeaderLabels = require('../constants/PodTableHeaderLabels');
-import ServiceTableUtil from '../utils/ServiceTableUtil';
+// import ServiceTableUtil from '../utils/ServiceTableUtil';
 import ServiceTree from '../structs/ServiceTree';
 import StringUtil from '../utils/StringUtil';
 import {Table} from 'reactjs-components';
@@ -144,33 +144,53 @@ var PodsTable = React.createClass({
     );
   },
 
+  getRows: function (data) {
+    let newRows = [];
+    console.log(data);
+    for (var i = 0; i < data.length; i++) {
+      var rowObj = {};
+      rowObj.name = data[i].metadata.name;
+      rowObj.status = data[i].status.phase;
+      rowObj.restartCount = data[i].status.containerStatuses[0].restartCount;
+      console.log(rowObj.restartCount);
+      rowObj.podIP = data[i].status.podIP;
+      newRows.push(rowObj);
+    }
+
+    return newRows;
+  },
+
   getColumns: function () {
     let className = ResourceTableUtil.getClassName;
     let heading = ResourceTableUtil.renderHeading(PodTableHeaderLabels);
 
     return [
       {
-        className: 'name',
+        className,
         headerClassName: className,
         prop: 'name',
         sortable: true,
-        sortFunction: ServiceTableUtil.propCompareFunctionFactory,
         heading
       },
       {
-        className: 'namespace',
+        className,
         headerClassName: className,
-        prop: 'namespace',
+        prop: 'status',
         sortable: true,
-        sortFunction: ServiceTableUtil.propCompareFunctionFactory,
         heading
       },
       {
-        className: 'uid',
+        className,
         headerClassName: className,
-        prop: 'uid',
+        prop: 'restartCount',
         sortable: true,
-        sortFunction: ServiceTableUtil.propCompareFunctionFactory,
+        heading
+      },
+      {
+        className,
+        headerClassName: className,
+        prop: 'podIP',
+        sortable: true,
         heading
       }
     ];
@@ -182,14 +202,12 @@ var PodsTable = React.createClass({
         <col />
         <col className="status-bar-column"/>
         <col style={{width: '100px'}} />
+        <col style={{width: '150px'}} />
       </colgroup>
     );
   },
 
   render: function () {
-    console.log(222222222222222222);
-    console.log(this.props.services.slice());
-    console.log(222222222222222222);
     return (
       <div>
         <Table
@@ -197,7 +215,7 @@ var PodsTable = React.createClass({
           className="table inverse table-borderless-outer table-borderless-inner-columns flush-bottom"
           columns={this.getColumns()}
           colGroup={this.getColGroup()}
-          data={this.props.services.slice()}
+          data={this.getRows(this.props.services.slice())}
           itemHeight={TableUtil.getRowHeight()}
           containerSelector=".gm-scroll-view"
           sortBy={{prop: 'name', order: 'asc'}} />

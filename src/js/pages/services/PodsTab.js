@@ -196,14 +196,11 @@ var PodsTab = React.createClass({
 
   getPodTreeView(item) {
     let {state} = this;
-    let pods = item.getItems();
+    // let pods = item.getItems();
     let filteredPods = item.filterItemsByFilter({
       health: state.filterHealth,
       id: state.searchString
     }).getItems();
-
-    console.log(pods);
-    console.log(filteredPods);
 
     return (
       <div className="flex-box flush flex-mobile-column">

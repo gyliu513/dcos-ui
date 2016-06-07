@@ -1,9 +1,9 @@
 var PodTableHeaderLabels = {
-  cpus: 'CPU',
-  disk: 'DISK',
-  mem: 'MEM',
-  name: 'POD NAME',
-  status: 'STATUS'
+  name: 'Name',
+  status: 'Status',
+  restartCount: 'Restarts',
+  podIP: 'Cluster IP',
+  action: 'Action'
 };
 
 module.exports = PodTableHeaderLabels;

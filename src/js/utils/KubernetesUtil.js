@@ -12,7 +12,7 @@
  */
 function addPod(parent, item, podsAlreadyAdded) {
   // selfLink of a pod is a unique and never changed identifier
-  const itemId = item.selfLink;
+  const itemId = item.metadata.selfLink;
 
   // Check if the item (group or pod) has already been added
   if (podsAlreadyAdded[itemId]) {
@@ -56,7 +56,7 @@ module.exports = {
     }
 
     pods.forEach(function (pod) {
-      addPod(rootTree, pod.metadata, podsAlreadyAdded);
+      addPod(rootTree, pod, podsAlreadyAdded);
     });
 
     return rootTree;
