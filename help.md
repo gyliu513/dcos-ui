@@ -1,5 +1,21 @@
 k8s
 
+export KUBE_VERSION=1.1.8
+export FLANNEL_VERSION=0.5.0
+export ETCD_VERSION=2.2.0
+
+ KUBERNETES_PROVIDER=ubuntu ./kube-up.sh
+
+cd cluster/ubuntu
+UBERNETES_PROVIDER=ubuntu ./deployAddons.sh
+
+kubectl get pods --namespace=kube-system
+
+ KUBERNETES_PROVIDER=ubuntu ./kube-down.sh
+KUBERNETES_PROVIDER=ubuntu ./kube-up.sh
+
+You can also customize your own settings in /etc/default/{component_name} and restart it via $ sudo service {component_name} restart
+
  docker stop `docker ps -a -q`; docker rm `docker ps -a -q`
 `
  kill -9 `ps -ef | grep kube | awk '{print $2}'`
