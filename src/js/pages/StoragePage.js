@@ -17,7 +17,7 @@ var StoragePage = React.createClass({
   statics: {
     routeConfig: {
       label: 'Storage',
-      icon: 'services',
+      icon: 'storage',
       matches: /^\/services/
     }
   },
