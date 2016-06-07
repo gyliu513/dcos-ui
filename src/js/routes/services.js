@@ -23,9 +23,22 @@ let serviceRoutes = {
     },
     {
       type: Route,
-      name: 'services-pods',
-      path: 'pods/',
-      handler: PodsTab
+      handler: PodsTab,
+      children: [
+        {
+          type: Route,
+          name: 'services-pods',
+          path: 'pods/',
+          children: [
+            {
+              type: Route,
+              name: 'services-pods-detail',
+              path: ':namespace/:name',
+              handler: TaskDetail
+            }
+          ]
+        }
+      ]
     },
     {
       type: Route,

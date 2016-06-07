@@ -10,7 +10,7 @@ var MarathonStore = require('../stores/MarathonStore');
 var ResourceTableUtil = require('../utils/ResourceTableUtil');
 var PodTableHeaderLabels = require('../constants/PodTableHeaderLabels');
 // import ServiceTableUtil from '../utils/ServiceTableUtil';
-import ServiceTree from '../structs/ServiceTree';
+// import ServiceTree from '../structs/ServiceTree';
 import StringUtil from '../utils/StringUtil';
 import {Table} from 'reactjs-components';
 import TableUtil from '../utils/TableUtil';
@@ -67,46 +67,17 @@ var PodsTable = React.createClass({
     this.forceUpdate();
   },
 
-  renderHeadline: function (prop, service) {
-    const id = encodeURIComponent(service.getId());
-    let itemImage = null;
-
-    if (service instanceof ServiceTree) {
-      // Get serviceTree image/icon
-      itemImage = (
-      <span
-        className="icon icon-small icon-image-container icon-app-container">
-          <i className="icon icon-sprite icon-sprite-mini icon-directory "/>
-        </span>
-      );
-    }
-
-    if (service instanceof Framework) {
-      // Get framework image/icon
-      itemImage = (
-        <span
-          className="icon icon-small icon-image-container icon-app-container">
-          <img src={service.getImages()['icon-small']}/>
-        </span>
-      );
-    }
-
+  renderHeadline: function (prop, pod) {
     return (
       <div className="service-table-heading flex-box
         flex-box-align-vertical-center table-cell-flex-box">
-        <Link to="services-detail"
-          className="table-cell-icon"
-          params={{id}}>
-          {itemImage}
-        </Link>
-        <Link to="services-detail"
+        <Link to="services-pods-detail"
           className="headline table-cell-value flex-box flex-box-col"
-          params={{id}}>
+          params={pod}>
           <span className="text-overflow">
-            {service.getName()}
+            {pod.name}
           </span>
         </Link>
-        {this.getOpenInNewWindowLink(service)}
       </div>
     );
   },
@@ -146,13 +117,12 @@ var PodsTable = React.createClass({
 
   getRows: function (data) {
     let newRows = [];
-    console.log(data);
     for (var i = 0; i < data.length; i++) {
       var rowObj = {};
       rowObj.name = data[i].metadata.name;
+      rowObj.namespace = data[i].metadata.namespace;
       rowObj.status = data[i].status.phase;
       rowObj.restartCount = data[i].status.containerStatuses[0].restartCount;
-      console.log(rowObj.restartCount);
       rowObj.podIP = data[i].status.podIP;
       newRows.push(rowObj);
     }
@@ -169,6 +139,7 @@ var PodsTable = React.createClass({
         className,
         headerClassName: className,
         prop: 'name',
+        render: this.renderHeadline,
         sortable: true,
         heading
       },

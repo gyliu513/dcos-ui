@@ -211,6 +211,9 @@ var ServicesTable = React.createClass({
   },
 
   render: function () {
+    console.log(44444444444);
+    console.log(this.getRowAttributes);
+    console.log(44444444444);
     return (
       <div>
         <Table
