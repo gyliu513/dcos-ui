@@ -24,11 +24,12 @@ let serviceRoutes = {
     {
       type: Route,
       handler: PodsTab,
+      path: 'pods/',
       children: [
         {
           type: Route,
           name: 'services-pods',
-          path: 'pods/',
+          path: 'pod/',
           children: [
             {
               type: Route,
