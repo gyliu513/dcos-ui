@@ -1,5 +1,7 @@
 k8s
 
+http://kubernetes.io/docs/admin/cluster-large/
+
 http://9.21.58.21:8080/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard/ 
 
 kubectl --server=9.21.58.21:8080 get nodes,pods
