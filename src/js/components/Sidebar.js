@@ -25,6 +25,7 @@ let defaultMenuItems = [
   'images-page',
   'nodes-list',
   'universe',
+  'storage-page',
   'system'
 ];
 

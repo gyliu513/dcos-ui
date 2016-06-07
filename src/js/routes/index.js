@@ -11,6 +11,7 @@ import services from './services';
 import jobs from './jobs';
 import images from './images';
 import universe from './universe';
+import storage from './storage';
 
 // Statically defined routes
 let applicationRoutes = [
@@ -20,6 +21,7 @@ let applicationRoutes = [
   nodes,
   images,
   universe,
+  storage,
   {
     type: Redirect,
     from: '/',
