@@ -10,7 +10,6 @@ let {AuthStore, MetadataStore} =
 
 let METHODS_TO_BIND = [
   'handleModalClose',
-  'onMessageReceived'
 ];
 
 class LoginPage extends mixin(StoreMixin) {
@@ -36,37 +35,17 @@ class LoginPage extends mixin(StoreMixin) {
     METHODS_TO_BIND.forEach(method => {
       this[method] = this[method].bind(this);
     });
-
-    window.addEventListener('message', this.onMessageReceived);
   }
 
   componentWillUnmount() {
     super.componentWillUnmount();
-
-    window.removeEventListener('message', this.onMessageReceived);
-  }
-
-  onMessageReceived(event) {
-    if (event.origin !== SDK.config.authHost) {
-      return;
-    }
-
-    let data = JSON.parse(event.data);
-
-    switch (data.type) {
-      case 'token':
-        AuthStore.login({token: data.token});
-        break;
-      case 'error':
-        this.navigateToAccessDenied();
-        break;
-    }
   }
 
   handleLogin() {
     var user = this.refs.user.value;
     var password = this.refs.password.value;
-    AuthStore.login({user: user, password: password});
+    console.log('set user password')
+    AuthStore.login({uid: user, password: password});
     return;
   }
 
@@ -112,7 +91,7 @@ class LoginPage extends mixin(StoreMixin) {
           showHeader={true}
           showFooter={true}
           subHeader="Log in to your account">
-            <form className="flush-bottom" onSubmit={this.handleLogin.bind(this)}>
+            <form className="flush-bottom">
               <div className="form-group">
                 <input type="text"
                  autoFocus={true}
