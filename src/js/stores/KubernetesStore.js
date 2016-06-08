@@ -7,7 +7,8 @@ import PodTree from '../structs/PodTree';
 import {
   KUBERNETES_POD_CHANGE,
 	KUBERNETES_POD_CREATE_ERROR,
-	KUBERNETES_POD_CREATE_SUCCESS
+	KUBERNETES_POD_CREATE_SUCCESS,
+	KUBERNETES_POD_FETCH_SUCCESS
 } from '../constants/EventTypes';
 var KubernetesActions = require('../events/KubernetesActions');
 
@@ -35,6 +36,7 @@ class KubernetesStore extends EventEmitter {
     super(...arguments);
 
     this.data = {
+      pod: {},
       podTree: {id: '/', items: []}
     };
 
@@ -52,6 +54,9 @@ class KubernetesStore extends EventEmitter {
           this.data.podTree = action.data;
           this.emit(KUBERNETES_POD_CREATE_SUCCESS);
           break;
+        case ActionTypes.REQUEST_KUBERNETES_POD_FETCH_SUCCESS:
+          this.data.pod = action.data;
+          this.emit(KUBERNETES_POD_FETCH_SUCCESS);
       }
 
       return true;
@@ -83,6 +88,13 @@ class KubernetesStore extends EventEmitter {
   createPod() {
     console.log('Staring to create Pod');
     return KubernetesActions.createPod(...arguments);
+  }
+
+  getPod() {
+    console.log('Get a Pod');
+    KubernetesActions.getPod(...arguments);
+    return this.data.pod;
+    // return KubernetesActions.getPod(...arguments);
   }
 
   get podTree() {

@@ -1,16 +1,13 @@
 import React from 'react';
 import {Link} from 'react-router';
 
-import DCOSStore from '../stores/DCOSStore';
-
 class PodsBreadcrumb extends React.Component {
   constructor() {
     super();
   }
 
   render() {
-    const {podTreeItem, taskID} = this.props;
-    const groupId = podTreeItem.getId();
+    const {name, namespace} = this.props;
     const breadcrumbIcon = (
       <i className="icon
         icon-sprite
@@ -22,54 +19,24 @@ class PodsBreadcrumb extends React.Component {
 
     let breadcrumbNodes = [(
       <span className="crumb" key="/">
-        <Link to="services-page">Services</Link>
+        <Link to="services-pods">Pods</Link>
       </span>
     )];
 
-    if (groupId === '/') {
-      breadcrumbNodes[0] = (
-        <span className="crumb" key="/">Pods</span>
+    if (namespace != null) {
+      breadcrumbNodes.push(
+        <span className="crumb" key={namespace}>
+          {breadcrumbIcon}
+          <span>{namespace}</span>
+        </span>
       );
     }
 
-    breadcrumbNodes = breadcrumbNodes.concat(
-      DCOSStore.serviceTree.reduceItems(function (memo, item) {
-        const id = item.getId();
-        if (groupId.startsWith(id)) {
-          const name = item.getName();
-
-          let breadCrumbNode = (
-            <Link
-              to="services-detail"
-              params={{id: encodeURIComponent(id)}}
-              title={name}>
-              {name}
-            </Link>
-          );
-
-          if (id === groupId && taskID == null) {
-            breadCrumbNode = (
-              <span>{name}</span>
-            );
-          }
-
-          memo.push(
-            <span className="crumb" key={id}>
-              {breadcrumbIcon}
-              {breadCrumbNode}
-            </span>
-          );
-        }
-
-        return memo;
-      }, [])
-    );
-
-    if (taskID != null) {
+    if (name != null) {
       breadcrumbNodes.push(
-        <span className="crumb" key={taskID}>
+        <span className="crumb" key={name}>
           {breadcrumbIcon}
-          <span>{taskID}</span>
+          <span>{name}</span>
         </span>
       );
     }
@@ -83,10 +50,5 @@ class PodsBreadcrumb extends React.Component {
     );
   }
 }
-
-PodsBreadcrumb.propTypes = {
-  podTreeItem: React.PropTypes.object.isRequired,
-  taskID: React.PropTypes.string
-};
 
 module.exports = PodsBreadcrumb;

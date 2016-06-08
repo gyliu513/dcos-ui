@@ -136,7 +136,7 @@ var PodsTab = React.createClass({
       );
     }
 
-    if (this.props.params.taskID) {
+    if (this.props.params.name && this.props.params.namespace) {
       return (
         <RouteHandler />
       );

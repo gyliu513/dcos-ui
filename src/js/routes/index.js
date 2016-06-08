@@ -64,6 +64,7 @@ function getApplicationRoutes() {
 function getRoutes() {
   // Get application routes
   let routes = getApplicationRoutes();
+  // console.log(routes);
   // Provide opportunity for plugins to inject routes
   return Hooks.applyFilter('applicationRoutes', routes);
 }

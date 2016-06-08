@@ -152,6 +152,9 @@ class MesosStateStore extends GetSetBaseStore {
 
     services.some(function (service) {
       let tasks = service.tasks.concat(service.completed_tasks);
+      console.log(88888888888);
+      console.log(taskID);
+      console.log(88888888888);
 
       foundTask = tasks.find(function (task) {
         return task.id === taskID;
