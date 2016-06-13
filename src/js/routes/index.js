@@ -12,10 +12,12 @@ import jobs from './jobs';
 import images from './images';
 import universe from './universe';
 import storage from './storage';
+import networks from './networks';
 
 // Statically defined routes
 let applicationRoutes = [
   dashboard,
+  networks,
   services,
   jobs,
   nodes,
