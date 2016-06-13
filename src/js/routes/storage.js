@@ -1,7 +1,7 @@
-import {Route} from 'react-router';
+import {Route, Redirect} from 'react-router';
 
-import StoragePage from '../pages/StoragePage';
 import PVsTab from '../pages/storage/PVsTab';
+import StoragePage from '../pages/StoragePage';
 import PVDetail from '../components/PVDetail';
 
 let storageRoutes = {
@@ -23,6 +23,11 @@ let storageRoutes = {
           handler: PVDetail
         }
       ]
+    },
+    {
+      type: Redirect,
+      from: '/storage/?',
+      to: 'storage-pvs'
     }
   ]
 };
