@@ -1,5 +1,9 @@
 k8s
 
+standalone k8s: http://9.111.141.63:8080/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard/#/workload
+
+k8s on mesos: 
+
 export KUBE_VERSION=1.1.8
 export FLANNEL_VERSION=0.5.0
 export ETCD_VERSION=2.2.0
