@@ -1,4 +1,4 @@
-import {Route} from 'react-router';
+import {Route, Redirect} from 'react-router';
 
 import DeploymentsTab from '../pages/services/DeploymentsTab';
 import PodsTab from '../pages/services/PodsTab';
@@ -39,6 +39,8 @@ let serviceRoutes = {
     {
       type: Route,
       handler: ServicesTab,
+      name: 'services-marathon',
+      path: 'service/?',
       children: [
         {
           type: Route,
@@ -77,6 +79,11 @@ let serviceRoutes = {
       name: 'services-kservices',
       path: 'kservices/',
       handler: KservicesTab
+    },
+    {
+      type: Redirect,
+      from: '/services/?',
+      to: 'services-pods'
     }
   ]
 };

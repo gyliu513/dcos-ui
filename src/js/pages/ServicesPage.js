@@ -31,7 +31,7 @@ var ServicesPage = React.createClass({
   componentWillMount: function () {
     this.tabs_tabs = {
       'services-pods': 'Container App',
-      'services-page': 'Services',
+      'services-marathon': 'Services',
       'services-deployments': 'Deployments',
       'services-rcs': 'RCs',
       'services-kservices': 'Kservices'
