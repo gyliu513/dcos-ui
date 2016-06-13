@@ -1,7 +1,7 @@
 import React from 'react';
 import mixin from 'reactjs-mixin';
 import {StoreMixin} from 'mesosphere-shared-reactjs';
-import {Modal} from 'reactjs-components';
+import {Form, Modal} from 'reactjs-components';
 
 let SDK = require('../SDK').getSDK();
 
@@ -35,17 +35,15 @@ class LoginPage extends mixin(StoreMixin) {
     METHODS_TO_BIND.forEach(method => {
       this[method] = this[method].bind(this);
     });
+    console.log('load login page');
   }
 
   componentWillUnmount() {
     super.componentWillUnmount();
   }
 
-  handleLogin() {
-    var user = this.refs.user.value;
-    var password = this.refs.password.value;
-    console.log('set user password')
-    AuthStore.login({uid: user, password: password});
+  handleLogin(model) {
+    AuthStore.login({uid: model.uid, password: model.password});
     return;
   }
 
@@ -56,7 +54,11 @@ class LoginPage extends mixin(StoreMixin) {
     if (loginRedirectRoute) {
       router.transitionTo(loginRedirectRoute);
     } else {
-      router.transitionTo('/');
+      if (AuthStore.getUser() && AuthStore.getUser().uid !== 'admin') {
+        router.transitionTo('/services');
+      } else {
+        router.transitionTo('/');
+      }
     }
   }
 
@@ -78,6 +80,32 @@ class LoginPage extends mixin(StoreMixin) {
     router.transitionTo('/access-denied');
   }
 
+  getDefinition() {
+    return [
+      {
+        fieldType: 'text',
+        focused: true,
+        name: 'uid',
+        required: true,
+        placeholder: 'User ID',
+        writeType: 'input'
+      },
+      {
+        fieldType: 'password',
+        focused: true,
+        name: 'password',
+        placeholder: 'Password',
+        required: true,
+        writeType: 'input'
+      },
+      {
+        fieldType: 'submit',
+        buttonText: 'Login',
+        buttonClass: 'button button-primary button-wide'
+      }
+    ];
+  }
+
   render() {
     return (
       <div>
@@ -91,26 +119,10 @@ class LoginPage extends mixin(StoreMixin) {
           showHeader={true}
           showFooter={true}
           subHeader="Log in to your account">
-            <form className="flush-bottom">
-              <div className="form-group">
-                <input type="text"
-                 autoFocus={true}
-                 className="form-control flush-bottom"
-                 placeholder="Username"
-                 ref="user"/>
-                <input type="password"
-                 autoFocus={true}
-                 className="form-control flush-bottom"
-                 placeholder="Password"
-                 ref="password"/>
-              </div>
-              <div className="button-collection button-collection-align-horizontal-center flush-bottom">
-                <button className="button button-primary button-large button-wide-below-screen-mini"
-                    onClick={this.handleLogin.bind(this)}>
-                  Login
-                </button>
-              </div>
-            </form>
+            <Form
+             className="form flush-bottom"
+             definition={this.getDefinition()}
+             onSubmit={this.handleLogin} />
         </Modal>
         <Modal
           maxHeightPercentage={0.9}
