@@ -56,7 +56,7 @@ var StoragePage = React.createClass({
     return (
       <Page
         navigation={this.getNavigation()}
-        title="Services">
+        title="Storage">
         <RouteHandler />
       </Page>
     );
