@@ -30,11 +30,11 @@ var DEFAULT_FILTER_OPTIONS = {
 
 let saveState_properties = Object.keys(DEFAULT_FILTER_OPTIONS);
 
-var PVsTab = React.createClass({
+var PVCsTab = React.createClass({
 
-  displayName: 'PVsTab',
+  displayName: 'PVCsTab',
 
-  saveState_key: 'pvsPage',
+  saveState_key: 'pvcsPage',
 
   saveState_properties,
 
@@ -157,7 +157,7 @@ var PVsTab = React.createClass({
       <div>
         <PodsBreadcrumb podTreeItem={item} />
         <AlertPanel
-          title="No PVs Deployed"
+          title="No PVCs Deployed"
           footer={this.getAlertPanelFooter()}
           iconClassName="icon icon-sprite icon-sprite-jumbo
           icon-sprite-jumbo-white icon-services flush-top">
@@ -183,7 +183,7 @@ var PVsTab = React.createClass({
         <FilterHeadline
           inverseStyle={true}
           onReset={this.resetFilter}
-          name="PVs"
+          name="PVCs"
           currentLength={filteredPods.length}
           totalLength={pods.length} />
       );
@@ -244,4 +244,4 @@ var PVsTab = React.createClass({
 
 });
 
-module.exports = PVsTab;
+module.exports = PVCsTab;
