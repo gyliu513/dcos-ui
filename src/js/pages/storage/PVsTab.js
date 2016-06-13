@@ -33,7 +33,7 @@ var DEFAULT_FILTER_OPTIONS = {
 
 let saveState_properties = Object.keys(DEFAULT_FILTER_OPTIONS);
 
-var StorageTab = React.createClass({
+var PVsTab = React.createClass({
 
   displayName: 'ServicesTab',
 
@@ -269,4 +269,4 @@ var StorageTab = React.createClass({
 
 });
 
-module.exports = StorageTab;
+module.exports = PVsTab;

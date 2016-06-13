@@ -1,7 +1,8 @@
 import {Route} from 'react-router';
 
 import StoragePage from '../pages/StoragePage';
-import StorageTab from '../pages/storage/StorageTab';
+import PVsTab from '../pages/storage/PVsTab';
+import PVDetail from '../components/PVDetail';
 
 let storageRoutes = {
   type: Route,
@@ -11,12 +12,15 @@ let storageRoutes = {
   children: [
     {
       type: Route,
-      handler: StorageTab,
+      name: 'storage-pvs',
+      path: 'pvs/?',
+      handler: PVsTab,
       children: [
         {
           type: Route,
-          name: 'storage-detail',
-          path: ':id/?'
+          name: 'storage-pvs-detail',
+          path: ':namespace/:name/?',
+          handler: PVDetail
         }
       ]
     }
