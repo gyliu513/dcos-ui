@@ -18,20 +18,20 @@ var StoragePage = React.createClass({
     routeConfig: {
       label: 'Storage',
       icon: 'storage',
-      matches: /^\/services/
+      matches: /^\/storage/
     }
   },
 
   getInitialState: function () {
     return {
-      currentTab: 'storage-page'
+      currentTab: 'storage-pvs'
     };
   },
 
   componentWillMount: function () {
     this.tabs_tabs = {
-      'storage-page': 'PV',
-      'services-pods': 'PVC',
+      'storage-pvs': 'PV',
+      'storage-pvcs': 'PVC',
     };
     this.updateCurrentTab();
   },
