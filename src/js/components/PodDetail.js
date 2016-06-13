@@ -6,7 +6,6 @@ import DescriptionList from './DescriptionList';
 // import MarathonTaskDetailsList from './MarathonTaskDetailsList';
 import MesosStateStore from '../stores/MesosStateStore';
 import KubernetesStore from '../stores/KubernetesStore';
-import MesosSummaryStore from '../stores/MesosSummaryStore';
 import PageHeader from './PageHeader';
 import RequestErrorMsg from './RequestErrorMsg';
 import ResourcesUtil from '../utils/ResourcesUtil';
@@ -24,8 +23,8 @@ const TABS = {
 };
 
 const METHODS_TO_BIND = [
-  'onTaskDirectoryStoreError',
-  'onTaskDirectoryStoreSuccess'
+  'onPodDirectoryStoreError',
+  'onPodDirectoryStoreSuccess'
 ];
 
 class PodDetail extends mixin(TabsMixin) {
@@ -41,7 +40,7 @@ class PodDetail extends mixin(TabsMixin) {
       expandClass: 'large',
       showExpandButton: false,
       selectedLogFile: null,
-      taskDirectoryErrorCount: 0
+      podDirectoryErrorCount: 0
     };
 
     METHODS_TO_BIND.forEach((method) => {
@@ -59,21 +58,21 @@ class PodDetail extends mixin(TabsMixin) {
     TaskDirectoryStore.getDirectory(task);
   }
 
-  onTaskDirectoryStoreError() {
+  onPodDirectoryStoreError() {
     this.setState({
-      taskDirectoryErrorCount: this.state.taskDirectoryErrorCount + 1
+      podDirectoryErrorCount: this.state.podDirectoryErrorCount + 1
     });
   }
 
-  onTaskDirectoryStoreSuccess() {
+  onPodDirectoryStoreSuccess() {
     this.setState({
       directory: TaskDirectoryStore.get('directory'),
-      taskDirectoryErrorCount: 0
+      podDirectoryErrorCount: 0
     });
   }
 
   hasLoadingError() {
-    return this.state.taskDirectoryErrorCount >= 3;
+    return this.state.podDirectoryErrorCount >= 3;
   }
 
   getErrorScreen() {
@@ -117,6 +116,7 @@ class PodDetail extends mixin(TabsMixin) {
       let resourceLabel = resourceLabels[resource];
       let resourceIconClasses = `icon icon-sprite icon-sprite-medium
         icon-sprite-medium-color icon-resources-${resourceLabel.toLowerCase()}`;
+      // remove this setting
       let resourceValue = Units.formatResource(
         resource, pod.spec.containers[0].resources.limits[resource]
       );
@@ -149,7 +149,7 @@ class PodDetail extends mixin(TabsMixin) {
     }
 
     let podIcon = (
-      <img src="xx" />
+      <img src="/kuber.png" />
     );
 
     let tabs = (
@@ -174,31 +174,21 @@ class PodDetail extends mixin(TabsMixin) {
     );
   }
 
-  getMesosTaskDetailsDescriptionList(mesosTask) {
-    if (mesosTask == null || !MesosSummaryStore.get('statesProcessed')) {
+  getPodDetailsDescriptionList(pod) {
+    if (pod == null) {
       return null;
     }
 
-    let services = MesosSummaryStore.get('states')
-      .lastSuccessful()
-      .getServiceList();
-    let service = services.filter({ids: [mesosTask.framework_id]}).last();
-
     let headerValueMapping = {
-      'ID': mesosTask.id,
-      'Service': `${service.name} (${service.id})`
+      'ID': pod.metadata.uid,
+      'Name': pod.metadata.name,
+      'Namespace': pod.metadata.namespace,
+      'Node': pod.status.hostIP,
+      'IP': pod.status.podIP,
+      'Start Time': pod.status.startTime,
+      'Status': pod.status.phase,
+      'Image': pod.status.containerStatuses[0].image,
     };
-
-    let node = MesosStateStore.getNodeFromID(mesosTask.slave_id);
-
-    if (node != null) {
-      headerValueMapping['Node'] = `${node.hostname} (${node.id})`;
-    }
-
-    let sandBoxPath = TaskDirectoryStore.get('sandBoxPath');
-    if (sandBoxPath) {
-      headerValueMapping['Sandbox Path'] = sandBoxPath;
-    }
 
     return (
       <DescriptionList
@@ -239,37 +229,37 @@ class PodDetail extends mixin(TabsMixin) {
             {this.getResources(pod)}
           </div>
         </div>
+        {this.getPodDetailsDescriptionList(pod)}
       </div>
     );
   }
 
   renderFilesTabView() {
-    let {state, props} = this;
-    let task = MesosStateStore.getTaskFromTaskID(props.params.taskID);
+    let pod = this.pod;
+    let state = this.state;
     if (this.hasLoadingError()) {
       this.getErrorScreen();
     }
-    if (!state.directory || !task) {
+    if (!state.directory || !pod) {
       return this.getLoadingScreen();
     }
 
     return (
       <TaskDirectoryView
         directory={state.directory}
-        task={task}
+        task={pod}
         onOpenLogClick={this.handleOpenLogClick.bind(this)} />
     );
   }
 
   renderLogsTabView() {
-    let {state, props} = this;
-    let task = MesosStateStore.getTaskFromTaskID(props.params.taskID);
+    let {state, pod} = this;
 
     if (this.hasLoadingError()) {
       this.getErrorScreen();
     }
 
-    if (!state.directory || !task) {
+    if (!state.directory || !pod) {
       return this.getLoadingScreen();
     }
 
@@ -279,7 +269,7 @@ class PodDetail extends mixin(TabsMixin) {
         selectedLogFile={state.selectedLogFile}
         showExpandButton={this.showExpandButton}
         directory={state.directory}
-        task={task} />
+        task={pod} />
     );
   }
 

@@ -52,7 +52,7 @@ const KubernetesActions = {
     function (resolve, reject) {
       return function () {
         RequestUtil.json({
-          url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/kube-system/pods`,
+          url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/pods`,
           success: function (response) {
             try {
               let data = KubernetesUtil.parsePods(response.items);
