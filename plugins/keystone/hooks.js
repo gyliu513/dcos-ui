@@ -9,10 +9,16 @@ import UserDropup from './components/UserDropup';
 
 let SDK = require('./SDK').getSDK();
 
-let {AccessDeniedPage, Authenticated, ConfigStore, CookieUtils} = SDK.get([
-  'AccessDeniedPage', 'Authenticated', 'ConfigStore', 'CookieUtils']);
+let {AuthStore, AccessDeniedPage, Authenticated, ConfigStore, CookieUtils} = SDK.get([
+  'AuthStore', 'AccessDeniedPage', 'Authenticated', 'ConfigStore', 'CookieUtils']);
 
 let configResponseCallback = null;
+
+let nonAdminMenuItems = [
+  'services-page',
+  'jobs-page',
+  'universe'
+];
 
 module.exports = Object.assign({}, StoreMixin, {
   actions: [
@@ -24,7 +30,8 @@ module.exports = Object.assign({}, StoreMixin, {
   filters: [
     'sidebarFooter',
     'applicationRoutes',
-    'serverErrorModalListeners'
+    'serverErrorModalListeners',
+    'sidebarNavigation'
   ],
 
   initialize() {
@@ -41,7 +48,15 @@ module.exports = Object.assign({}, StoreMixin, {
   },
 
   redirectToLogin(transition) {
+    console.log('redirect to login')
     transition.redirect('/login');
+  },
+
+  sidebarNavigation(MenuItems) {
+    if (AuthStore.getUser().uid === 'admin') {
+      return MenuItems;
+    }
+    return nonAdminMenuItems;
   },
 
   AJAXRequestError(xhr) {
@@ -90,6 +105,14 @@ module.exports = Object.assign({}, StoreMixin, {
     routes[0].children.forEach(function (child) {
       if (child.id === 'index') {
         child.handler = new Authenticated(child.handler);
+        child.children.forEach(function (child_) {
+          // Change the base route if it is not admin
+          if (child_.from === '/'
+              && AuthStore.getUser()
+              && AuthStore.getUser().uid !== 'admin') {
+            child_.to = 'services-page';
+          }
+        });
       }
     });
 
