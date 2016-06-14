@@ -73,3 +73,24 @@ cat nginx.json
     ]
   }
 }
+
+{
+  "apiVersion": "v1",
+  "kind": "PersistentVolume",
+  "metadata": {
+    "name": "nfs1"
+  },
+  "spec": {
+    "capacity": {
+      "storage": "1Mi"
+    },
+    "accessModes": [
+      "ReadWriteMany"
+    ],
+    "nfs": {
+      "server": "10.0.1.235",
+      "path": "/root/nfs"
+    }
+  }
+}
+
