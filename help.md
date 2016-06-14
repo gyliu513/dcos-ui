@@ -94,3 +94,6 @@ cat nginx.json
   }
 }
 
+
+http://kubernetes.io/docs/api-reference/v1/operations/
+
