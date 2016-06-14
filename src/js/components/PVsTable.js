@@ -121,8 +121,12 @@ var PVsTable = React.createClass({
       var rowObj = {};
       rowObj.name = data[i].metadata.name;
       rowObj.status = data[i].status.phase;
-      rowObj.server = data[i].spec.nfs.server;
-      rowObj.path = data[i].spec.nfs.path;
+      rowObj.capacity = data[i].spec.capacity.storage;
+      rowObj.accessmodes = data[i].spec.accessModes[0];
+      if (data[i].spec.claimRef.namespace && data[i].spec.claimRef.name) {
+        rowObj.claim = data[i].spec.claimRef.namespace + '/' + data[i].spec.claimRef.name;
+      }
+      rowObj.claim = '';
       newRows.push(rowObj);
     }
 
@@ -152,14 +156,21 @@ var PVsTable = React.createClass({
       {
         className,
         headerClassName: className,
-        prop: 'server',
+        prop: 'capacity',
         sortable: true,
         heading
       },
       {
         className,
         headerClassName: className,
-        prop: 'path',
+        prop: 'accessmodes',
+        sortable: true,
+        heading
+      },
+      {
+        className,
+        headerClassName: className,
+        prop: 'claim',
         sortable: true,
         heading
       }
@@ -171,6 +182,7 @@ var PVsTable = React.createClass({
       <colgroup>
         <col />
         <col className="status-bar-column"/>
+        <col style={{width: '150px'}} />
         <col style={{width: '150px'}} />
       </colgroup>
     );

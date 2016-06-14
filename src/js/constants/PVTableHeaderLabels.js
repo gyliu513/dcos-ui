@@ -1,8 +1,9 @@
 var PVTableHeaderLabels = {
   name: 'Name',
   status: 'Status',
-  server: 'Server',
-  path: 'Path',
+  capacity: 'Capacity',
+  accessmodes: 'AccessMode',
+  claim: 'Claim',
 };
 
 module.exports = PVTableHeaderLabels;
