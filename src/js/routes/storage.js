@@ -20,7 +20,7 @@ let storageRoutes = {
         {
           type: Route,
           name: 'storage-pvs-detail',
-          path: ':namespace/:name/?',
+          path: ':name/?',
           handler: PVDetail
         }
       ]

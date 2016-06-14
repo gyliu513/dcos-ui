@@ -1,11 +1,6 @@
 import {RequestUtil} from 'mesosphere-shared-reactjs';
 
-import {
-  REQUEST_KUBERNETES_POD_CREATE_ERROR,
-  REQUEST_KUBERNETES_POD_CREATE_SUCCESS,
-  REQUEST_KUBERNETES_POD_CREATE_ONGOING,
-  REQUEST_KUBERNETES_POD_FETCH_SUCCESS
-} from '../constants/ActionTypes';
+import ActionTypes from '../constants/ActionTypes';
 import KubernetesUtil from '../utils/KubernetesUtil';
 
 var AppDispatcher = require('./AppDispatcher');
@@ -21,7 +16,7 @@ const KubernetesActions = {
           success: function (response) {
             try {
               AppDispatcher.handleServerAction({
-                type: REQUEST_KUBERNETES_POD_FETCH_SUCCESS,
+                type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_SUCCESS,
                 data: response
               });
               resolve();
@@ -31,14 +26,84 @@ const KubernetesActions = {
           },
           error: function (e) {
             AppDispatcher.handleServerAction({
-              type: REQUEST_KUBERNETES_POD_FETCH_SUCCESS,
+              type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_ERROR,
               data: e.message
             });
             reject();
           },
           hangingRequestCallback: function () {
             AppDispatcher.handleServerAction({
-              type: REQUEST_KUBERNETES_POD_FETCH_ONGOING
+              type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_ONGOING
+            });
+          }
+        });
+      };
+    },
+    {delayAfterCount: Config.delayAfterErrorCount}
+  ),
+
+  getPV: RequestUtil.debounceOnError(
+    Config.getRefreshRate(),
+    function (resolve, reject) {
+      return function (name) {
+        RequestUtil.json({
+          url: `${Config.rootUrl}/kubernetes/api/v1/persistenvolumes/${name}`,
+          success: function (response) {
+            try {
+              AppDispatcher.handleServerAction({
+                type: ActionTypes.REQUEST_KUBERNETES_PV_FETCH_SUCCESS,
+                data: response
+              });
+              resolve();
+            } catch (error) {
+              this.error(error);
+            }
+          },
+          error: function (e) {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_PV_FETCH_ERROR,
+              data: e.message
+            });
+            reject();
+          },
+          hangingRequestCallback: function () {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_PV_FETCH_ONGOING
+            });
+          }
+        });
+      };
+    },
+    {delayAfterCount: Config.delayAfterErrorCount}
+  ),
+
+  getPVC: RequestUtil.debounceOnError(
+    Config.getRefreshRate(),
+    function (resolve, reject) {
+      return function (name, namespace) {
+        RequestUtil.json({
+          url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/${namespace}/persistenvolumeclaims/${name}`,
+          success: function (response) {
+            try {
+              AppDispatcher.handleServerAction({
+                type: ActionTypes.REQUEST_KUBERNETES_PVC_FETCH_SUCCESS,
+                data: response
+              });
+              resolve();
+            } catch (error) {
+              this.error(error);
+            }
+          },
+          error: function (e) {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_PVC_FETCH_ERROR,
+              data: e.message
+            });
+            reject();
+          },
+          hangingRequestCallback: function () {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_PVC_FETCH_ONGOING
             });
           }
         });
@@ -51,13 +116,14 @@ const KubernetesActions = {
     Config.getRefreshRate(),
     function (resolve, reject) {
       return function () {
+        console.log('fetchPods');
         RequestUtil.json({
           url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/pods`,
           success: function (response) {
             try {
               let data = KubernetesUtil.parsePods(response.items);
               AppDispatcher.handleServerAction({
-                type: REQUEST_KUBERNETES_POD_CREATE_SUCCESS,
+                type: ActionTypes.REQUEST_KUBERNETES_PODS_FETCH_SUCCESS,
                 data
               });
               resolve();
@@ -67,14 +133,87 @@ const KubernetesActions = {
           },
           error: function (e) {
             AppDispatcher.handleServerAction({
-              type: REQUEST_KUBERNETES_POD_CREATE_SUCCESS,
+              type: ActionTypes.REQUEST_KUBERNETES_PODS_FETCH_ERROR,
               data: e.message
             });
             reject();
           },
           hangingRequestCallback: function () {
             AppDispatcher.handleServerAction({
-              type: REQUEST_KUBERNETES_POD_CREATE_ONGOING
+              type: ActionTypes.REQUEST_KUBERNETES_PODS_FETCH_ONGOING
+            });
+          }
+        });
+      };
+    },
+    {delayAfterCount: Config.delayAfterErrorCount}
+  ),
+
+  fetchPVs: RequestUtil.debounceOnError(
+    Config.getRefreshRate(),
+    function (resolve, reject) {
+      return function () {
+        console.log('fetchPVs');
+        RequestUtil.json({
+          url: `${Config.rootUrl}/kubernetes/api/v1/persistentvolumes`,
+          success: function (response) {
+            try {
+              AppDispatcher.handleServerAction({
+                type: ActionTypes.REQUEST_KUBERNETES_PVS_FETCH_SUCCESS,
+                data: response
+              });
+              resolve();
+            } catch (error) {
+              this.error(error);
+            }
+          },
+          error: function (e) {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_PVS_FETCH_ERROR,
+              data: e.message
+            });
+            reject();
+          },
+          hangingRequestCallback: function () {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_PVS_FETCH_ONGOING
+            });
+          }
+        });
+      };
+    },
+    {delayAfterCount: Config.delayAfterErrorCount}
+  ),
+
+  fetchPVCs: RequestUtil.debounceOnError(
+    Config.getRefreshRate(),
+    function (resolve, reject) {
+      return function () {
+        console.log('fetchPVCs');
+        RequestUtil.json({
+          url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/persistenvolumeclaims`,
+          success: function (response) {
+            try {
+              let data = KubernetesUtil.parsePods(response.items);
+              AppDispatcher.handleServerAction({
+                type: ActionTypes.REQUEST_KUBERNETES_PVCS_FETCH_SUCCESS,
+                data
+              });
+              resolve();
+            } catch (error) {
+              this.error(error);
+            }
+          },
+          error: function (e) {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_PVCS_FETCH_ERROR,
+              data: e.message
+            });
+            reject();
+          },
+          hangingRequestCallback: function () {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_PVCS_FETCH_ONGOING
             });
           }
         });
@@ -92,12 +231,12 @@ const KubernetesActions = {
       data,
       success: function () {
         AppDispatcher.handleServerAction({
-          type: REQUEST_KUBERNETES_POD_CREATE_SUCCESS
+          type: ActionTypes.REQUEST_KUBERNETES_PV_CREATE_SUCCESS
         });
       },
       error: function (xhr) {
         AppDispatcher.handleServerAction({
-          type: REQUEST_KUBERNETES_POD_CREATE_ERROR,
+          type: ActionTypes.REQUEST_KUBERNETES_PV_CREATE_ERROR,
           data: RequestUtil.parseResponseBody(xhr),
           xhr
         });
@@ -114,12 +253,12 @@ const KubernetesActions = {
       data,
       success: function () {
         AppDispatcher.handleServerAction({
-          type: REQUEST_KUBERNETES_POD_CREATE_SUCCESS
+          type: ActionTypes.REQUEST_KUBERNETES_PVC_CREATE_SUCCESS
         });
       },
       error: function (xhr) {
         AppDispatcher.handleServerAction({
-          type: REQUEST_KUBERNETES_POD_CREATE_ERROR,
+          type: ActionTypes.REQUEST_KUBERNETES_PVC_CREATE_ERROR,
           data: RequestUtil.parseResponseBody(xhr),
           xhr
         });
@@ -136,12 +275,12 @@ const KubernetesActions = {
       data,
       success: function () {
         AppDispatcher.handleServerAction({
-          type: REQUEST_KUBERNETES_POD_CREATE_SUCCESS
+          type: ActionTypes.REQUEST_KUBERNETES_POD_CREATE_SUCCESS
         });
       },
       error: function (xhr) {
         AppDispatcher.handleServerAction({
-          type: REQUEST_KUBERNETES_POD_CREATE_ERROR,
+          type: ActionTypes.REQUEST_KUBERNETES_POD_CREATE_ERROR,
           data: RequestUtil.parseResponseBody(xhr),
           xhr
         });

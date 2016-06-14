@@ -6,9 +6,9 @@ import Service from './Service';
 import ServiceStatus from '../constants/ServiceStatus';
 import Tree from './Tree';
 
-module.exports = class PodTree extends Tree {
+module.exports = class PVTree extends Tree {
   /**
-   * (Marathon) PodTree
+   * (Marathon) PVTree
    * @param {{
    *          id:string,
    *          items:array<({id:string, items:array}|*)>,
@@ -26,15 +26,15 @@ module.exports = class PodTree extends Tree {
       this.id = options.id;
     }
 
-    // Converts items into instances of PodTree, Application or Framework
+    // Converts items into instances of PVTree, Application or Framework
     // based on their properties.
     this.list = this.list.map((item) => {
-      if (item instanceof PodTree) {
+      if (item instanceof PVTree) {
         return item;
       }
 
       // Check item properties and convert items with an items array or an apps
-      // and groups array (Marathon group structure) into PodTree instances.
+      // and groups array (Marathon group structure) into PVTree instances.
       if (item.items != null && Array.isArray(item.items)) {
         return new this.constructor(
           Object.assign({filterProperties: this.getFilterProperties()}, item)
@@ -57,7 +57,7 @@ module.exports = class PodTree extends Tree {
 
   /**
    * @param {string} id
-   * @return {Service|PodTree} matching item
+   * @return {Service|PVTree} matching item
    */
   findItemById(id) {
     return this.findItem(function (item) {

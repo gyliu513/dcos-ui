@@ -1,45 +1,27 @@
 import React from 'react';
 import {Link} from 'react-router';
 
-class PodsBreadcrumb extends React.Component {
+class PVsBreadcrumb extends React.Component {
   constructor() {
     super();
   }
 
   render() {
-    const {name, namespace} = this.props;
-    const breadcrumbIcon = (
-      <i className="icon
-        icon-sprite
-        icon-sprite-small
-        icon-sprite-small-white
-        icon-back
-        forward" />
-    );
+    // const pvItemTree = this.props.pvTreeItem;
+    // const breadcrumbIcon = (
+    //   <i className="icon
+    //     icon-sprite
+    //     icon-sprite-small
+    //     icon-sprite-small-white
+    //     icon-back
+    //     forward" />
+    // );
 
     let breadcrumbNodes = [(
       <span className="crumb" key="/">
         <Link to="storage-pvs">PV</Link>
       </span>
     )];
-
-    if (namespace != null) {
-      breadcrumbNodes.push(
-        <span className="crumb" key={namespace}>
-          {breadcrumbIcon}
-          <span>{namespace}</span>
-        </span>
-      );
-    }
-
-    if (name != null) {
-      breadcrumbNodes.push(
-        <span className="crumb" key={name}>
-          {breadcrumbIcon}
-          <span>{name}</span>
-        </span>
-      );
-    }
 
     return (
       <div className="flex-box control-group">
@@ -51,4 +33,4 @@ class PodsBreadcrumb extends React.Component {
   }
 }
 
-module.exports = PodsBreadcrumb;
+module.exports = PVsBreadcrumb;

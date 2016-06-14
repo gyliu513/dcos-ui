@@ -2,27 +2,29 @@ import {EventEmitter} from 'events';
 
 import AppDispatcher from '../events/AppDispatcher';
 import ActionTypes from '../constants/ActionTypes';
+import EventTypes from '../constants/EventTypes';
 import Config from '../config/Config';
 import PodTree from '../structs/PodTree';
 import PVTree from '../structs/PVTree';
 import PVCTree from '../structs/PVCTree';
 import {
-  KUBERNETES_POD_CHANGE,
-  // KUBERNETES_PV_CHANGE,
-  // KUBERNETES_PVC_CHANGE,
-	KUBERNETES_POD_CREATE_ERROR,
-	KUBERNETES_POD_CREATE_SUCCESS,
-	KUBERNETES_POD_FETCH_SUCCESS
+  KUBERNETES_CHANGE,
 } from '../constants/EventTypes';
 var KubernetesActions = require('../events/KubernetesActions');
 
 let requestInterval;
 
+function fetchKubernetes() {
+  KubernetesActions.fetchPods();
+  KubernetesActions.fetchPVs();
+  KubernetesActions.fetchPVCs();
+}
+
 function startPolling() {
   if (!requestInterval) {
-    KubernetesActions.fetchPods();
+    fetchKubernetes();
     requestInterval = global.setInterval(
-      KubernetesActions.fetchPods,
+      fetchKubernetes,
       Config.getRefreshRate()
     );
   }
@@ -41,6 +43,8 @@ class KubernetesStore extends EventEmitter {
 
     this.data = {
       pod: {},
+      pv: {},
+      pvc: {},
       podTree: {id: '/', items: []},
       pvTree: {id: '/', items: []},
       pvcTree: {id: '/', items: []}
@@ -54,15 +58,70 @@ class KubernetesStore extends EventEmitter {
       var action = payload.action;
       switch (action.type) {
         case ActionTypes.REQUEST_KUBERNETES_POD_CREATE_ERROR:
-          this.emit(KUBERNETES_POD_CREATE_ERROR, action.data);
+          this.emit(EventTypes.KUBERNETES_POD_CREATE_ERROR, action.data);
           break;
         case ActionTypes.REQUEST_KUBERNETES_POD_CREATE_SUCCESS:
           this.data.podTree = action.data;
-          this.emit(KUBERNETES_POD_CREATE_SUCCESS);
+          this.emit(EventTypes.KUBERNETES_POD_CREATE_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_POD_FETCH_ERROR:
+          this.emit(EventTypes.KUBERNETES_POD_FETCH_ERROR, action.data);
           break;
         case ActionTypes.REQUEST_KUBERNETES_POD_FETCH_SUCCESS:
           this.data.pod = action.data;
-          this.emit(KUBERNETES_POD_FETCH_SUCCESS);
+          this.emit(EventTypes.KUBERNETES_POD_FETCH_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_PODS_FETCH_ERROR:
+          this.emit(EventTypes.KUBERNETES_PODS_FETCH_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_PODS_FETCH_SUCCESS:
+          this.data.podTree = action.data;
+          this.emit(EventTypes.KUBERNETES_PODS_FETCH_SUCCESS);
+          break;
+
+        case ActionTypes.REQUEST_KUBERNETES_PV_CREATE_ERROR:
+          this.emit(EventTypes.KUBERNETES_PV_CREATE_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_PV_CREATE_SUCCESS:
+          this.data.pvTree = action.data;
+          this.emit(EventTypes.KUBERNETES_PV_CREATE_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_PV_FETCH_ERROR:
+          this.emit(EventTypes.KUBERNETES_PV_FETCH_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_PV_FETCH_SUCCESS:
+          this.data.pv = action.data;
+          this.emit(EventTypes.KUBERNETES_PV_FETCH_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_PVS_FETCH_ERROR:
+          this.emit(EventTypes.KUBERNETES_PVS_FETCH_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_PVS_FETCH_SUCCESS:
+          this.data.pvTree = action.data;
+          this.emit(EventTypes.KUBERNETES_PVS_FETCH_SUCCESS);
+          break;
+
+        case ActionTypes.REQUEST_KUBERNETES_PVC_CREATE_ERROR:
+          this.emit(EventTypes.KUBERNETES_PVC_CREATE_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_PVC_CREATE_SUCCESS:
+          this.data.pvcTree = action.data;
+          this.emit(EventTypes.KUBERNETES_PVC_CREATE_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_PVC_FETCH_ERROR:
+          this.emit(EventTypes.KUBERNETES_PVC_FETCH_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_PVC_FETCH_SUCCESS:
+          this.data.pvc = action.data;
+          this.emit(EventTypes.KUBERNETES_PVC_FETCH_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_PVCS_FETCH_ERROR:
+          this.emit(EventTypes.KUBERNETES_PVCS_FETCH_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_PVCS_FETCH_SUCCESS:
+          this.data.pvcTree = action.data;
+          this.emit(EventTypes.KUBERNETES_PVCS_FETCH_SUCCESS);
+          break;
       }
 
       return true;
@@ -88,7 +147,7 @@ class KubernetesStore extends EventEmitter {
   }
 
   shouldPoll() {
-    return !!this.listeners(KUBERNETES_POD_CHANGE).length;
+    return !!this.listeners(KUBERNETES_CHANGE).length;
   }
 
   createPod() {
@@ -110,7 +169,18 @@ class KubernetesStore extends EventEmitter {
     console.log('Get a Pod');
     KubernetesActions.getPod(...arguments);
     return this.data.pod;
-    // return KubernetesActions.getPod(...arguments);
+  }
+
+  getPV() {
+    console.log('Get a PV');
+    KubernetesActions.getPV(...arguments);
+    return this.data.pv;
+  }
+
+  getPVC() {
+    console.log('Get a PVC');
+    KubernetesActions.getPVC(...arguments);
+    return this.data.pvc;
   }
 
   get pvTree() {
