@@ -14,10 +14,10 @@ import {
 import Pod from '../../structs/Pod';
 import PodDetail from '../../components/PodDetail';
 import PodFilterTypes from '../../constants/PodFilterTypes';
-import PodFormModal from '../../components/modals/PodFormModal';
+import PVCFormModal from '../../components/modals/PVCFormModal';
 import PodSearchFilter from '../../components/PodSearchFilter';
 // import PodSidebarFilters from '../../components/PodSidebarFilters';
-import PodsBreadcrumb from '../../components/PodsBreadcrumb';
+import PVCsBreadcrumb from '../../components/PVCsBreadcrumb';
 import PodsTable from '../../components/PodsTable';
 import PodTree from '../../structs/PodTree';
 import SidebarActions from '../../events/SidebarActions';
@@ -115,7 +115,7 @@ var PVCsTab = React.createClass({
       <div className="button-collection flush-bottom">
         <button className="button button-success"
           onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-          Deploy Pods
+          Deploy PVC
         </button>
       </div>
     );
@@ -155,7 +155,7 @@ var PVCsTab = React.createClass({
     // Render empty panel
     return (
       <div>
-        <PodsBreadcrumb podTreeItem={item} />
+        <PVCsBreadcrumb podTreeItem={item} />
         <AlertPanel
           title="No PVCs Deployed"
           footer={this.getAlertPanelFooter()}
@@ -190,7 +190,7 @@ var PVCsTab = React.createClass({
     }
 
     return (
-      <PodsBreadcrumb podTreeItem={item} />
+      <PVCsBreadcrumb podTreeItem={item} />
     );
   },
 
@@ -211,7 +211,7 @@ var PVCsTab = React.createClass({
               handleFilterChange={this.handleFilterChange} />
             <button className="button button-success"
               onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-              Deploy Pods
+              Deploy PVC
             </button>
           </FilterBar>
           <PodsTable
@@ -231,12 +231,12 @@ var PVCsTab = React.createClass({
 
     // Find item in root tree and default to root tree if there is no match
     // let item = DCOSStore.serviceTree.findItemById(id) || DCOSStore.serviceTree;
-    let item = DCOSStore.podTree.findItemById(id) || DCOSStore.podTree;
+    let item = DCOSStore.pvcTree.findItemById(id) || DCOSStore.pvcTree;
 
     return (
       <div>
         {this.getContents(item)}
-        <PodFormModal open={state.isPodFormModalShown}
+        <PVCFormModal open={state.isPodFormModalShown}
           onClose={this.handleClosePodFormModal}/>
       </div>
     );

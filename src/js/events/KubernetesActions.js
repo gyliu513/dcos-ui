@@ -83,6 +83,50 @@ const KubernetesActions = {
     {delayAfterCount: Config.delayAfterErrorCount}
   ),
 
+  createPV: function (data) {
+    console.log('Creating PV');
+    console.log(JSON.stringify(data));
+    RequestUtil.json({
+      url: `${Config.rootUrl}/kubernetes/api/v1/persistentvolumes`,
+      method: 'POST',
+      data,
+      success: function () {
+        AppDispatcher.handleServerAction({
+          type: REQUEST_KUBERNETES_POD_CREATE_SUCCESS
+        });
+      },
+      error: function (xhr) {
+        AppDispatcher.handleServerAction({
+          type: REQUEST_KUBERNETES_POD_CREATE_ERROR,
+          data: RequestUtil.parseResponseBody(xhr),
+          xhr
+        });
+      }
+    });
+  },
+
+  createPVC: function (data) {
+    console.log('Creating PVC');
+    console.log(JSON.stringify(data));
+    RequestUtil.json({
+      url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/persistentvolumeclaims`,
+      method: 'POST',
+      data,
+      success: function () {
+        AppDispatcher.handleServerAction({
+          type: REQUEST_KUBERNETES_POD_CREATE_SUCCESS
+        });
+      },
+      error: function (xhr) {
+        AppDispatcher.handleServerAction({
+          type: REQUEST_KUBERNETES_POD_CREATE_ERROR,
+          data: RequestUtil.parseResponseBody(xhr),
+          xhr
+        });
+      }
+    });
+  },
+
   createPod: function (data) {
     console.log('Creating Pod');
     console.log(JSON.stringify(data));

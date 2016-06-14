@@ -14,10 +14,10 @@ import {
 import Pod from '../../structs/Pod';
 import PodDetail from '../../components/PodDetail';
 import PodFilterTypes from '../../constants/PodFilterTypes';
-import PodFormModal from '../../components/modals/PodFormModal';
+import PVFormModal from '../../components/modals/PVFormModal';
 import PodSearchFilter from '../../components/PodSearchFilter';
 // import PodSidebarFilters from '../../components/PodSidebarFilters';
-import PodsBreadcrumb from '../../components/PodsBreadcrumb';
+import PVsBreadcrumb from '../../components/PVsBreadcrumb';
 import PodsTable from '../../components/PodsTable';
 import PodTree from '../../structs/PodTree';
 import SidebarActions from '../../events/SidebarActions';
@@ -115,7 +115,7 @@ var PVsTab = React.createClass({
       <div className="button-collection flush-bottom">
         <button className="button button-success"
           onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-          Deploy Pods
+          Deploy PV
         </button>
       </div>
     );
@@ -155,7 +155,7 @@ var PVsTab = React.createClass({
     // Render empty panel
     return (
       <div>
-        <PodsBreadcrumb podTreeItem={item} />
+        <PVsBreadcrumb podTreeItem={item} />
         <AlertPanel
           title="No PVs Deployed"
           footer={this.getAlertPanelFooter()}
@@ -190,7 +190,7 @@ var PVsTab = React.createClass({
     }
 
     return (
-      <PodsBreadcrumb podTreeItem={item} />
+      <PVsBreadcrumb podTreeItem={item} />
     );
   },
 
@@ -211,7 +211,7 @@ var PVsTab = React.createClass({
               handleFilterChange={this.handleFilterChange} />
             <button className="button button-success"
               onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-              Deploy Pods
+              Deploy PV
             </button>
           </FilterBar>
           <PodsTable
@@ -231,12 +231,12 @@ var PVsTab = React.createClass({
 
     // Find item in root tree and default to root tree if there is no match
     // let item = DCOSStore.serviceTree.findItemById(id) || DCOSStore.serviceTree;
-    let item = DCOSStore.podTree.findItemById(id) || DCOSStore.podTree;
+    let item = DCOSStore.pvTree.findItemById(id) || DCOSStore.pvTree;
 
     return (
       <div>
         {this.getContents(item)}
-        <PodFormModal open={state.isPodFormModalShown}
+        <PVFormModal open={state.isPodFormModalShown}
           onClose={this.handleClosePodFormModal}/>
       </div>
     );
