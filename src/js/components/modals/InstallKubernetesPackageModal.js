@@ -39,7 +39,7 @@ class InstallKubernetesPackageModal extends mixin(InternalStorageMixin, TabsMixi
     this.internalStorage_set({
       descriptionError: null,
       hasFormErrors: false,
-      installError: null,
+      installKubernetesError: null,
       isLoading: true,
       pendingRequest: false
     });
@@ -55,8 +55,8 @@ class InstallKubernetesPackageModal extends mixin(InternalStorageMixin, TabsMixi
       events: [
         'descriptionError',
         'descriptionSuccess',
-        'installError',
-        'installSuccess'
+        'installKubernetesSuccess',
+        'installKubernetesError'
       ]
     }];
 
@@ -82,7 +82,7 @@ class InstallKubernetesPackageModal extends mixin(InternalStorageMixin, TabsMixi
     if (props.open && !nextProps.open) {
       this.internalStorage_set({
         descriptionError: null,
-        installError: null,
+        installKubernetesError: null,
         isLoading: true,
         pendingRequest: false
       });
@@ -129,9 +129,9 @@ class InstallKubernetesPackageModal extends mixin(InternalStorageMixin, TabsMixi
     this.setState({schemaIncorrect: false});
   }
 
-  onCosmosPackagesStoreInstallError(installError) {
+  onCosmosPackagesStoreInstallError(installKubernetesError) {
     this.internalStorage_update({
-      installError,
+      installKubernetesError,
       pendingRequest: false
     });
     this.setState({currentTab: 'defaultInstall'});
@@ -139,7 +139,7 @@ class InstallKubernetesPackageModal extends mixin(InternalStorageMixin, TabsMixi
 
   onCosmosPackagesStoreInstallSuccess() {
     this.internalStorage_update({
-      installError: null,
+      installKubernetesError: null,
       pendingRequest: false
     });
     this.setState({currentTab: 'packageInstalled'});
@@ -151,7 +151,7 @@ class InstallKubernetesPackageModal extends mixin(InternalStorageMixin, TabsMixi
   }
 
   handleChangeTab(currentTab) {
-    let newState = {installError: null};
+    let newState = {installKubernetesError: null};
     if (currentTab === 'advancedInstall') {
       // Change back to previous state and clean up stored config
       newState.advancedConfiguration = null;
@@ -230,14 +230,14 @@ class InstallKubernetesPackageModal extends mixin(InternalStorageMixin, TabsMixi
 
   getInstallErrorScreen() {
     let cosmosPackage = CosmosPackagesStore.getPackageDetails();
-    let {pendingRequest, installError} = this.internalStorage_get();
+    let {pendingRequest, installKubernetesError} = this.internalStorage_get();
 
     return (
       <div className="modal-content">
         <div className="modal-content-inner container container-pod container-pod-short horizontal-center">
           <CosmosErrorMessage
             className="text-error-state text-overflow-break-word"
-            error={installError}
+            error={installKubernetesError}
             wrapperClass="" />
         </div>
         <div className="modal-footer">
@@ -304,7 +304,7 @@ class InstallKubernetesPackageModal extends mixin(InternalStorageMixin, TabsMixi
     let {
       descriptionError,
       pendingRequest,
-      installError
+      installKubernetesError
     } = this.internalStorage_get();
     let cosmosPackage = CosmosPackagesStore.getPackageDetails();
     let preinstallNotes = cosmosPackage.getPreinstallNotes();
@@ -323,7 +323,7 @@ class InstallKubernetesPackageModal extends mixin(InternalStorageMixin, TabsMixi
       );
     }
 
-    if (installError) {
+    if (installKubernetesError) {
       return this.getInstallErrorScreen();
     }
 

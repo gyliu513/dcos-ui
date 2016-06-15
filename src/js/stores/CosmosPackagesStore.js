@@ -183,12 +183,17 @@ class CosmosPackagesStore extends GetSetBaseStore {
           break;
         case REQUEST_COSMOS_KUBERNETES_PACKAGE_INSTALL_SUCCESS:
           this.emit(
-            COSMOS_INSTALL_KUBERNETES_SUCCESS, data, action.name, action.uri
+            COSMOS_INSTALL_KUBERNETES_SUCCESS,
+            action.packageName,
+            action.packageVersion
           );
           break;
         case REQUEST_COSMOS_KUBERNETES_PACKAGE_INSTALL_ERROR:
           this.emit(
-            COSMOS_INSTALL_KUBERNETES_ERROR, data, action.name, action.uri
+            COSMOS_INSTALL_KUBERNETES_ERROR,
+            data,
+            action.packageName,
+            action.packageVersion
           );
           break;
       }
