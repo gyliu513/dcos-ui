@@ -1,3 +1,9 @@
+
+OpenStack
+
+http://9.21.60.67/dashboard/identity/
+admin/nova
+
 k8s
 
 standalone k8s: http://9.111.141.63:8080/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard/#/workload
