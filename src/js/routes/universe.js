@@ -46,7 +46,7 @@ let universeRoutes = {
     {
       type: Redirect,
       from: '/universe/?',
-      to: 'universe-packages'
+      to: 'kubernetes-packages'
     }
   ]
 };
