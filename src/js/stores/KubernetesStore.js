@@ -7,6 +7,7 @@ import Config from '../config/Config';
 import PodTree from '../structs/PodTree';
 import PVTree from '../structs/PVTree';
 import PVCTree from '../structs/PVCTree';
+import PolicyTree from '../structs/PolicyTree';
 import {
   KUBERNETES_CHANGE,
 } from '../constants/EventTypes';
@@ -18,6 +19,7 @@ function fetchKubernetes() {
   KubernetesActions.fetchPods();
   KubernetesActions.fetchPVs();
   KubernetesActions.fetchPVCs();
+  KubernetesActions.fetchPolicies('default');
 }
 
 function startPolling() {
@@ -45,9 +47,11 @@ class KubernetesStore extends EventEmitter {
       pod: {},
       pv: {},
       pvc: {},
+      policy: {},
       podTree: {id: '/', items: []},
       pvTree: {id: '/', items: []},
-      pvcTree: {id: '/', items: []}
+      pvcTree: {id: '/', items: []},
+      policyTree: {id: '/', items: []}
     };
 
     this.dispatcherIndex = AppDispatcher.register((payload) => {
@@ -78,7 +82,7 @@ class KubernetesStore extends EventEmitter {
           this.data.podTree = action.data;
           this.emit(EventTypes.KUBERNETES_PODS_FETCH_SUCCESS);
           break;
-
+        // PV events
         case ActionTypes.REQUEST_KUBERNETES_PV_CREATE_ERROR:
           this.emit(EventTypes.KUBERNETES_PV_CREATE_ERROR, action.data);
           break;
@@ -100,7 +104,7 @@ class KubernetesStore extends EventEmitter {
           this.data.pvTree = action.data;
           this.emit(EventTypes.KUBERNETES_PVS_FETCH_SUCCESS);
           break;
-
+        // PVC events
         case ActionTypes.REQUEST_KUBERNETES_PVC_CREATE_ERROR:
           this.emit(EventTypes.KUBERNETES_PVC_CREATE_ERROR, action.data);
           break;
@@ -121,6 +125,30 @@ class KubernetesStore extends EventEmitter {
         case ActionTypes.REQUEST_KUBERNETES_PVCS_FETCH_SUCCESS:
           this.data.pvcTree = action.data;
           this.emit(EventTypes.KUBERNETES_PVCS_FETCH_SUCCESS);
+          break;
+        // Policy events
+        case ActionTypes.REQUEST_KUBERNETES_POLICY_CREATE_ERROR:
+          this.emit(EventTypes.KUBERNETES_POLICY_CREATE_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_POLICY_CREATE_SUCCESS:
+          this.data.policyTree = action.data;
+          this.emit(EventTypes.KUBERNETES_POLICY_CREATE_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_POLICY_FETCH_ERROR:
+          this.emit(EventTypes.KUBERNETES_POLICY_FETCH_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_POLICY_FETCH_SUCCESS:
+          console.log(action.data)
+          this.data.policy = action.data;
+          this.emit(EventTypes.KUBERNETES_POLICY_FETCH_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_POLICIES_FETCH_ERROR:
+          this.emit(EventTypes.KUBERNETES_POLICIES_FETCH_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_POLICIES_FETCH_SUCCESS:
+          console.log(action.data)
+          this.data.policyTree = action.data;
+          this.emit(EventTypes.KUBERNETES_POLICIES_FETCH_SUCCESS);
           break;
       }
 
@@ -165,6 +193,11 @@ class KubernetesStore extends EventEmitter {
     return KubernetesActions.createPVC(...arguments);
   }
 
+  createPolicy() {
+    console.log('Staring to create Policy');
+    return KubernetesActions.createPolicy(...arguments);
+  }
+
   getPod() {
     console.log('Get a Pod');
     KubernetesActions.getPod(...arguments);
@@ -183,6 +216,12 @@ class KubernetesStore extends EventEmitter {
     return this.data.pvc;
   }
 
+  getPolicy() {
+    console.log('Get a policy');
+    KubernetesActions.getPolicy(...arguments);
+    return this.data.policy;
+  }
+
   get pvTree() {
     return new PVTree(this.data.pvTree);
   }
@@ -193,6 +232,14 @@ class KubernetesStore extends EventEmitter {
 
   get podTree() {
     return new PodTree(this.data.podTree);
+  }
+
+  get policyTree() {
+    return new PolicyTree(this.data.policyTree);
+  }
+
+  deletePolicy() {
+    console.log('Deleting to create Policy');
   }
 
   get storeID() {

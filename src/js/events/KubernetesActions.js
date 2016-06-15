@@ -112,6 +112,42 @@ const KubernetesActions = {
     {delayAfterCount: Config.delayAfterErrorCount}
   ),
 
+  getPolicy: RequestUtil.debounceOnError(
+    Config.getRefreshRate(),
+    function (resolve, reject) {
+      return function (name, namespace) {
+        RequestUtil.json({
+          url: `${Config.rootUrl}/kubernetes/apis/autoscaling/v1/namespaces/${namespace}/horizontalpodautoscalers/${name}`,
+          success: function (response) {
+            console.log(response)
+            try {
+              AppDispatcher.handleServerAction({
+                type: ActionTypes.REQUEST_KUBERNETES_POLICY_FETCH_SUCCESS,
+                data: response
+              });
+              resolve();
+            } catch (error) {
+              this.error(error);
+            }
+          },
+          error: function (e) {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_POLICY_FETCH_ERROR,
+              data: e.message
+            });
+            reject();
+          },
+          hangingRequestCallback: function () {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_POLICY_FETCH_ONGOING
+            });
+          }
+        });
+      };
+    },
+    {delayAfterCount: Config.delayAfterErrorCount}
+  ),
+
   fetchPods: RequestUtil.debounceOnError(
     Config.getRefreshRate(),
     function (resolve, reject) {
@@ -222,6 +258,44 @@ const KubernetesActions = {
     {delayAfterCount: Config.delayAfterErrorCount}
   ),
 
+  fetchPolicies: RequestUtil.debounceOnError(
+    Config.getRefreshRate(),
+    function (resolve, reject) {
+      return function (namespace) {
+        console.log('fetchPolicies');
+        RequestUtil.json({
+          url: `${Config.rootUrl}/kubernetes/apis/autoscaling/v1/namespaces/${namespace}/horizontalpodautoscalers`,
+          success: function (response) {
+            try {
+              let data = KubernetesUtil.parsePolicies(response.items);
+              console.log(data)
+              AppDispatcher.handleServerAction({
+                type: ActionTypes.REQUEST_KUBERNETES_POLICIES_FETCH_SUCCESS,
+                data
+              });
+              resolve();
+            } catch (error) {
+              this.error(error);
+            }
+          },
+          error: function (e) {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_POLICIES_FETCH_ERROR,
+              data: e.message
+            });
+            reject();
+          },
+          hangingRequestCallback: function () {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_POLICIES_FETCH_ONGOING
+            });
+          }
+        });
+      };
+    },
+    {delayAfterCount: Config.delayAfterErrorCount}
+  ),
+
   createPV: function (data) {
     console.log('Creating PV');
     console.log(JSON.stringify(data));
@@ -281,6 +355,28 @@ const KubernetesActions = {
       error: function (xhr) {
         AppDispatcher.handleServerAction({
           type: ActionTypes.REQUEST_KUBERNETES_POD_CREATE_ERROR,
+          data: RequestUtil.parseResponseBody(xhr),
+          xhr
+        });
+      }
+    });
+  },
+
+  createPolicy: function (data, namespace) {
+    console.log('Creating Policy');
+    console.log(JSON.stringify(data));
+    RequestUtil.json({
+      url: `${Config.rootUrl}/kubernetes/apis/autoscaling/v1/namespaces/${namespace}/horizontalpodautoscalers`,
+      method: 'POST',
+      data,
+      success: function () {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_POLICY_CREATE_SUCCESS
+        });
+      },
+      error: function (xhr) {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_POLICY_CREATE_ERROR,
           data: RequestUtil.parseResponseBody(xhr),
           xhr
         });

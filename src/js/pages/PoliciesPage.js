@@ -12,35 +12,39 @@ import TabsMixin from '../mixins/TabsMixin';
 
 // Default Tabs
 let DEFAULT_POLICIES_TABS = {
-  'policies-policy': {
+  'policies-app': {
+    content: 'Application Policy',
+    priority: 70
+  },
+  'policies-log': {
+    content: 'Log Policy',
+    priority: 30
+  }
+};
+
+let DEFAULT_APPLICATION_POLICY_TABS = {
+  'policies-app-policy': {
     content: 'Policy',
     priority: 30
   },
-  'policies-alert': {
+  'policies-app-alert': {
     content: 'Alert',
     priority: 20
+  },
+  'policies-app-scale': {
+    content: 'Scale Info',
+    priority: 20
   }
 };
 
-let DEFAULT_POLICY_TABS = {
-  'policies-policy-page1': {
-    content: 'Policy-Page1',
+let DEFAULT_LOG_POLICY_TABS = {
+  'policies-log-policy': {
+    content: 'Policy',
     priority: 20
   },
-  'policies-policy-page2': {
-    content: 'Policy-Page2',
+  'policies-log-alert': {
+    content: 'Alert',
     priority: 10
-  }
-};
-
-let DEFAULT_ALERT_TABS = {
-  'policies-alert-page1': {
-    content: 'Alert-Page1',
-    priority: 50
-  },
-  'policies-alert-page2': {
-    content: 'Alert-Page2',
-    priority: 40
   }
 };
 
@@ -50,17 +54,16 @@ class PoliciesPage extends mixin(TabsMixin) {
   constructor() {
     super();
 
-    // Get top level tabs
     POLICIES_TABS = TabsUtil.sortTabs(
-      Hooks.applyFilter('PoliciesTabs', DEFAULT_POLICIES_TABS)
+      Hooks.applyFilter('policies-tabs', DEFAULT_POLICIES_TABS)
     );
-    // Add filter to register default tab for Overview Tab
-    Hooks.addFilter('policies-policy-tabs', function (tabs) {
-      return Object.assign(tabs, DEFAULT_POLICY_TABS);
+
+    Hooks.addFilter('policies-app-tabs', function (tabs) {
+      return Object.assign(tabs, DEFAULT_APPLICATION_POLICY_TABS);
     });
-    // Add filter to register default tab for Organization Tab
-    Hooks.addFilter('policies-alert-tabs', function (tabs) {
-      return Object.assign(tabs, DEFAULT_ALERT_TABS);
+
+    Hooks.addFilter('policies-log-tabs', function (tabs) {
+      return Object.assign(tabs, DEFAULT_LOG_POLICY_TABS);
     });
 
     this.tabs_tabs = {};

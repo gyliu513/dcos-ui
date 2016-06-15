@@ -3,15 +3,15 @@ import React from 'react';
 /* eslint-enable no-unused-vars */
 
 import ActionsModal from './ActionsModal';
-import UserStore from '../../stores/UserStore';
+import KubernetesStore from '../../stores/KubernetesStore';
 
-class UsersActionsModal extends ActionsModal {
+class PolicyActionsModal extends ActionsModal {
   constructor() {
     super(...arguments);
 
     this.store_listeners = [
       {
-        name: 'user',
+        name: 'policy',
         events: ['deleteError', 'deleteSuccess'],
         suppressUpdate: true
       }
@@ -19,7 +19,7 @@ class UsersActionsModal extends ActionsModal {
 
   }
 
-  onUserStoreDeleteError(requestError) {
+  onPolicyStoreDeleteError(requestError) {
     this.onActionError(requestError);
   }
 
@@ -33,15 +33,15 @@ class UsersActionsModal extends ActionsModal {
       return item[itemID];
     });
 
-    itemsByID.forEach(function (userID) {
-      UserStore.deleteUser(userID);
+    itemsByID.forEach(function (policy) {
+      KubernetesStore.deletePolicy(policy);
     });
 
     this.setState({pendingRequest: true, requestErrors: []});
   }
 }
 
-UsersActionsModal.propTypes = {
+PolicyActionsModal.propTypes = {
   action: React.PropTypes.string.isRequired,
   actionText: React.PropTypes.object.isRequired,
   itemID: React.PropTypes.string.isRequired,
@@ -49,4 +49,4 @@ UsersActionsModal.propTypes = {
   selectedItems: React.PropTypes.array.isRequired
 };
 
-module.exports = UsersActionsModal;
+module.exports = PolicyActionsModal;

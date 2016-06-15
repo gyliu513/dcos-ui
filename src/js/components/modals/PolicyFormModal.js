@@ -1,36 +1,49 @@
+import Ace from 'react-ace';
 import mixin from 'reactjs-mixin';
-import {Hooks} from 'PluginSDK';
-/* eslint-disable no-unused-vars */
+import {Modal} from 'reactjs-components';
 import React from 'react';
-/* eslint-enable no-unused-vars */
 import {StoreMixin} from 'mesosphere-shared-reactjs';
 
-import AuthStore from '../../stores/AuthStore';
-import UserStore from '../../stores/UserStore';
-import FormModal from '../FormModal';
+import 'brace/mode/json';
+import 'brace/theme/monokai';
+import 'brace/ext/language_tools';
 
-const TELEMETRY_NOTIFICATION = 'Because telemetry is disabled you must manually notify users of ACL changes.';
+import KubernetesStore from '../../stores/KubernetesStore';
+import SchemaForm from '../SchemaForm';
+import Policy from '../../structs/Policy';
+import PolicyUtil from '../../utils/PolicyUtil';
+import PolicySchema from '../../constants/PolicySchema';
+import ToggleButton from '../ToggleButton';
 
 const METHODS_TO_BIND = [
-  'handleNewPolicySubmit',
-  'onPolicyStoreCreateSuccess'
+  'getTriggerSubmit',
+  'handleCancel',
+  'handleClearError',
+  'handleJSONChange',
+  'handleJSONToggle',
+  'handleSubmit',
+  'onKubernetesStorePolicyCreateError',
+  'onKubernetesStorePolicyCreateSuccess'
 ];
 
 class PolicyFormModal extends mixin(StoreMixin) {
   constructor() {
-    super();
+    super(...arguments);
 
+    let model =
+      PolicyUtil.createFormModelFromSchema(PolicySchema);
     this.state = {
-      disableNewUser: false,
-      errorMsg: false,
-      errorCode: null
+      errorMessage: null,
+      jsonDefinition: JSON.stringify({id:'', cmd:''}, null, 2),
+      jsonMode: false,
+      model,
+      policy: PolicyUtil.createPolicyFromFormModel(model)
     };
 
     this.store_listeners = [
       {
-        name: 'user',
-        events: ['createSuccess', 'createError'],
-        suppressUpdate: true
+        name: 'policy',
+        events: ['policyCreateError', 'policyCreateSuccess']
       }
     ];
 
@@ -39,93 +52,191 @@ class PolicyFormModal extends mixin(StoreMixin) {
     });
   }
 
-  onPolicyStoreCreateSuccess() {
+  componentWillReceiveProps(nextProps) {
+    super.componentWillReceiveProps(...arguments);
+    if (!this.props.open && nextProps.open) {
+      this.resetState();
+    }
+  }
+
+  resetState() {
+    let model = PolicyUtil.createFormModelFromSchema(PolicySchema);
     this.setState({
-      disableNewUser: false,
-      errorMsg: false,
-      errorCode: null
+      errorMessage: null,
+      jsonDefinition: JSON.stringify({id:'', cmd:''}, null, 2),
+      jsonMode: false,
+      model,
+      policy: PolicyUtil.createPolicyFromFormModel(model)
     });
+  }
+
+  handleClearError() {
+    this.setState({
+      errorMessage: null
+    });
+  }
+
+  handleJSONChange(jsonDefinition) {
+    let policy = Object.assign({}, this.state.policy);
+    try {
+      policy = new Policy(JSON.parse(jsonDefinition));
+    } catch (e) {
+
+    }
+    this.setState({jsonDefinition, policy})
+  }
+
+  handleJSONToggle() {
+    let nextState = {};
+    if (!this.state.jsonMode) {
+      let {model} = this.triggerSubmit();
+      let policy = PolicyUtil.createPolicyFromFormModel(model);
+      nextState.model = model;
+      nextState.policy = policy;
+      nextState.jsonDefinition = JSON.stringify(PolicyUtil
+        .getPolicyDefinitionFromService(policy), null, 2);
+    }
+    nextState.jsonMode = !this.state.jsonMode;
+    this.setState(nextState);
+  }
+
+  onKubernetesStorePolicyCreateSuccess() {
+    this.resetState();
     this.props.onClose();
   }
 
-  onUserStoreCreateError(errorMsg, userID, xhr) {
+  onKubernetesStorePolicyCreateError(errorMessage) {
     this.setState({
-      disableNewUser: false,
-      errorMsg,
-      errorCode: xhr.status
+      errorMessage
     });
   }
 
-  handleNewPolicySubmit(model) {
-    this.setState({disableNewUser: true});
-
-    let userModelObject = Hooks.applyFilter('userModelObject', Object.assign(
-      {}, model, {
-        creator_uid: AuthStore.getUser().uid,
-        cluster_url: `${window.location.protocol}//${window.location.hostname}`
-      }
-    ));
-    UserStore.addUser(userModelObject);
+  handleCancel() {
+    this.props.onClose();
   }
 
-  getButtonDefinition() {
-    return Hooks.applyFilter('userFormModalButtonDefinition', [
-      {
-        text: 'Cancel',
-        className: 'button button-medium',
-        isClose: true
-      },
-      {
-        text: 'Add User',
-        className: 'button button-success button-medium',
-        isSubmit: true
-      }
-    ]);
+  handleSubmit() {
+    if (this.state.jsonMode) {
+      let jsonDefinition = this.state.jsonDefinition;
+      KubernetesStore.createPolicy(JSON.parse(jsonDefinition));
+      this.setState({
+        errorMessage: null,
+        jsonDefinition,
+        policy: new Policy(JSON.parse(jsonDefinition))
+      });
+      return;
+    }
+    if (this.triggerSubmit) {
+      let {model} = this.triggerSubmit();
+      let policy = PolicyUtil.createPolicyFromFormModel(model);
+      this.setState({policy, model, errorMessage: null});
+      KubernetesStore
+        .createPolicy(PolicyUtil.getPolicyDefinitionFromPolicy(policy));
+    }
   }
 
-  getNewUserFormDefinition() {
-    let {props, state} = this;
-
-    return Hooks.applyFilter('userFormModalDefinition', [{
-      fieldType: 'text',
-      name: 'uid',
-      placeholder: 'Email',
-      required: true,
-      showError: state.errorMsg,
-      showLabel: false,
-      writeType: 'input',
-      validation: function () { return true; },
-      value: ''
-    }], props, state);
+  getTriggerSubmit(triggerSubmit) {
+    this.triggerSubmit = triggerSubmit;
   }
 
-  getHeader() {
-    return Hooks.applyFilter('userFormModalHeader', (
-      <h2 className="modal-header-title text-align-center flush-top">
-        Add User to Cluster
-      </h2>
-    ));
+  getErrorMessage() {
+    let {errorMessage} = this.state;
+    if (!errorMessage) {
+      return null;
+    }
+
+    return (
+      <div>
+        <h4 className="text-align-center text-danger flush-top">
+          {errorMessage.message}
+        </h4>
+        <pre className="text-danger">
+          {JSON.stringify(errorMessage.details, null, 2)}
+        </pre>
+        <button
+          className="button button-small button-danger flush-bottom"
+          onClick={this.handleClearError}>
+          clear
+        </button>
+      </div>
+    );
   }
 
   getFooter() {
-    return Hooks.applyFilter('userFormModalFooter', (
-      <p className="flush-bottom text-align-center"><strong>Important:</strong> {TELEMETRY_NOTIFICATION}</p>
-    ));
+    return (
+      <div className="button-collection flush-bottom">
+        <button
+          className="button button-large flush-top flush-bottom"
+          onClick={this.handleCancel}>
+          Cancel
+        </button>
+        <ToggleButton
+          checked={this.state.jsonMode}
+          onChange={this.handleJSONToggle}>
+          JSON mode
+        </ToggleButton>
+        <button
+          className="button button-large button-success flush-bottom"
+          onClick={this.handleSubmit}>
+          Deploy
+        </button>
+      </div>
+    );
+  }
+
+  getModalContents() {
+    let {jsonDefinition, jsonMode, policy} = this.state;
+    if (jsonMode) {
+      return (
+        <Ace editorProps={{$blockScrolling: true}}
+          mode="json"
+          onChange={this.handleJSONChange}
+          showGutter={true}
+          showPrintMargin={false}
+          theme="monokai"
+          value={jsonDefinition}
+          width="100%"/>
+      );
+    }
+
+    return (
+      <SchemaForm
+        getTriggerSubmit={this.getTriggerSubmit}
+        model={PolicyUtil.createFormModelFromSchema(PolicySchema, policy)}
+        schema={PolicySchema}/>
+    );
   }
 
   render() {
     return (
-      <FormModal
-        buttonDefinition={this.getButtonDefinition()}
-        definition={this.getNewUserFormDefinition()}
-        disabled={this.state.disableNewUser}
-        onClose={this.props.onClose}
-        onSubmit={this.handleNewPolicySubmit}
+      <Modal
+        backdropClass="modal-backdrop default-cursor"
+        maxHeightPercentage={.9}
+        bodyClass=""
+        modalWrapperClass="multiple-form-modal"
+        innerBodyClass=""
         open={this.props.open}
-        contentFooter={this.getFooter()}>
-        {this.getHeader()}
-      </FormModal>
+        showCloseButton={false}
+        showHeader={true}
+        footer={this.getFooter()}
+        titleText="Define New Policy"
+        showFooter={true}>
+        {this.getErrorMessage()}
+        {this.getModalContents()}
+      </Modal>
     );
   }
 }
+
+PolicyFormModal.defaultProps = {
+  onClose: function () {},
+  open: false
+};
+
+PolicyFormModal.propTypes = {
+  open: React.PropTypes.bool,
+  model: React.PropTypes.object,
+  onClose: React.PropTypes.func
+};
+
 module.exports = PolicyFormModal;
