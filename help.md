@@ -17,7 +17,7 @@ export ETCD_VERSION=2.2.0
  KUBERNETES_PROVIDER=ubuntu ./kube-up.sh
 
 cd cluster/ubuntu
-UBERNETES_PROVIDER=ubuntu ./deployAddons.sh
+KUBERNETES_PROVIDER=ubuntu ./deployAddons.sh
 
 kubectl get pods --namespace=kube-system
 
