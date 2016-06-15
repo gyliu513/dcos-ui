@@ -1,4 +1,8 @@
 
+ABAC http://dockone.io/article/599
+
+My k8s: http://9.111.141.143:8080/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard
+
 OpenStack
 
 http://9.21.60.67/dashboard/identity/
