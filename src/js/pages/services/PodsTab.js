@@ -115,7 +115,7 @@ var PodsTab = React.createClass({
       <div className="button-collection flush-bottom">
         <button className="button button-success"
           onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-          Deploy Pods
+          Deploy Container App
         </button>
       </div>
     );
@@ -211,7 +211,7 @@ var PodsTab = React.createClass({
               handleFilterChange={this.handleFilterChange} />
             <button className="button button-success"
               onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-              Deploy Pods
+              Deploy Container App
             </button>
           </FilterBar>
           <PodsTable
