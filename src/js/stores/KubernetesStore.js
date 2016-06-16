@@ -144,7 +144,6 @@ class KubernetesStore extends EventEmitter {
           this.emit(EventTypes.KUBERNETES_POLICY_FETCH_ERROR, action.data);
           break;
         case ActionTypes.REQUEST_KUBERNETES_POLICY_FETCH_SUCCESS:
-          console.log(action.data)
           this.data.policy = action.data;
           this.emit(EventTypes.KUBERNETES_POLICY_FETCH_SUCCESS);
           break;
@@ -152,7 +151,6 @@ class KubernetesStore extends EventEmitter {
           this.emit(EventTypes.KUBERNETES_POLICIES_FETCH_ERROR, action.data);
           break;
         case ActionTypes.REQUEST_KUBERNETES_POLICIES_FETCH_SUCCESS:
-          console.log(action.data)
           this.data.policyTree = action.data;
           this.emit(EventTypes.KUBERNETES_POLICIES_FETCH_SUCCESS);
           break;

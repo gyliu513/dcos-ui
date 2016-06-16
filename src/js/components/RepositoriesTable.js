@@ -212,7 +212,6 @@ class RepositoriesTable extends mixin(StoreMixin) {
 
   render() {
     let {props, state} = this;
-    console.log(this);
 
     return (
       <div>

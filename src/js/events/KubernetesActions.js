@@ -119,7 +119,6 @@ const KubernetesActions = {
         RequestUtil.json({
           url: `${Config.rootUrl}/kubernetes/apis/autoscaling/v1/namespaces/${namespace}/horizontalpodautoscalers/${name}`,
           success: function (response) {
-            console.log(response)
             try {
               AppDispatcher.handleServerAction({
                 type: ActionTypes.REQUEST_KUBERNETES_POLICY_FETCH_SUCCESS,
@@ -298,7 +297,6 @@ const KubernetesActions = {
 
   createPV: function (data) {
     console.log('Creating PV');
-    console.log(JSON.stringify(data));
     RequestUtil.json({
       url: `${Config.rootUrl}/kubernetes/api/v1/persistentvolumes`,
       method: 'POST',
@@ -362,7 +360,6 @@ const KubernetesActions = {
 
   createPod: function (data) {
     console.log('Creating Pod');
-    console.log(JSON.stringify(data));
     RequestUtil.json({
       url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/pods`,
       method: 'POST',
@@ -384,7 +381,6 @@ const KubernetesActions = {
 
   createPolicy: function (data, namespace) {
     console.log('Creating Policy');
-    console.log(JSON.stringify(data));
     RequestUtil.json({
       url: `${Config.rootUrl}/kubernetes/apis/autoscaling/v1/namespaces/${namespace}/horizontalpodautoscalers`,
       method: 'POST',
