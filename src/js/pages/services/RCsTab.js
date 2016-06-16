@@ -115,7 +115,7 @@ var RCsTab = React.createClass({
       <div className="button-collection flush-bottom">
         <button className="button button-success"
           onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-          Deploy Pods
+          Deploy Replication Controllers
         </button>
       </div>
     );
@@ -157,7 +157,7 @@ var RCsTab = React.createClass({
       <div>
         <PodsBreadcrumb podTreeItem={item} />
         <AlertPanel
-          title="No Pods Deployed"
+          title="No Replication Controllers Deployed"
           footer={this.getAlertPanelFooter()}
           iconClassName="icon icon-sprite icon-sprite-jumbo
           icon-sprite-jumbo-white icon-services flush-top">
@@ -214,7 +214,7 @@ var RCsTab = React.createClass({
               handleFilterChange={this.handleFilterChange} />
             <button className="button button-success"
               onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-              Deploy Pods
+              Deploy Replication Controllers
             </button>
           </FilterBar>
           <PodsTable
