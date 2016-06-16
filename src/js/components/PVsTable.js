@@ -140,10 +140,9 @@ var PVsTable = React.createClass({
       rowObj.status = data[i].status.phase;
       rowObj.capacity = data[i].spec.capacity.storage;
       rowObj.accessmodes = data[i].spec.accessModes[0];
-      if (data[i].spec.claimRef.namespace && data[i].spec.claimRef.name) {
+      rowObj.claim = '';
+      if (!!data[i].spec.claimRef && !!data[i].spec.claimRef.namespace && !!data[i].spec.claimRef.name) {
         rowObj.claim = data[i].spec.claimRef.namespace + '/' + data[i].spec.claimRef.name;
-      } else {
-        rowObj.claim = '';
       }
       newRows.push(rowObj);
     }
