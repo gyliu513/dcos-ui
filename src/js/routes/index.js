@@ -8,7 +8,6 @@ import NotFoundPage from '../pages/NotFoundPage';
 import System from './factories/system';
 import Policies from './factories/policies';
 import services from './services';
-import jobs from './jobs';
 import images from './images';
 import universe from './universe';
 import storage from './storage';
@@ -17,7 +16,6 @@ import storage from './storage';
 let applicationRoutes = [
   dashboard,
   services,
-  jobs,
   nodes,
   images,
   universe,
