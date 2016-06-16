@@ -82,7 +82,7 @@ const KubernetesActions = {
     function (resolve, reject) {
       return function (name, namespace) {
         RequestUtil.json({
-          url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/${namespace}/persistenvolumeclaims/${name}`,
+          url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/${namespace}/persistentvolumeclaims/${name}`,
           success: function (response) {
             try {
               AppDispatcher.handleServerAction({
@@ -227,7 +227,7 @@ const KubernetesActions = {
       return function () {
         console.log('fetchPVCs');
         RequestUtil.json({
-          url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/persistenvolumeclaims`,
+          url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/persistentvolumeclaims`,
           success: function (response) {
             try {
               let data = KubernetesUtil.parsePods(response.items);
