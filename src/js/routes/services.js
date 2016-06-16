@@ -3,6 +3,7 @@ import {Route, Redirect} from 'react-router';
 import DeploymentsTab from '../pages/services/DeploymentsTab';
 import PodsTab from '../pages/services/PodsTab';
 import RCsTab from '../pages/services/RCsTab';
+import JobsTab from '../pages/services/JobsTab';
 import KservicesTab from '../pages/services/KservicesTab';
 import ServiceOverlay from '../components/ServiceOverlay';
 import ServicesPage from '../pages/ServicesPage';
@@ -79,6 +80,12 @@ let serviceRoutes = {
       name: 'services-kservices',
       path: 'kservices/',
       handler: KservicesTab
+    },
+    {
+      type: Route,
+      name: 'services-jobs',
+      path: 'jobs/',
+      handler: JobsTab
     },
     {
       type: Redirect,

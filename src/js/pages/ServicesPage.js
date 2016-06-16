@@ -32,7 +32,8 @@ var ServicesPage = React.createClass({
     this.tabs_tabs = {
       'services-pods': 'Pod',
       'services-rcs': 'Replication Controller',
-      'services-kservices': 'Services'
+      'services-kservices': 'Service',
+      'services-jobs': 'Job',
     };
     this.updateCurrentTab();
   },
