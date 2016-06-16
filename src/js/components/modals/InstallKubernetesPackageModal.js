@@ -19,10 +19,11 @@ const PREINSTALL_NOTES_CHAR_LIMIT = 140;
 const METHODS_TO_BIND = [
   'getAdvancedSubmit',
   'handleChangeTab',
+  'handleInstallKubernetesPackage',
   'handleAdvancedFormChange',
   'handleModalClose',
-  'handlePreinstallNotesToggle',
-  'handleInstallKubernetesPackage'
+  'handlePreinstallNotesToggle'
+
 ];
 
 class InstallKubernetesPackageModal extends mixin(InternalStorageMixin, TabsMixin, StoreMixin) {

@@ -325,6 +325,7 @@ if (Config.useFixtures) {
     fetchAvailablePackages:
       {event: 'success', success: {response: packagesSearchFixture}},
     installPackage: {event: 'success'},
+    installKubernetesPackage: {event: 'success'},
     uninstallPackage: {event: 'success'},
     fetchRepositories:
       {event: 'success', success: {response: packagesRepositoriesFixture}},
