@@ -249,7 +249,7 @@ const CosmosPackagesActions = {
       contentType: getContentType('install-kubernetes', 'request'),
       headers: {Accept: getContentType('install-kubernetes', 'response')},
       method: 'POST',
-      url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/kubernetes-install`,
+      url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/install-kubernetes`,
       data: JSON.stringify({packageName, packageVersion, options}),
       timeout: REQUEST_TIMEOUT,
       success: function (response) {
