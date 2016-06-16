@@ -1,14 +1,19 @@
-import {Link} from 'react-router';
+// import {Link} from 'react-router';
 var React = require('react');
 
 var EventTypes = require('../constants/EventTypes');
 import {Table} from 'reactjs-components';
 import TableUtil from '../utils/TableUtil';
+import KubernetesStore from '../stores/KubernetesStore';
+
+var ResourceTableUtil = require('../utils/ResourceTableUtil');
 
 var PolicyTableHeaderLabels = {
   name: 'Name',
-  namespace: 'Namespace',
-  creationTimestamp: 'CreationTimestamp'
+  creationTimestamp: 'CreationTimestamp',
+  targetCPUUtilization: 'TargetCPUUtilization',
+  minReplicas: 'MinReplicas',
+  maxReplicas: 'MaxReplicas'
 };
 
 var PoliciesTable = React.createClass({
@@ -47,24 +52,23 @@ var PoliciesTable = React.createClass({
     return (
       <div className="service-table-heading flex-box
         flex-box-align-vertical-center table-cell-flex-box">
-        <Link to="application-policy-detail"
-          className="headline table-cell-value flex-box flex-box-col"
-          params={policy}>
-          <span className="text-overflow">
-            {policy.name}
-          </span>
-        </Link>
+        <span className="text-overflow">
+          {policy.name}
+        </span>
       </div>
     );
   },
 
   getRows: function (policies) {
     let newRows = [];
+
     for (var i = 0; i < policies.length; i++) {
       var rowObj = {};
       rowObj.name = policies[i].metadata.name;
-      rowObj.namespace = policies[i].metadata.namespace;
       rowObj.creationTimestamp = policies[i].metadata.creationTimestamp;
+      rowObj.targetCPUUtilization = policies[i].spec.targetCPUUtilizationPercentage;
+      rowObj.minReplicas = policies[i].spec.minReplicas;
+      rowObj.maxReplicas = policies[i].spec.maxReplicas;
       newRows.push(rowObj);
     }
 
@@ -87,14 +91,28 @@ var PoliciesTable = React.createClass({
       {
         className,
         headerClassName: className,
-        prop: 'namespace',
+        prop: 'creationTimestamp',
         sortable: false,
         heading
       },
       {
         className,
         headerClassName: className,
-        prop: 'creationTimestamp',
+        prop: 'targetCPUUtilization',
+        sortable: false,
+        heading
+      },
+      {
+        className,
+        headerClassName: className,
+        prop: 'minReplicas',
+        sortable: false,
+        heading
+      },
+      {
+        className,
+        headerClassName: className,
+        prop: 'maxReplicas',
         sortable: false,
         heading
       }

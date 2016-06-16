@@ -34,28 +34,6 @@ function addPod(parent, item, podsAlreadyAdded) {
   return;
 }
 
-function addPolicy(parent, item, policiesAlreadyAdded) {
-  // selfLink of a pod is a unique and never changed identifier
-  const itemId = item.metadata.selfLink;
-
-  if (policiesAlreadyAdded[itemId]) {
-    item = Object.assign(policiesAlreadyAdded[itemId], item);
-
-    return;
-  }
-
-  // Initialize items, if they don't already exist, before push
-  if (!parent.items) {
-    parent.items = [];
-  }
-
-  // Store child as added
-  policiesAlreadyAdded[item.id] = item;
-  parent.items.push(item);
-
-  return;
-}
-
 module.exports = {
 
   /**
@@ -79,23 +57,6 @@ module.exports = {
 
     pods.forEach(function (pod) {
       addPod(rootTree, pod, podsAlreadyAdded);
-    });
-
-    return rootTree;
-  },
-
-  parsePolicies(policies) {
-    let rootTree = {id: '/'};
-    let policiesAlreadyAdded = {
-      [rootTree.id]: rootTree
-    };
-
-    if (!Array.isArray(policies)) {
-      policies = [policies];
-    }
-
-    policies.forEach(function (policy) {
-      addPolicy(rootTree, policy, policiesAlreadyAdded);
     });
 
     return rootTree;

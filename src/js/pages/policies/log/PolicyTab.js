@@ -12,7 +12,7 @@ import {
   POLICY_FORM_MODAL
 } from '../../../constants/ModalKeys';
 import Policy from '../../../structs/Policy';
-import PolicyTree from '../../../structs/PolicyTree';
+// import PolicyList from '../../../structs/PolicyList';
 import PolicyDetail from '../../../components/PolicyDetail';
 import PolicyFormModal from '../../../components/modals/PolicyFormModal';
 import PolicySearchFilter from '../../../components/PolicySearchFilter';

@@ -7,7 +7,7 @@ import Config from '../config/Config';
 import PodTree from '../structs/PodTree';
 import PVTree from '../structs/PVTree';
 import PVCTree from '../structs/PVCTree';
-import PolicyTree from '../structs/PolicyTree';
+import PolicyList from '../structs/PolicyList';
 import {
   KUBERNETES_CHANGE,
 } from '../constants/EventTypes';
@@ -51,7 +51,7 @@ class KubernetesStore extends EventEmitter {
       podTree: {id: '/', items: []},
       pvTree: {id: '/', items: []},
       pvcTree: {id: '/', items: []},
-      policyTree: {id: '/', items: []}
+      policyList: []
     };
 
     this.dispatcherIndex = AppDispatcher.register((payload) => {
@@ -137,7 +137,7 @@ class KubernetesStore extends EventEmitter {
           this.emit(EventTypes.KUBERNETES_POLICY_CREATE_ERROR, action.data);
           break;
         case ActionTypes.REQUEST_KUBERNETES_POLICY_CREATE_SUCCESS:
-          this.data.policyTree = action.data;
+          this.data.policyList = action.data;
           this.emit(EventTypes.KUBERNETES_POLICY_CREATE_SUCCESS);
           break;
         case ActionTypes.REQUEST_KUBERNETES_POLICY_FETCH_ERROR:
@@ -151,7 +151,7 @@ class KubernetesStore extends EventEmitter {
           this.emit(EventTypes.KUBERNETES_POLICIES_FETCH_ERROR, action.data);
           break;
         case ActionTypes.REQUEST_KUBERNETES_POLICIES_FETCH_SUCCESS:
-          this.data.policyTree = action.data;
+          this.data.policyList= action.data;
           this.emit(EventTypes.KUBERNETES_POLICIES_FETCH_SUCCESS);
           break;
       }
@@ -243,8 +243,8 @@ class KubernetesStore extends EventEmitter {
     return new PodTree(this.data.podTree);
   }
 
-  get policyTree() {
-    return new PolicyTree(this.data.policyTree);
+  get policyList() {
+    return new PolicyList({items: this.data.policyList});
   }
 
   deletePolicy() {

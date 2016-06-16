@@ -11,9 +11,9 @@ import SaveStateMixin from '../../../mixins/SaveStateMixin';
 import {
   POLICY_FORM_MODAL
 } from '../../../constants/ModalKeys';
-import Policy from '../../../structs/Policy';
-import PolicyTree from '../../../structs/PolicyTree';
-import PolicyDetail from '../../../components/PolicyDetail';
+// import Policy from '../../../structs/Policy';
+import PolicyList from '../../../structs/PolicyList';
+// import PolicyDetail from '../../../components/PolicyDetail';
 import PolicyFormModal from '../../../components/modals/PolicyFormModal';
 import PolicySearchFilter from '../../../components/PolicySearchFilter';
 import PoliciesBreadcrumb from '../../../components/PoliciesBreadcrumb';
@@ -134,26 +134,15 @@ var PolicyTab = React.createClass({
       );
     }
 
-    // if (this.props.params.name && this.props.params.namespace) {
-    //   return (
-    //     <RouteHandler />
-    //   );
-    // }
-
     // Render policy table
-    if (item instanceof PolicyTree && item.getItems().length > 0) {
-      return this.getPolicyTreeView(item);
-    }
-
-    // Render pod detail
-    if (item instanceof Policy) {
-      return (<PolicyDetail policy={item} />);
+    if (item instanceof PolicyList && item.getItems().length > 0) {
+      return this.getPolicyListView(item);
     }
 
     // Render empty panel
     return (
       <div>
-        <PoliciesBreadcrumb policiesTreeItem={item} />
+        <PoliciesBreadcrumb policyListItem={item} />
         <AlertPanel
           title="No Policy Found"
           footer={this.getAlertPanelFooter()}
@@ -167,9 +156,8 @@ var PolicyTab = React.createClass({
     );
   },
 
-  getHeadline: function (item, filteredPolices) {
+  getHeadline: function (policies, filteredPolices) {
     let {state} = this;
-    let policies = item.getItems();
 
     const hasFiltersApplied = Object.keys(DEFAULT_FILTER_OPTIONS)
       .some((filterKey) => {
@@ -188,14 +176,14 @@ var PolicyTab = React.createClass({
     }
 
     return (
-      <PoliciesBreadcrumb policyTreeItem={item} />
+      <PoliciesBreadcrumb policyListItem={policies} />
     );
   },
 
-  getPolicyTreeView(item) {
+  getPolicyListView(item) {
     let {state} = this;
-    let filteredPolicies = item.filterItemsByFilter({
-      id: state.searchString
+    let filteredPolicies = item.filter({
+      name: state.searchString
     }).getItems();
 
     return (
@@ -221,17 +209,12 @@ var PolicyTab = React.createClass({
   },
 
   render: function () {
-    // let {id} = this.props.params;
-    // id = decodeURIComponent(id);
     let {state} = this;
-
-    // let item = DCOSStore.policyTree.findItemById(id) || DCOSStore.policyTree;
-
-    let item = DCOSStore.policyTree;
+    let policyList = DCOSStore.policyList;
 
     return (
       <div>
-        {this.getContents(item)}
+        {this.getContents(policyList)}
         <PolicyFormModal open={state.isPolicyFormModalShown}
           onClose={this.handleClosePolicyFormModal}/>
       </div>

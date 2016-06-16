@@ -225,10 +225,10 @@ class DCOSStore extends EventEmitter {
   }
 
   /**
-   * @type {PolicyTree}
+   * @type {PolicyList}
    */
-  get policyTree() {
-    return KubernetesStore.policyTree;
+  get policyList() {
+    return KubernetesStore.policyList;
   }
 
   /**

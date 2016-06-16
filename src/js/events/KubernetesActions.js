@@ -266,10 +266,9 @@ const KubernetesActions = {
           url: `${Config.rootUrl}/kubernetes/apis/autoscaling/v1/namespaces/${namespace}/horizontalpodautoscalers`,
           success: function (response) {
             try {
-              let data = KubernetesUtil.parsePolicies(response.items);
               AppDispatcher.handleServerAction({
                 type: ActionTypes.REQUEST_KUBERNETES_POLICIES_FETCH_SUCCESS,
-                data
+                data: response.items
               });
               resolve();
             } catch (error) {
