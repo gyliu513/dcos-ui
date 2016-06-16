@@ -171,7 +171,7 @@ var PolicyTab = React.createClass({
           onReset={this.resetFilter}
           name="Policies"
           currentLength={filteredPolices.length}
-          totalLength={policies.length} />
+          totalLength={policies.getItems().length} />
       );
     }
 

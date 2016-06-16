@@ -7,7 +7,7 @@ class PoliciesBreadcrumb extends React.Component {
   }
 
   render() {
-    const {name, namespace} = this.props;
+    const {name} = this.props;
     const breadcrumbIcon = (
       <i className="icon
         icon-sprite
@@ -19,18 +19,9 @@ class PoliciesBreadcrumb extends React.Component {
 
     let breadcrumbNodes = [(
       <span className="crumb" key="/">
-        <Link to="services-pods">Policies</Link>
+        <Link to="policies-app-policy">Policies</Link>
       </span>
     )];
-
-    if (namespace != null) {
-      breadcrumbNodes.push(
-        <span className="crumb" key={namespace}>
-          {breadcrumbIcon}
-          <span>{namespace}</span>
-        </span>
-      );
-    }
 
     if (name != null) {
       breadcrumbNodes.push(
