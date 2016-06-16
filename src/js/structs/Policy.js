@@ -9,45 +9,33 @@ module.exports = class Policy extends Item {
     return this.get('metadata.namespace');
   }
 
-  getCreationTimestamp() {
-    return this.get('metadata.creationTimestamp');
-  }
-
   getMetadata() {
     return {
-      metadata: {
-        name: this.get('metadata.name'),
-        namespace: this.get('metadata.namespace'),
-        creationTimestamp: this.get('metadata.creationTimestamp')
-      }
+      name: this.get('metadata.name'),
+      namespace: this.get('metadata.namespace')
     }
   }
 
   getSpec() {
     return {
-      spec: {
-        scaleTargetRef: {
-          kind: this.get('spec.scaleTargetRef.kind'),
-          name: this.get('spec.scaleTargetRef.name'),
-          subresource: 'scale'
-        },
-        minReplicas: this.get('spec.minReplicas'),
-        maxReplicas: this.get('spec.maxReplicas'),
-        cpuUtilization: {
-          targetPercentage: this.get('spec.cpuUtilization.targetCPUUtilizationPercentage')
-        }
+      scaleTargetRef: {
+        kind: this.get('spec.scaleTargetRef.kind'),
+        name: this.get('spec.scaleTargetRef.name')
+      },
+      minReplicas: 1,
+      maxReplicas: 2,
+      cpuUtilization: {
+        targetPercentage: this.get('spec.targetCPUUtilizationPercentage')
       }
     };
   }
 
   getStatus() {
     return {
-      status: {
-        currentReplicas: this.get('status.currentReplicas'),
-        desiredReplicas: this.get('status.desiredReplicas'),
-        currentCPUUtilizationPercentage: this.get('status.currentCPUUtilizationPercentage'),
-        lastScaleTime: this.get('status.lastScaleTime')
-      }
+      currentReplicas: this.get('status.currentReplicas'),
+      desiredReplicas: this.get('status.desiredReplicas'),
+      currentCPUUtilizationPercentage: this.get('status.currentCPUUtilizationPercentage'),
+      lastScaleTime: this.get('status.lastScaleTime')
     };
   }
 };

@@ -8,13 +8,15 @@ class PolicyList extends List {
 
     if (filters) {
       if (filters.name) {
-        policies = StringUtil.filterByString(policies, 'metadata.name', filters.name);
+        policies = StringUtil.filterByString(
+          policies,
+          function (policy) { return policy.metadata.name; },
+          filters.name);
       }
     }
 
     return new PolicyList({items: policies});
   }
-
 };
 
 PolicyList.type = Policy;
