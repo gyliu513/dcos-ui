@@ -267,7 +267,6 @@ const KubernetesActions = {
           success: function (response) {
             try {
               let data = KubernetesUtil.parsePolicies(response.items);
-              console.log(data)
               AppDispatcher.handleServerAction({
                 type: ActionTypes.REQUEST_KUBERNETES_POLICIES_FETCH_SUCCESS,
                 data
@@ -338,7 +337,6 @@ const KubernetesActions = {
 
   createPVC: function (data) {
     console.log('Creating PVC');
-    console.log(JSON.stringify(data));
     RequestUtil.json({
       url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/persistentvolumeclaims`,
       method: 'POST',
