@@ -1,18 +1,18 @@
 import {Link} from 'react-router';
 var React = require('react');
 
+import Config from '../config/Config';
 import Cluster from '../utils/Cluster';
 var EventTypes = require('../constants/EventTypes');
 import Framework from '../structs/Framework';
 import HealthBar from './HealthBar';
 import IconNewWindow from './icons/IconNewWindow';
+import KubernetesStore from '../stores/KubernetesStore';
 var MarathonStore = require('../stores/MarathonStore');
 var ResourceTableUtil = require('../utils/ResourceTableUtil');
 var PVTableHeaderLabels = require('../constants/PVTableHeaderLabels');
-// import ServiceTableUtil from '../utils/ServiceTableUtil';
-// import ServiceTree from '../structs/ServiceTree';
 import StringUtil from '../utils/StringUtil';
-import {Table} from 'reactjs-components';
+import {Confirm, Table} from 'reactjs-components';
 import TableUtil from '../utils/TableUtil';
 var Units = require('../utils/Units');
 
@@ -26,6 +26,23 @@ var PVsTable = React.createClass({
 
   propTypes: {
     services: React.PropTypes.array.isRequired
+  },
+
+  getInitialState: function () {
+    this.store_listeners = [{
+      name: 'cosmosPackages',
+      events: ['repositoryDeleteError', 'repositoryDeleteSuccess'],
+      unmountWhen: function () {
+        return true;
+      },
+      listenAlways: true
+    }];
+
+    return {
+      pvToRemove: null,
+      pvRemoveError: null,
+      pendingRequest: false
+    };
   },
 
   componentDidMount: function () {
@@ -134,6 +151,32 @@ var PVsTable = React.createClass({
     return newRows;
   },
 
+  handleOpenConfirm: function (pvToRemove) {
+    this.setState({pvToRemove});
+  },
+
+  handleDeleteCancel: function () {
+    this.setState({pvToRemove: null});
+  },
+
+  handleDeletePV: function () {
+    let {pvToRemove} = this.state;
+    KubernetesStore.removePV(pvToRemove.name);
+    this.setState({pendingRequest: true});
+  },
+
+  getRemoveButton: function (prop, pvToRemove) {
+    return (
+      <div className="flex-align-right">
+        <a
+          className="button button-link button-danger table-display-on-row-hover"
+          onClick={this.handleOpenConfirm.bind(this, pvToRemove)}>
+          Remove
+        </a>
+      </div>
+    );
+  },
+
   getColumns: function () {
     let className = ResourceTableUtil.getClassName;
     let heading = ResourceTableUtil.renderHeading(PVTableHeaderLabels);
@@ -174,6 +217,14 @@ var PVsTable = React.createClass({
         prop: 'claim',
         sortable: true,
         heading
+      },
+      {
+        className,
+        headerClassName: className,
+        heading: function () {},
+        prop: 'removed',
+        render: this.getRemoveButton,
+        sortable: false
       }
     ];
   },
@@ -185,7 +236,35 @@ var PVsTable = React.createClass({
         <col className="status-bar-column"/>
         <col style={{width: '150px'}} />
         <col style={{width: '150px'}} />
+        <col style={{width: '150px'}} />
+        <col style={{width: '85px'}} />
       </colgroup>
+    );
+  },
+
+  getRemoveModalContent: function () {
+    let {pvRemoveError, pvToRemove} = this.state;
+    let pvLabel = 'This Persisten Volume';
+    if (pvToRemove && pvToRemove.name) {
+      pvLabel = pvToRemove.name;
+    }
+
+    let error = null;
+
+    if (pvRemoveError != null) {
+      error = (
+        <p className="text-error-state">{pvRemoveError}</p>
+      );
+    }
+
+    return (
+      <div className="container-pod container-pod-short text-align-center">
+        <h3 className="flush-top">Are you sure?</h3>
+        <p>
+          {`Persisten Volume (${pvLabel}) will be removed from ${Config.productName}. You will not be able to use it anymore.`}
+        </p>
+        {error}
+      </div>
     );
   },
 
@@ -201,6 +280,19 @@ var PVsTable = React.createClass({
           itemHeight={TableUtil.getRowHeight()}
           containerSelector=".gm-scroll-view"
           sortBy={{prop: 'name', order: 'asc'}} />
+        <Confirm
+          closeByBackdropClick={true}
+          disabled={this.state.pendingRequest}
+          footerContainerClass="container container-pod container-pod-short
+            container-pod-fluid flush-top flush-bottom"
+          open={!!this.state.pvToRemove}
+          onClose={this.handleDeleteCancel}
+          leftButtonCallback={this.handleDeleteCancel}
+          rightButtonCallback={this.handleDeletePV}
+          rightButtonClassName="button button-danger"
+          rightButtonText="Remove PV">
+          {this.getRemoveModalContent()}
+        </Confirm>
       </div>
     );
   }

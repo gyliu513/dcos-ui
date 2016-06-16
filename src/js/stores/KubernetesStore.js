@@ -90,6 +90,12 @@ class KubernetesStore extends EventEmitter {
           this.data.pvTree = action.data;
           this.emit(EventTypes.KUBERNETES_PV_CREATE_SUCCESS);
           break;
+        case ActionTypes.REQUEST_KUBERNETES_PV_DELETE_ERROR:
+          this.emit(EventTypes.KUBERNETES_PV_DELETE_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_PV_DELETE_SUCCESS:
+          this.emit(EventTypes.KUBERNETES_PV_DELETE_SUCCESS);
+          break;
         case ActionTypes.REQUEST_KUBERNETES_PV_FETCH_ERROR:
           this.emit(EventTypes.KUBERNETES_PV_FETCH_ERROR, action.data);
           break;
@@ -186,6 +192,11 @@ class KubernetesStore extends EventEmitter {
   createPV() {
     console.log('Staring to create PV');
     return KubernetesActions.createPV(...arguments);
+  }
+
+  removePV() {
+    console.log('Starting to remove PV');
+    return KubernetesActions.removePV(...arguments);
   }
 
   createPVC() {

@@ -154,7 +154,7 @@ const KubernetesActions = {
       return function () {
         console.log('fetchPods');
         RequestUtil.json({
-          url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/pods`,
+          url: `${Config.rootUrl}/kubernetes/api/v1/pods`,
           success: function (response) {
             try {
               let data = KubernetesUtil.parsePods(response.items);
@@ -311,6 +311,26 @@ const KubernetesActions = {
       error: function (xhr) {
         AppDispatcher.handleServerAction({
           type: ActionTypes.REQUEST_KUBERNETES_PV_CREATE_ERROR,
+          data: RequestUtil.parseResponseBody(xhr),
+          xhr
+        });
+      }
+    });
+  },
+
+  removePV: function (name) {
+    console.log('Removing PV');
+    RequestUtil.json({
+      url: `${Config.rootUrl}/kubernetes/api/v1/persistentvolumes/${name}`,
+      method: 'DELETE',
+      success: function () {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_PV_DELETE_SUCCESS
+        });
+      },
+      error: function (xhr) {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_PV_DELETE_ERROR,
           data: RequestUtil.parseResponseBody(xhr),
           xhr
         });
