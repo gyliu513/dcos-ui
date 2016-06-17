@@ -9,25 +9,24 @@ module.exports = class Policy extends Item {
     return this.get('metadata.namespace');
   }
 
-  getMetadata() {
-    return {
-      name: this.get('metadata.name'),
-      namespace: this.get('metadata.namespace')
-    }
+  getTypeOfScaleTarget() {
+    return this.get('spec.scaleTargetRef.kind');
   }
 
-  getSpec() {
-    return {
-      scaleTargetRef: {
-        kind: this.get('spec.scaleTargetRef.kind'),
-        name: this.get('spec.scaleTargetRef.name')
-      },
-      minReplicas: 1,
-      maxReplicas: 2,
-      cpuUtilization: {
-        targetPercentage: this.get('spec.targetCPUUtilizationPercentage')
-      }
-    };
+  getNameOfScaleTarget() {
+    return this.get('spec.scaleTargetRef.name');
+  }
+
+  getMinReplicas() {
+    return this.get('spec.minReplicas');
+  }
+
+  getMaxReplicas() {
+    return this.get('spec.maxReplicas');
+  }
+
+  getTargetCPUUtilization() {
+    return this.get('spec.targetCPUUtilizationPercentage');
   }
 
   getStatus() {

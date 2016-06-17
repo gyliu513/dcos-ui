@@ -376,10 +376,10 @@ const KubernetesActions = {
     });
   },
 
-  createPolicy: function (data, namespace) {
+  createPolicy: function (data) {
     console.log('Creating Policy');
     RequestUtil.json({
-      url: `${Config.rootUrl}/kubernetes/apis/autoscaling/v1/namespaces/${namespace}/horizontalpodautoscalers`,
+      url: `${Config.rootUrl}/kubernetes/apis/extensions/v1beta1/namespaces/${data.metadata.namespace}/horizontalpodautoscalers`,
       method: 'POST',
       data,
       success: function () {

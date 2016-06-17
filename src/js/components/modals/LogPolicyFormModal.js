@@ -10,9 +10,9 @@ import 'brace/ext/language_tools';
 
 import KubernetesStore from '../../stores/KubernetesStore';
 import SchemaForm from '../SchemaForm';
-import Policy from '../../structs/Policy';
-import PolicyUtil from '../../utils/PolicyUtil';
-import PolicySchema from '../../constants/PolicySchema';
+import LogPolicy from '../../structs/LogPolicy';
+import LogPolicyUtil from '../../utils/LogPolicyUtil';
+import LogPolicySchema from '../../constants/LogPolicySchema';
 import ToggleButton from '../ToggleButton';
 
 const METHODS_TO_BIND = [
@@ -22,32 +22,31 @@ const METHODS_TO_BIND = [
   'handleJSONChange',
   'handleJSONToggle',
   'handleSubmit',
-  'onKubernetesStorePolicyCreateError',
-  'onKubernetesStorePolicyCreateSuccess'
+  'onKubernetesStoreLogPolicyCreateError',
+  'onKubernetesStoreLogPolicyCreateSuccess'
 ];
 
-class PolicyFormModal extends mixin(StoreMixin) {
+class LogPolicyFormModal extends mixin(StoreMixin) {
   constructor() {
     super(...arguments);
 
     let model =
-      PolicyUtil.createFormModelFromSchema(PolicySchema);
+      LogPolicyUtil.createFormModelFromSchema(LogPolicySchema);
     this.state = {
       errorMessage: null,
-      jsonDefinition: JSON.stringify({apiVersion: 'extensions/v1beta1',
-                                      kind: 'HorizontalPodAutoscaler',
+      jsonDefinition: JSON.stringify({kind: 'LogPolicy',
                                       metadata: {},
                                       spec: {}
                                     },
                                     null, 2),
       jsonMode: true,
       model,
-      policy: PolicyUtil.createPolicyFromFormModel(model)
+      policy: LogPolicyUtil.createLogPolicyFromFormModel(model)
     };
 
     this.store_listeners = [
       {
-        name: 'kubernetes',
+        name: 'policy',
         events: ['policyCreateError', 'policyCreateSuccess']
       }
     ];
@@ -65,27 +64,26 @@ class PolicyFormModal extends mixin(StoreMixin) {
   }
 
   resetState() {
-    let model = PolicyUtil.createFormModelFromSchema(PolicySchema);
+    let model = LogPolicyUtil.createFormModelFromSchema(LogPolicySchema);
     this.setState({
       errorMessage: null,
-      jsonDefinition: JSON.stringify({apiVersion: 'extensions/v1beta1',
-                                      kind:'HorizontalPodAutoscaler',
-                                      metadata: {},
-                                      spec: {}}, null, 2),
+      jsonDefinition: JSON.stringify({id:'', cmd:''}, null, 2),
       jsonMode: false,
       model,
-      policy: PolicyUtil.createPolicyFromFormModel(model)
+      policy: LogPolicyUtil.createLogPolicyFromFormModel(model)
     });
   }
 
   handleClearError() {
-    this.resetState();
+    this.setState({
+      errorMessage: null
+    });
   }
 
   handleJSONChange(jsonDefinition) {
     let policy = Object.assign({}, this.state.policy);
     try {
-      policy = new Policy(JSON.parse(jsonDefinition));
+      policy = new LogPolicy(JSON.parse(jsonDefinition));
     } catch (e) {
 
     }
@@ -96,22 +94,22 @@ class PolicyFormModal extends mixin(StoreMixin) {
     let nextState = {};
     if (!this.state.jsonMode) {
       let {model} = this.triggerSubmit();
-      let policy = PolicyUtil.createPolicyFromFormModel(model);
+      let policy = LogPolicyUtil.createLogPolicyFromFormModel(model);
       nextState.model = model;
       nextState.policy = policy;
-      nextState.jsonDefinition = JSON.stringify(PolicyUtil
-        .getPolicyDefinitionFromPolicy(policy), null, 2);
+      nextState.jsonDefinition = JSON.stringify(LogPolicyUtil
+        .getLogPolicyDefinitionFromLogPolicy(policy), null, 2);
     }
     nextState.jsonMode = !this.state.jsonMode;
     this.setState(nextState);
   }
 
-  onKubernetesStorePolicyCreateSuccess() {
+  onKubernetesStoreLogPolicyCreateSuccess() {
     this.resetState();
     this.props.onClose();
   }
 
-  onKubernetesStorePolicyCreateError(errorMessage) {
+  onKubernetesStoreLogPolicyCreateError(errorMessage) {
     this.setState({
       errorMessage
     });
@@ -124,20 +122,20 @@ class PolicyFormModal extends mixin(StoreMixin) {
   handleSubmit() {
     if (this.state.jsonMode) {
       let jsonDefinition = this.state.jsonDefinition;
-      KubernetesStore.createPolicy(JSON.parse(jsonDefinition));
+      KubernetesStore.createLogPolicy(JSON.parse(jsonDefinition));
       this.setState({
         errorMessage: null,
         jsonDefinition,
-        policy: new Policy(JSON.parse(jsonDefinition))
+        policy: new LogPolicy(JSON.parse(jsonDefinition))
       });
       return;
     }
     if (this.triggerSubmit) {
       let {model} = this.triggerSubmit();
-      let policy = PolicyUtil.createPolicyFromFormModel(model);
+      let policy = LogPolicyUtil.createLogPolicyFromFormModel(model);
       this.setState({policy, model, errorMessage: null});
       KubernetesStore
-        .createPolicy(PolicyUtil.getPolicyDefinitionFromPolicy(policy));
+        .createLogPolicy(LogPolicyUtil.getLogPolicyDefinitionFromLogPolicy(policy));
     }
   }
 
@@ -184,7 +182,7 @@ class PolicyFormModal extends mixin(StoreMixin) {
         <button
           className="button button-large button-success flush-bottom"
           onClick={this.handleSubmit}>
-          Create
+          Define
         </button>
       </div>
     );
@@ -208,8 +206,8 @@ class PolicyFormModal extends mixin(StoreMixin) {
     return (
       <SchemaForm
         getTriggerSubmit={this.getTriggerSubmit}
-        model={PolicyUtil.createFormModelFromSchema(PolicySchema, policy)}
-        schema={PolicySchema}/>
+        model={LogPolicyUtil.createFormModelFromSchema(LogPolicySchema, policy)}
+        schema={LogPolicySchema}/>
     );
   }
 
@@ -225,7 +223,7 @@ class PolicyFormModal extends mixin(StoreMixin) {
         showCloseButton={false}
         showHeader={true}
         footer={this.getFooter()}
-        titleText="Define New Policy"
+        titleText="Define New Log Policy"
         showFooter={true}>
         {this.getErrorMessage()}
         {this.getModalContents()}
@@ -234,15 +232,15 @@ class PolicyFormModal extends mixin(StoreMixin) {
   }
 }
 
-PolicyFormModal.defaultProps = {
+LogPolicyFormModal.defaultProps = {
   onClose: function () {},
   open: false
 };
 
-PolicyFormModal.propTypes = {
+LogPolicyFormModal.propTypes = {
   open: React.PropTypes.bool,
   model: React.PropTypes.object,
   onClose: React.PropTypes.func
 };
 
-module.exports = PolicyFormModal;
+module.exports = LogPolicyFormModal;

@@ -88,6 +88,12 @@ let serviceRoutes = {
       handler: JobsTab
     },
     {
+      type: Route,
+      name: 'services-rss',
+      path: 'rss/',
+      handler: JobsTab
+    },
+    {
       type: Redirect,
       from: '/services/?',
       to: 'services-pods'

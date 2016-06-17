@@ -13,10 +13,6 @@ let PolicySchema = {
       title: 'General',
       type: 'object',
       description: 'Define your policy',
-      required: [
-        'name',
-        'namespace'
-      ],
       properties: {
         'name': {
           title: 'Name',
@@ -47,9 +43,7 @@ let PolicySchema = {
       description: 'Specification of the policy',
       required: [
         'scaleTargetRef',
-        'minReplicas',
-        'maxReplicas',
-        'targetCPUUtilizationPercentage'
+        'maxReplicas'
       ],
       properties: {
         'typeOfscaleTarget': {
@@ -61,12 +55,7 @@ let PolicySchema = {
           ],
           description: 'Type of scale target',
           getter: function (policy) {
-            let spec = policy.getSpec();
-
-            if (spec.scaleTargetRef && spec.scaleTargetRef.kind) {
-              return spec.scaleTargetRef.kind;
-            }
-            return null;
+            return policy.getTypeOfScaleTarget();
           }
         },
         'nameOfScaleTarget': {
@@ -74,12 +63,7 @@ let PolicySchema = {
           type: 'string',
           description: 'Name of scale target',
           getter: function (policy) {
-            let spec = policy.getSpec();
-
-            if (spec.scaleTargetRef && spec.scaleTargetRef.name) {
-              return spec.scaleTargetRef.name;
-            }
-            return null;
+            return policy.getNameOfScaleTarget();
           }
         },
         'minReplicas': {
@@ -87,12 +71,7 @@ let PolicySchema = {
           type: 'number',
           description: 'Min numer of replications',
           getter: function (policy) {
-            let spec = policy.getSpec();
-
-            if (spec.minReplicas) {
-              return spec.minReplicas;
-            }
-            return null;
+            return policy.getMinReplicas();
           }
         },
         'maxReplicas': {
@@ -100,12 +79,7 @@ let PolicySchema = {
           type: 'number',
           description: 'Max number of replications',
           getter: function (policy) {
-            let spec = policy.getSpec();
-
-            if (spec.maxReplicas) {
-              return spec.maxReplicas;
-            }
-            return null;
+            return policy.getMaxReplicas();
           }
         },
         'targetCPUUtilizationPercentage': {
@@ -113,12 +87,7 @@ let PolicySchema = {
           type: 'number',
           description: 'Target CPU utilization',
           getter: function (policy) {
-            let spec = policy.getSpec();
-
-            if (spec.cpuUtilization && spec.cpuUtilization.targetPercentage) {
-              return spec.cpuUtilization.targetPercentage;
-            }
-            return null;
+            return policy.getTargetCPUUtilization();
           },
           validate: {function(v) { return v > 0 && v < 100 }}
         }

@@ -13,7 +13,6 @@ import {
 } from '../../../constants/ModalKeys';
 // import Policy from '../../../structs/Policy';
 import PolicyList from '../../../structs/PolicyList';
-// import PolicyDetail from '../../../components/PolicyDetail';
 import PolicyFormModal from '../../../components/modals/PolicyFormModal';
 import PolicySearchFilter from '../../../components/PolicySearchFilter';
 import PoliciesBreadcrumb from '../../../components/PoliciesBreadcrumb';

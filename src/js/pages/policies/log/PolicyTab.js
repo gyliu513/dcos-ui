@@ -11,13 +11,11 @@ import SaveStateMixin from '../../../mixins/SaveStateMixin';
 import {
   POLICY_FORM_MODAL
 } from '../../../constants/ModalKeys';
-import Policy from '../../../structs/Policy';
-// import PolicyList from '../../../structs/PolicyList';
-import PolicyDetail from '../../../components/PolicyDetail';
-import PolicyFormModal from '../../../components/modals/PolicyFormModal';
+import PolicyList from '../../../structs/PolicyList';
+import LogPolicyFormModal from '../../../components/modals/LogPolicyFormModal';
 import PolicySearchFilter from '../../../components/PolicySearchFilter';
-import PoliciesBreadcrumb from '../../../components/PoliciesBreadcrumb';
-import PoliciesTable from '../../../components/PoliciesTable';
+import LogPoliciesBreadcrumb from '../../../components/LogPoliciesBreadcrumb';
+import LogPoliciesTable from '../../../components/LogPoliciesTable';
 import SidebarActions from '../../../events/SidebarActions';
 import SidePanels from '../../../components/SidePanels';
 
@@ -54,7 +52,7 @@ var PolicyTab = React.createClass({
 
   getInitialState: function () {
     return Object.assign({}, DEFAULT_FILTER_OPTIONS, {
-      isPolicyFormModalShown: false
+      isLogPolicyFormModalShown: false
     });
   },
 
@@ -73,8 +71,8 @@ var PolicyTab = React.createClass({
     });
   },
 
-  handleClosePolicyFormModal: function () {
-    this.setState({isPolicyFormModalShown: false});
+  handleCloseLogPolicyFormModal: function () {
+    this.setState({isLogPolicyFormModalShown: false});
   },
 
   handleFilterChange: function (filterValues, filterType) {
@@ -86,7 +84,7 @@ var PolicyTab = React.createClass({
 
   handleOpenModal: function (id) {
     let modalStates = {
-      isPolicyFormModalShown: POLICY_FORM_MODAL === id
+      isLogPolicyFormModalShown: POLICY_FORM_MODAL === id
     };
 
     this.setState(modalStates);
@@ -141,26 +139,21 @@ var PolicyTab = React.createClass({
     }
 
     // Render policy table
-    if (item instanceof PolicyTree && item.getItems().length > 0) {
+    if (item instanceof PolicyList && item.getItems().length > 0) {
       return this.getPolicyTreeView(item);
-    }
-
-    // Render pod detail
-    if (item instanceof Policy) {
-      return (<PolicyDetail service={item} />);
     }
 
     // Render empty panel
     return (
       <div>
-        <PoliciesBreadcrumb policiesTreeItem={item} />
+        <LogPoliciesBreadcrumb policiesTreeItem={item} />
         <AlertPanel
-          title="No Policy Defined"
+          title="No Log Policy Defined"
           footer={this.getAlertPanelFooter()}
           iconClassName="icon icon-sprite icon-sprite-jumbo
           icon-sprite-jumbo-white icon-services flush-top">
           <p className="flush-bottom">
-            Define a new policy.
+            Define a new Log policy.
           </p>
         </AlertPanel>
       </div>
@@ -188,14 +181,14 @@ var PolicyTab = React.createClass({
     }
 
     return (
-      <PoliciesBreadcrumb policyTreeItem={item} />
+      <LogPoliciesBreadcrumb policyTreeItem={item} />
     );
   },
 
   getPolicyTreeView(item) {
     let {state} = this;
-    let filteredPolicies = item.filterItemsByFilter({
-      id: state.searchString
+    let filteredPolicies = item.filter({
+      name: state.searchString
     }).getItems();
 
     return (
@@ -207,15 +200,15 @@ var PolicyTab = React.createClass({
               handleFilterChange={this.handleFilterChange} />
             <button className="button button-success"
               onClick={() => this.handleOpenModal(POLICY_FORM_MODAL)}>
-              Define Policy
+              Define Log Policy
             </button>
           </FilterBar>
-          <PoliciesTable
-            services={filteredPolicies} />
+          <LogPoliciesTable
+            policies={filteredPolicies} />
         </div>
         <SidePanels
           params={this.props.params}
-          openedPage="services"/>
+          openedPage="policies"/>
       </div>
     );
   },
@@ -225,13 +218,13 @@ var PolicyTab = React.createClass({
     id = decodeURIComponent(id);
     let {state} = this;
 
-    let item = DCOSStore.policyTree.findItemById(id) || DCOSStore.policyTree;
+    let policyList = DCOSStore.policyList;
 
     return (
       <div>
-        {this.getContents(item)}
-        <PolicyFormModal open={state.isPolicyFormModalShown}
-          onClose={this.handleClosePolicyFormModal}/>
+        {this.getContents(policyList)}
+        <LogPolicyFormModal open={state.isLogPolicyFormModalShown}
+          onClose={this.handleCloseLogPolicyFormModal}/>
       </div>
     );
   }

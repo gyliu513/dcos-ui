@@ -30,9 +30,21 @@ const PolicyUtil = {
       };
 
       if (formModel.spec != null) {
+        let scaleKind = '';
+
+        if (formModel.spec.typeOfscaleTarget) {
+          if (formModel.spec.typeOfscaleTarget.toLowerCase() === 'replicationcontroller') {
+            scaleKind = 'ReplicationController';
+          } else if (formModel.spec.typeOfscaleTarget.toLowerCase() === 'deployment') {
+            scaleKind = 'Deployment';
+          }
+        } else {
+          scaleKind = 'ReplicationController';
+        }
+
         definition.spec = {
           'scaleTargetRef': {
-            'kind': formModel.spec.typeOfscaleTarget,
+            'kind': scaleKind,
             'name': formModel.spec.nameOfScaleTarget
           },
           'minReplicas': formModel.spec.minReplicas,
@@ -52,9 +64,24 @@ const PolicyUtil = {
   getPolicyDefinitionFromPolicy: function (policy) {
     let policyDefinition = {};
 
+    policyDefinition.apiVersion = 'extensions/v1beta1';
     policyDefinition.kind = 'HorizontalPodAutoscaler';
-    policyDefinition.metadata = policy.getMetadata();
-    policyDefinition.spec = policy.getSpec();
+    policyDefinition.metadata = {
+      'name': policy.metadata.name,
+      'namespace': policy.metadata.namespace
+    };
+    policyDefinition.spec = {
+      'scaleRef': {
+        'kind': policy.spec.scaleTargetRef.kind,
+        'name': policy.spec.scaleTargetRef.name,
+        'subresource': 'scale'
+      },
+      'minReplicas': policy.spec.minReplicas,
+      'maxReplicas': policy.spec.maxReplicas,
+      'cpuUtilization': {
+        'targetPercentage': policy.spec.targetCPUUtilizationPercentage
+      }
+    };
 
     return policyDefinition;
   }
