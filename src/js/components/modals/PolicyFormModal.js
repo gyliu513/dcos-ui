@@ -67,7 +67,7 @@ class PolicyFormModal extends mixin(StoreMixin) {
     let model = PolicyUtil.createFormModelFromSchema(PolicySchema);
     this.setState({
       errorMessage: null,
-      jsonDefinition: JSON.stringify({id:'', cmd:''}, null, 2),
+      jsonDefinition: JSON.stringify({kind:'HorizontalPodAutoscaler', spec: {}}, null, 2),
       jsonMode: false,
       model,
       policy: PolicyUtil.createPolicyFromFormModel(model)
@@ -182,7 +182,7 @@ class PolicyFormModal extends mixin(StoreMixin) {
         <button
           className="button button-large button-success flush-bottom"
           onClick={this.handleSubmit}>
-          Define
+          Create
         </button>
       </div>
     );

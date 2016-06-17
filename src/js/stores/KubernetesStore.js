@@ -203,7 +203,7 @@ class KubernetesStore extends EventEmitter {
   }
 
   createPolicy() {
-    console.log('Staring to create Policy');
+    console.log('Starting to create Policy');
     return KubernetesActions.createPolicy(...arguments);
   }
 
