@@ -1,4 +1,6 @@
 
+Monitor: https://github.com/kubernetes/heapster/tree/master/deploy/kube-config/influxdb
+
 ABAC http://dockone.io/article/599
 
 My k8s: http://9.111.141.143:8080/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard
