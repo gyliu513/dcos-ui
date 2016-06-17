@@ -16,7 +16,7 @@ var ServicesPage = React.createClass({
 
   statics: {
     routeConfig: {
-      label: 'Services',
+      label: 'Workloads',
       icon: 'services',
       matches: /^\/services/
     }
@@ -30,11 +30,10 @@ var ServicesPage = React.createClass({
 
   componentWillMount: function () {
     this.tabs_tabs = {
-      'services-pods': 'Container App',
-      'services-marathon': 'Services',
-      'services-deployments': 'Deployments',
-      'services-rcs': 'RCs',
-      'services-kservices': 'Kservices'
+      'services-pods': 'Pod',
+      'services-rcs': 'Replication Controller',
+      'services-kservices': 'Service',
+      'services-jobs': 'Job',
     };
     this.updateCurrentTab();
   },

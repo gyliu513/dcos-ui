@@ -2,7 +2,7 @@ import {EventEmitter} from 'events';
 
 import {
   CHRONOS_JOBS_CHANGE,
-  KUBERNETES_POD_CHANGE,
+  KUBERNETES_CHANGE,
   DCOS_CHANGE,
   MESOS_SUMMARY_CHANGE,
   MARATHON_GROUPS_CHANGE,
@@ -46,7 +46,7 @@ class DCOSStore extends EventEmitter {
 
     this.proxyListeners = [
       {
-        event: KUBERNETES_POD_CHANGE,
+        event: KUBERNETES_CHANGE,
         handler: this.onKubernetesChange,
         store: KubernetesStore
       },
@@ -204,10 +204,31 @@ class DCOSStore extends EventEmitter {
   }
 
   /**
+   * @type {PVTree}
+   */
+  get pvTree() {
+    return KubernetesStore.pvTree;
+  }
+
+  /**
+   * @type {PVCTree}
+   */
+  get pvcTree() {
+    return KubernetesStore.pvcTree;
+  }
+
+  /**
    * @type {PodTree}
    */
   get podTree() {
     return KubernetesStore.podTree;
+  }
+
+  /**
+   * @type {PolicyList}
+   */
+  get policyList() {
+    return KubernetesStore.policyList;
   }
 
   /**

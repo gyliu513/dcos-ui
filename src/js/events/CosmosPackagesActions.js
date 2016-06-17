@@ -246,10 +246,10 @@ const CosmosPackagesActions = {
 
   installKubernetesPackage: function (packageName, packageVersion, options = {}) {
     RequestUtil.json({
-      contentType: getContentType('install', 'request'),
-      headers: {Accept: getContentType('install', 'response')},
+      contentType: getContentType('install-kubernetes', 'request'),
+      headers: {Accept: getContentType('install-kubernetes', 'response')},
       method: 'POST',
-      url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/kubernetes/install`,
+      url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/install-kubernetes`,
       data: JSON.stringify({packageName, packageVersion, options}),
       timeout: REQUEST_TIMEOUT,
       success: function (response) {
@@ -269,14 +269,14 @@ const CosmosPackagesActions = {
         });
       }
     });
-  },
+  }
 
-  uninstallKubernetesPackage: function (packageName, packageVersion, appId, all = false) {
+/* uninstallKubernetesPackage: function (packageName, packageVersion, appId, all = false) {
     RequestUtil.json({
       contentType: getContentType('uninstall', 'request'),
       headers: {Accept: getContentType('uninstall', 'response')},
       method: 'POST',
-      url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/kubernetes/uninstall`,
+      url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/uninstall`,
       data: JSON.stringify({packageName, packageVersion, appId, all}),
       timeout: REQUEST_TIMEOUT,
       success: function (response) {
@@ -299,7 +299,7 @@ const CosmosPackagesActions = {
       }
     });
   }
-
+*/
 };
 
 if (Config.useFixtures) {
@@ -325,6 +325,7 @@ if (Config.useFixtures) {
     fetchAvailablePackages:
       {event: 'success', success: {response: packagesSearchFixture}},
     installPackage: {event: 'success'},
+    installKubernetesPackage: {event: 'success'},
     uninstallPackage: {event: 'success'},
     fetchRepositories:
       {event: 'success', success: {response: packagesRepositoriesFixture}},

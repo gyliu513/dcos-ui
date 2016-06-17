@@ -1,93 +1,101 @@
 import {Route, Redirect} from 'react-router';
 
 import {Hooks} from 'PluginSDK';
-import RepositoriesTab from '../../pages/system/RepositoriesTab';
 import PoliciesPage from '../../pages/PoliciesPage';
-import UnitsHealthTab from '../../pages/system/UnitsHealthTab';
-import AlertPage1 from '../../pages/policies/AlertPage1';
+import ApplicationPolicyTab from '../../pages/policies/application/PolicyTab';
+import ApplicationAlertTab from '../../pages/policies/application/AlertTab';
+import ApplicationScaleTab from '../../pages/policies/application/ScaleTab';
+import LogPolicyTab from '../../pages/policies/log/PolicyTab';
+import LogAlertTab from '../../pages/policies/log/AlertTab';
 
 let RouteFactory = {
 
-  getPolicyRoutes() {
+  getApplicationPolicyRoutes() {
     // Return filtered Routes
     return this.getFilteredRoutes(
-      Hooks.applyFilter('policyRoutes', {
+      Hooks.applyFilter('appPolicyRoutes', {
         routes: [
           {
             type: Route,
-            name: 'policies-policy-page1',
-            path: 'page1/?',
-            handler: AlertPage1
+            name: 'policies-app-policy',
+            path: 'policy/?',
+            handler: ApplicationPolicyTab
           },
           {
             type: Route,
-            name: 'policies-policy-page2',
-            path: 'page2/?',
-            handler: RepositoriesTab
+            name: 'policies-app-alert',
+            path: 'alert/?',
+            handler: ApplicationAlertTab
+          },
+          {
+            type: Route,
+            name: 'policies-app-scale',
+            path: 'scale/?',
+            handler: ApplicationScaleTab
           }
         ],
         redirect: {
           type: Redirect,
-          from: '/policies/policy/?',
-          to: 'policies-policy-page1'
+          from: '/policies/application/?',
+          to: 'policies-app-policy'
         }
       })
     );
   },
 
-  getAlertRoutes() {
+  getLogPolicyRoutes() {
     // Return filtered Routes
     return this.getFilteredRoutes(
-      Hooks.applyFilter('alertRoutes', {
+      Hooks.applyFilter('logPolicyRoutes', {
         routes: [
           {
             type: Route,
-            name: 'policies-alert-page1',
-            path: 'page1/?',
-            handler: UnitsHealthTab
+            name: 'policies-log-policy',
+            path: 'policy/?',
+            handler: LogPolicyTab
           },
           {
             type: Route,
-            name: 'policies-alert-page2',
-            path: 'page2/?',
-            handler: RepositoriesTab
+            name: 'policies-log-alert',
+            path: 'alert/?',
+            handler: LogAlertTab
           }
         ],
         redirect: {
           type: Redirect,
-          from: '/policies/alert/?',
-          to: 'policies-alert-page1'
+          from: '/policies/log/?',
+          to: 'policies-log-policy'
         }
       })
     );
   },
 
   getPoliciesRoutes() {
-    let policyRoute = {
+    let appPolicyRoute = {
       type: Route,
-      name: 'policies-policy',
-      path: 'policy/?',
+      name: 'policies-app',
+      path: 'application/?',
       // Get children for Overview
-      children: RouteFactory.getPolicyRoutes()
+      children: RouteFactory.getApplicationPolicyRoutes()
     };
 
-    let alertRoute = {
+    let logPolicyRoute = {
       type: Route,
-      name: 'policies-alert',
-      path: 'alert/?',
+      name: 'policies-log',
+      path: 'log/?',
       // Get children for Overview
-      children: RouteFactory.getAlertRoutes()
+      children: RouteFactory.getLogPolicyRoutes()
     };
 
     // Return filtered Routes
     return this.getFilteredRoutes(
       // Pass in Object so Plugins can mutate routes and the default redirect
       Hooks.applyFilter('policiesRoutes', {
-        routes: [policyRoute, alertRoute],
+        routes: [appPolicyRoute, logPolicyRoute],
         redirect: {
           type: Redirect,
           from: '/policies/?',
-          to: 'policies-policy'
+          to: 'policies-app'
         }
       })
     );

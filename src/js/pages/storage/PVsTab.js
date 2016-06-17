@@ -9,17 +9,17 @@ import FilterHeadline from '../../components/FilterHeadline';
 import QueryParamsMixin from '../../mixins/QueryParamsMixin';
 import SaveStateMixin from '../../mixins/SaveStateMixin';
 import {
-  POD_FORM_MODAL
+  PV_FORM_MODAL
 } from '../../constants/ModalKeys';
 import Pod from '../../structs/Pod';
 import PodDetail from '../../components/PodDetail';
 import PodFilterTypes from '../../constants/PodFilterTypes';
-import PodFormModal from '../../components/modals/PodFormModal';
+import PVFormModal from '../../components/modals/PVFormModal';
 import PodSearchFilter from '../../components/PodSearchFilter';
 // import PodSidebarFilters from '../../components/PodSidebarFilters';
-import PodsBreadcrumb from '../../components/PodsBreadcrumb';
-import PodsTable from '../../components/PodsTable';
-import PodTree from '../../structs/PodTree';
+import PVsBreadcrumb from '../../components/PVsBreadcrumb';
+import PVsTable from '../../components/PVsTable';
+import PVTree from '../../structs/PVTree';
 import SidebarActions from '../../events/SidebarActions';
 import SidePanels from '../../components/SidePanels';
 
@@ -56,7 +56,7 @@ var PVsTab = React.createClass({
 
   getInitialState: function () {
     return Object.assign({}, DEFAULT_FILTER_OPTIONS, {
-      isPodFormModalShown: false
+      isPVFormModalShown: false
     });
   },
 
@@ -75,8 +75,8 @@ var PVsTab = React.createClass({
     });
   },
 
-  handleClosePodFormModal: function () {
-    this.setState({isPodFormModalShown: false});
+  handleClosePVFormModal: function () {
+    this.setState({isPVFormModalShown: false});
   },
 
   handleFilterChange: function (filterValues, filterType) {
@@ -88,7 +88,7 @@ var PVsTab = React.createClass({
 
   handleOpenModal: function (id) {
     let modalStates = {
-      isPodFormModalShown: POD_FORM_MODAL === id
+      isPVFormModalShown: PV_FORM_MODAL === id
     };
 
     this.setState(modalStates);
@@ -114,8 +114,8 @@ var PVsTab = React.createClass({
     return (
       <div className="button-collection flush-bottom">
         <button className="button button-success"
-          onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-          Deploy Pods
+          onClick={() => this.handleOpenModal(PV_FORM_MODAL)}>
+          Deploy PV
         </button>
       </div>
     );
@@ -136,15 +136,15 @@ var PVsTab = React.createClass({
       );
     }
 
-    if (this.props.params.name && this.props.params.namespace) {
+    if (this.props.params.name) {
       return (
         <RouteHandler />
       );
     }
 
-    // Render pod table
-    if (item instanceof PodTree && item.getItems().length > 0) {
-      return this.getPodTreeView(item);
+    // Render pv table
+    if (item instanceof PVTree && item.getItems().length > 0) {
+      return this.getPVTreeView(item);
     }
 
     // Render pod detail
@@ -155,7 +155,7 @@ var PVsTab = React.createClass({
     // Render empty panel
     return (
       <div>
-        <PodsBreadcrumb podTreeItem={item} />
+        <PVsBreadcrumb pvTreeItem={item} />
         <AlertPanel
           title="No PVs Deployed"
           footer={this.getAlertPanelFooter()}
@@ -190,11 +190,11 @@ var PVsTab = React.createClass({
     }
 
     return (
-      <PodsBreadcrumb podTreeItem={item} />
+      <PVsBreadcrumb pvTreeItem={item} />
     );
   },
 
-  getPodTreeView(item) {
+  getPVTreeView(item) {
     let {state} = this;
     // let pods = item.getItems();
     let filteredPods = item.filterItemsByFilter({
@@ -210,11 +210,11 @@ var PVsTab = React.createClass({
             <PodSearchFilter
               handleFilterChange={this.handleFilterChange} />
             <button className="button button-success"
-              onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-              Deploy Pods
+              onClick={() => this.handleOpenModal(PV_FORM_MODAL)}>
+              Deploy PV
             </button>
           </FilterBar>
-          <PodsTable
+          <PVsTable
             services={filteredPods} />
         </div>
         <SidePanels
@@ -231,13 +231,13 @@ var PVsTab = React.createClass({
 
     // Find item in root tree and default to root tree if there is no match
     // let item = DCOSStore.serviceTree.findItemById(id) || DCOSStore.serviceTree;
-    let item = DCOSStore.podTree.findItemById(id) || DCOSStore.podTree;
+    let item = DCOSStore.pvTree.findItemById(id) || DCOSStore.pvTree;
 
     return (
       <div>
         {this.getContents(item)}
-        <PodFormModal open={state.isPodFormModalShown}
-          onClose={this.handleClosePodFormModal}/>
+        <PVFormModal open={state.isPVFormModalShown}
+          onClose={this.handleClosePVFormModal}/>
       </div>
     );
   }

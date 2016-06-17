@@ -30,8 +30,8 @@ var StoragePage = React.createClass({
 
   componentWillMount: function () {
     this.tabs_tabs = {
-      'storage-pvs': 'PV',
-      'storage-pvcs': 'PVC',
+      'storage-pvs': 'PersistentVolume',
+      'storage-pvcs': 'PersistentVolumeClaim',
     };
     this.updateCurrentTab();
   },

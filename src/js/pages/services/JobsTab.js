@@ -14,10 +14,10 @@ import {
 import Pod from '../../structs/Pod';
 import PodDetail from '../../components/PodDetail';
 import PodFilterTypes from '../../constants/PodFilterTypes';
-import PVCFormModal from '../../components/modals/PVCFormModal';
+import PodFormModal from '../../components/modals/PodFormModal';
 import PodSearchFilter from '../../components/PodSearchFilter';
 // import PodSidebarFilters from '../../components/PodSidebarFilters';
-import PVCsBreadcrumb from '../../components/PVCsBreadcrumb';
+import PodsBreadcrumb from '../../components/PodsBreadcrumb';
 import PodsTable from '../../components/PodsTable';
 import PodTree from '../../structs/PodTree';
 import SidebarActions from '../../events/SidebarActions';
@@ -30,11 +30,11 @@ var DEFAULT_FILTER_OPTIONS = {
 
 let saveState_properties = Object.keys(DEFAULT_FILTER_OPTIONS);
 
-var PVCsTab = React.createClass({
+var JobsTab = React.createClass({
 
-  displayName: 'PVCsTab',
+  displayName: 'JobsTab',
 
-  saveState_key: 'pvcsPage',
+  saveState_key: 'jobsPage',
 
   saveState_properties,
 
@@ -115,7 +115,7 @@ var PVCsTab = React.createClass({
       <div className="button-collection flush-bottom">
         <button className="button button-success"
           onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-          Deploy PVC
+          Deploy Pod
         </button>
       </div>
     );
@@ -155,14 +155,14 @@ var PVCsTab = React.createClass({
     // Render empty panel
     return (
       <div>
-        <PVCsBreadcrumb podTreeItem={item} />
+        <PodsBreadcrumb podTreeItem={item} />
         <AlertPanel
-          title="No PVCs Deployed"
+          title="No Pods Deployed"
           footer={this.getAlertPanelFooter()}
           iconClassName="icon icon-sprite icon-sprite-jumbo
           icon-sprite-jumbo-white icon-services flush-top">
           <p className="flush-bottom">
-            Deploy a new pv.
+            Deploy a new pod.
           </p>
         </AlertPanel>
       </div>
@@ -183,14 +183,14 @@ var PVCsTab = React.createClass({
         <FilterHeadline
           inverseStyle={true}
           onReset={this.resetFilter}
-          name="PVCs"
+          name="Pods"
           currentLength={filteredPods.length}
           totalLength={pods.length} />
       );
     }
 
     return (
-      <PVCsBreadcrumb podTreeItem={item} />
+      <PodsBreadcrumb podTreeItem={item} />
     );
   },
 
@@ -211,7 +211,7 @@ var PVCsTab = React.createClass({
               handleFilterChange={this.handleFilterChange} />
             <button className="button button-success"
               onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-              Deploy PVC
+              Deploy Pod
             </button>
           </FilterBar>
           <PodsTable
@@ -231,12 +231,12 @@ var PVCsTab = React.createClass({
 
     // Find item in root tree and default to root tree if there is no match
     // let item = DCOSStore.serviceTree.findItemById(id) || DCOSStore.serviceTree;
-    let item = DCOSStore.pvcTree.findItemById(id) || DCOSStore.pvcTree;
+    let item = DCOSStore.podTree.findItemById(id) || DCOSStore.podTree;
 
     return (
       <div>
         {this.getContents(item)}
-        <PVCFormModal open={state.isPodFormModalShown}
+        <PodFormModal open={state.isPodFormModalShown}
           onClose={this.handleClosePodFormModal}/>
       </div>
     );
@@ -244,4 +244,4 @@ var PVCsTab = React.createClass({
 
 });
 
-module.exports = PVCsTab;
+module.exports = JobsTab;

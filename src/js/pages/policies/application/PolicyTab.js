@@ -1,40 +1,38 @@
 import React from 'react';
-import {RouteHandler} from 'react-router';
+// import {RouteHandler} from 'react-router';
 import {StoreMixin} from 'mesosphere-shared-reactjs';
 
-import AlertPanel from '../../components/AlertPanel';
-import DCOSStore from '../../stores/DCOSStore';
-import FilterBar from '../../components/FilterBar';
-import FilterHeadline from '../../components/FilterHeadline';
-import QueryParamsMixin from '../../mixins/QueryParamsMixin';
-import SaveStateMixin from '../../mixins/SaveStateMixin';
+import AlertPanel from '../../../components/AlertPanel';
+import DCOSStore from '../../../stores/DCOSStore';
+import FilterBar from '../../../components/FilterBar';
+import FilterHeadline from '../../../components/FilterHeadline';
+import QueryParamsMixin from '../../../mixins/QueryParamsMixin';
+import SaveStateMixin from '../../../mixins/SaveStateMixin';
 import {
-  POD_FORM_MODAL
-} from '../../constants/ModalKeys';
-import Pod from '../../structs/Pod';
-import PodDetail from '../../components/PodDetail';
-import PodFilterTypes from '../../constants/PodFilterTypes';
-import PVCFormModal from '../../components/modals/PVCFormModal';
-import PodSearchFilter from '../../components/PodSearchFilter';
-// import PodSidebarFilters from '../../components/PodSidebarFilters';
-import PVCsBreadcrumb from '../../components/PVCsBreadcrumb';
-import PodsTable from '../../components/PodsTable';
-import PodTree from '../../structs/PodTree';
-import SidebarActions from '../../events/SidebarActions';
-import SidePanels from '../../components/SidePanels';
+  POLICY_FORM_MODAL
+} from '../../../constants/ModalKeys';
+// import Policy from '../../../structs/Policy';
+import PolicyList from '../../../structs/PolicyList';
+// import PolicyDetail from '../../../components/PolicyDetail';
+import PolicyFormModal from '../../../components/modals/PolicyFormModal';
+import PolicySearchFilter from '../../../components/PolicySearchFilter';
+import PoliciesBreadcrumb from '../../../components/PoliciesBreadcrumb';
+import PoliciesTable from '../../../components/PoliciesTable';
+import SidebarActions from '../../../events/SidebarActions';
+import SidePanels from '../../../components/SidePanels';
 
 var DEFAULT_FILTER_OPTIONS = {
-  filterHealth: null,
+  filterNamespace: '',
   searchString: ''
 };
 
 let saveState_properties = Object.keys(DEFAULT_FILTER_OPTIONS);
 
-var PVCsTab = React.createClass({
+var PolicyTab = React.createClass({
 
-  displayName: 'PVCsTab',
+  displayName: 'PolicyTab',
 
-  saveState_key: 'pvcsPage',
+  saveState_key: 'policyPage',
 
   saveState_properties,
 
@@ -56,7 +54,7 @@ var PVCsTab = React.createClass({
 
   getInitialState: function () {
     return Object.assign({}, DEFAULT_FILTER_OPTIONS, {
-      isPodFormModalShown: false
+      isPolicyFormModalShown: false
     });
   },
 
@@ -75,8 +73,8 @@ var PVCsTab = React.createClass({
     });
   },
 
-  handleClosePodFormModal: function () {
-    this.setState({isPodFormModalShown: false});
+  handleClosePolicyFormModal: function () {
+    this.setState({isPolicyFormModalShown: false});
   },
 
   handleFilterChange: function (filterValues, filterType) {
@@ -88,7 +86,7 @@ var PVCsTab = React.createClass({
 
   handleOpenModal: function (id) {
     let modalStates = {
-      isPodFormModalShown: POD_FORM_MODAL === id
+      isPolicyFormModalShown: POLICY_FORM_MODAL === id
     };
 
     this.setState(modalStates);
@@ -114,8 +112,8 @@ var PVCsTab = React.createClass({
     return (
       <div className="button-collection flush-bottom">
         <button className="button button-success"
-          onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-          Deploy PVC
+          onClick={() => this.handleOpenModal(POLICY_FORM_MODAL)}>
+          Define Policies
         </button>
       </div>
     );
@@ -136,42 +134,30 @@ var PVCsTab = React.createClass({
       );
     }
 
-    if (this.props.params.name && this.props.params.namespace) {
-      return (
-        <RouteHandler />
-      );
-    }
-
-    // Render pod table
-    if (item instanceof PodTree && item.getItems().length > 0) {
-      return this.getPodTreeView(item);
-    }
-
-    // Render pod detail
-    if (item instanceof Pod) {
-      return (<PodDetail service={item} />);
+    // Render policy table
+    if (item instanceof PolicyList && item.getItems().length > 0) {
+      return this.getPolicyListView(item);
     }
 
     // Render empty panel
     return (
       <div>
-        <PVCsBreadcrumb podTreeItem={item} />
+        <PoliciesBreadcrumb policyListItem={item} />
         <AlertPanel
-          title="No PVCs Deployed"
+          title="No Policy Found"
           footer={this.getAlertPanelFooter()}
           iconClassName="icon icon-sprite icon-sprite-jumbo
           icon-sprite-jumbo-white icon-services flush-top">
           <p className="flush-bottom">
-            Deploy a new pv.
+            Define a new policy.
           </p>
         </AlertPanel>
       </div>
     );
   },
 
-  getHeadline: function (item, filteredPods) {
+  getHeadline: function (policies, filteredPolices) {
     let {state} = this;
-    let pods = item.getItems();
 
     const hasFiltersApplied = Object.keys(DEFAULT_FILTER_OPTIONS)
       .some((filterKey) => {
@@ -183,65 +169,58 @@ var PVCsTab = React.createClass({
         <FilterHeadline
           inverseStyle={true}
           onReset={this.resetFilter}
-          name="PVCs"
-          currentLength={filteredPods.length}
-          totalLength={pods.length} />
+          name="Policies"
+          currentLength={filteredPolices.length}
+          totalLength={policies.getItems().length} />
       );
     }
 
     return (
-      <PVCsBreadcrumb podTreeItem={item} />
+      <PoliciesBreadcrumb policyListItem={policies} />
     );
   },
 
-  getPodTreeView(item) {
+  getPolicyListView(item) {
     let {state} = this;
-    // let pods = item.getItems();
-    let filteredPods = item.filterItemsByFilter({
-      health: state.filterHealth,
-      id: state.searchString
+    let filteredPolicies = item.filter({
+      name: state.searchString
     }).getItems();
 
     return (
       <div className="flex-box flush flex-mobile-column">
         <div className="flex-grow">
-          {this.getHeadline(item, filteredPods)}
+          {this.getHeadline(item, filteredPolicies)}
           <FilterBar rightAlignLastNChildren={1}>
-            <PodSearchFilter
+            <PolicySearchFilter
               handleFilterChange={this.handleFilterChange} />
             <button className="button button-success"
-              onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-              Deploy PVC
+              onClick={() => this.handleOpenModal(POLICY_FORM_MODAL)}>
+              Define Policy
             </button>
           </FilterBar>
-          <PodsTable
-            services={filteredPods} />
+          <PoliciesTable
+            policies={filteredPolicies} />
         </div>
         <SidePanels
           params={this.props.params}
-          openedPage="services"/>
+          openedPage="policies"/>
       </div>
     );
   },
 
   render: function () {
-    let {id} = this.props.params;
-    id = decodeURIComponent(id);
     let {state} = this;
-
-    // Find item in root tree and default to root tree if there is no match
-    // let item = DCOSStore.serviceTree.findItemById(id) || DCOSStore.serviceTree;
-    let item = DCOSStore.pvcTree.findItemById(id) || DCOSStore.pvcTree;
+    let policyList = DCOSStore.policyList;
 
     return (
       <div>
-        {this.getContents(item)}
-        <PVCFormModal open={state.isPodFormModalShown}
-          onClose={this.handleClosePodFormModal}/>
+        {this.getContents(policyList)}
+        <PolicyFormModal open={state.isPolicyFormModalShown}
+          onClose={this.handleClosePolicyFormModal}/>
       </div>
     );
   }
 
 });
 
-module.exports = PVCsTab;
+module.exports = PolicyTab;

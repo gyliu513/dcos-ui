@@ -1,3 +1,13 @@
+
+ABAC http://dockone.io/article/599
+
+My k8s: http://9.111.141.143:8080/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard
+
+OpenStack
+
+http://9.21.60.67/dashboard/identity/
+admin/nova
+
 k8s
 
 standalone k8s: http://9.111.141.63:8080/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard/#/workload
@@ -11,7 +21,7 @@ export ETCD_VERSION=2.2.0
  KUBERNETES_PROVIDER=ubuntu ./kube-up.sh
 
 cd cluster/ubuntu
-UBERNETES_PROVIDER=ubuntu ./deployAddons.sh
+KUBERNETES_PROVIDER=ubuntu ./deployAddons.sh
 
 kubectl get pods --namespace=kube-system
 
@@ -73,3 +83,30 @@ cat nginx.json
     ]
   }
 }
+
+{
+  "apiVersion": "v1",
+  "kind": "PersistentVolume",
+  "metadata": {
+    "name": "nfs1"
+  },
+  "spec": {
+    "capacity": {
+      "storage": "1Mi"
+    },
+    "accessModes": [
+      "ReadWriteMany"
+    ],
+    "nfs": {
+      "server": "10.0.1.235",
+      "path": "/root/nfs"
+    }
+  }
+}
+
+
+http://kubernetes.io/docs/api-reference/v1/operations/
+
+http://www.yamllint.com/
+
+http://codebeautify.org/yaml-to-json-xml-csv

@@ -1,0 +1,48 @@
+{
+    "apiVersion": "v1",
+    "kind": "ReplicationController",
+    "metadata": {
+        "name": "nfs-web"
+    },
+    "spec": {
+        "replicas": 2,
+        "selector": {
+            "role": "web-frontend"
+        },
+        "template": {
+            "metadata": {
+                "labels": {
+                    "role": "web-frontend"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "image": "nginx",
+                        "name": "web",
+                        "ports": [
+                            {
+                                "containerPort": 80,
+                                "name": "web"
+                            }
+                        ],
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/usr/share/nginx/html",
+                                "name": "nfs"
+                            }
+                        ]
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "nfs",
+                        "persistentVolumeClaim": {
+                            "claimName": "nfs"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
