@@ -34,6 +34,7 @@ var ServicesPage = React.createClass({
       'services-rcs': 'Replication Controller',
       'services-kservices': 'Service',
       'services-jobs': 'Job',
+      'services-rss': 'Replication Set',
     };
     this.updateCurrentTab();
   },
