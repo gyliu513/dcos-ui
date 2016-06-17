@@ -3,7 +3,6 @@ import {Route, Redirect} from 'react-router';
 import {Hooks} from 'PluginSDK';
 import PoliciesPage from '../../pages/PoliciesPage';
 import ApplicationPolicyTab from '../../pages/policies/application/PolicyTab';
-import ApplicationAlertTab from '../../pages/policies/application/AlertTab';
 import ApplicationScaleTab from '../../pages/policies/application/ScaleTab';
 import LogPolicyTab from '../../pages/policies/log/PolicyTab';
 import LogAlertTab from '../../pages/policies/log/AlertTab';
@@ -20,12 +19,6 @@ let RouteFactory = {
             name: 'policies-app-policy',
             path: 'policy/?',
             handler: ApplicationPolicyTab
-          },
-          {
-            type: Route,
-            name: 'policies-app-alert',
-            path: 'alert/?',
-            handler: ApplicationAlertTab
           },
           {
             type: Route,

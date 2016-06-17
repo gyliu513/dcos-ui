@@ -14,7 +14,7 @@ import TabsMixin from '../mixins/TabsMixin';
 let DEFAULT_POLICIES_TABS = {
   'policies-app': {
     content: 'Application Policy',
-    priority: 70
+    priority: 50
   },
   'policies-log': {
     content: 'Log Policy',
@@ -26,10 +26,6 @@ let DEFAULT_APPLICATION_POLICY_TABS = {
   'policies-app-policy': {
     content: 'Policy',
     priority: 30
-  },
-  'policies-app-alert': {
-    content: 'Alert',
-    priority: 20
   },
   'policies-app-scale': {
     content: 'Scale Info',

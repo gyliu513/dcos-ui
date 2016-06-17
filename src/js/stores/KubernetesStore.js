@@ -141,6 +141,7 @@ class KubernetesStore extends EventEmitter {
         case ActionTypes.REQUEST_KUBERNETES_POLICY_CREATE_SUCCESS:
           this.data.policyList = action.data;
           this.emit(EventTypes.KUBERNETES_POLICY_CREATE_SUCCESS);
+          console.log('Store create policy success.');
           break;
         case ActionTypes.REQUEST_KUBERNETES_POLICY_FETCH_ERROR:
           this.emit(EventTypes.KUBERNETES_POLICY_FETCH_ERROR, action.data);

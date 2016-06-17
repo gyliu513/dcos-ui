@@ -91,6 +91,9 @@ import {
 
   KUBERNETES_POD_CREATE_ERROR,
   KUBERNETES_POD_CREATE_SUCCESS,
+
+  KUBERNETES_POLICY_CREATE_ERROR,
+  KUBERNETES_POLICY_CREATE_SUCCESS,
 } from './EventTypes';
 import AuthStore from '../stores/AuthStore';
 import ChronosStore from '../stores/ChronosStore';
@@ -311,7 +314,9 @@ const ListenersDescription = {
     store: KubernetesStore,
     events: {
       podCreateSuccess: KUBERNETES_POD_CREATE_SUCCESS,
-      podCreateError: KUBERNETES_POD_CREATE_ERROR
+      podCreateError: KUBERNETES_POD_CREATE_ERROR,
+      policyCreateError: KUBERNETES_POLICY_CREATE_ERROR,
+      policyCreateSuccess: KUBERNETES_POLICY_CREATE_SUCCESS
     },
     unmountWhen: function (store, event) {
       if (event === 'podCreateSuccess') {

@@ -11,9 +11,7 @@ import SaveStateMixin from '../../../mixins/SaveStateMixin';
 import {
   POLICY_FORM_MODAL
 } from '../../../constants/ModalKeys';
-import Policy from '../../../structs/Policy';
 import PolicyList from '../../../structs/PolicyList';
-import PolicyDetail from '../../../components/PolicyDetail';
 import LogPolicyFormModal from '../../../components/modals/LogPolicyFormModal';
 import PolicySearchFilter from '../../../components/PolicySearchFilter';
 import LogPoliciesBreadcrumb from '../../../components/LogPoliciesBreadcrumb';
@@ -143,11 +141,6 @@ var PolicyTab = React.createClass({
     // Render policy table
     if (item instanceof PolicyList && item.getItems().length > 0) {
       return this.getPolicyTreeView(item);
-    }
-
-    // Render policy detail
-    if (item instanceof Policy) {
-      return (<PolicyDetail policies={item} />);
     }
 
     // Render empty panel

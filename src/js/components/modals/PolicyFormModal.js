@@ -34,7 +34,8 @@ class PolicyFormModal extends mixin(StoreMixin) {
       PolicyUtil.createFormModelFromSchema(PolicySchema);
     this.state = {
       errorMessage: null,
-      jsonDefinition: JSON.stringify({kind: 'HorizontalPodAutoscaler',
+      jsonDefinition: JSON.stringify({apiVersion: 'extensions/v1beta1',
+                                      kind: 'HorizontalPodAutoscaler',
                                       metadata: {},
                                       spec: {}
                                     },
@@ -46,7 +47,7 @@ class PolicyFormModal extends mixin(StoreMixin) {
 
     this.store_listeners = [
       {
-        name: 'policy',
+        name: 'kubernetes',
         events: ['policyCreateError', 'policyCreateSuccess']
       }
     ];
@@ -67,7 +68,10 @@ class PolicyFormModal extends mixin(StoreMixin) {
     let model = PolicyUtil.createFormModelFromSchema(PolicySchema);
     this.setState({
       errorMessage: null,
-      jsonDefinition: JSON.stringify({kind:'HorizontalPodAutoscaler', spec: {}}, null, 2),
+      jsonDefinition: JSON.stringify({apiVersion: 'extensions/v1beta1',
+                                      kind:'HorizontalPodAutoscaler',
+                                      metadata: {},
+                                      spec: {}}, null, 2),
       jsonMode: false,
       model,
       policy: PolicyUtil.createPolicyFromFormModel(model)
@@ -75,9 +79,7 @@ class PolicyFormModal extends mixin(StoreMixin) {
   }
 
   handleClearError() {
-    this.setState({
-      errorMessage: null
-    });
+    this.resetState();
   }
 
   handleJSONChange(jsonDefinition) {

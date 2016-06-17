@@ -378,7 +378,6 @@ const KubernetesActions = {
 
   createPolicy: function (data) {
     console.log('Creating Policy');
-    console.log(data);
     RequestUtil.json({
       url: `${Config.rootUrl}/kubernetes/apis/extensions/v1beta1/namespaces/${data.metadata.namespace}/horizontalpodautoscalers`,
       method: 'POST',
