@@ -16,8 +16,9 @@ let configResponseCallback = null;
 
 let nonAdminMenuItems = [
   'services-page',
-  'jobs-page',
-  'universe'
+  'policies',
+  'universe',
+  'storage-page'
 ];
 
 module.exports = Object.assign({}, StoreMixin, {
