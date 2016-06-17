@@ -232,6 +232,13 @@ class DCOSStore extends EventEmitter {
   }
 
   /**
+   * @type {LogPolicyList}
+   */
+  get logPolicyList() {
+    return KubernetesStore.LogPolicyList;
+  }
+
+  /**
    * @type {JobTree}
    */
   get jobTree() {

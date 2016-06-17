@@ -8,6 +8,7 @@ import PodTree from '../structs/PodTree';
 import PVTree from '../structs/PVTree';
 import PVCTree from '../structs/PVCTree';
 import PolicyList from '../structs/PolicyList';
+import LogPolicyList from '../structs/LogPolicyList';
 import {
   KUBERNETES_CHANGE,
 } from '../constants/EventTypes';
@@ -51,7 +52,8 @@ class KubernetesStore extends EventEmitter {
       podTree: {id: '/', items: []},
       pvTree: {id: '/', items: []},
       pvcTree: {id: '/', items: []},
-      policyList: []
+      policyList: [],
+      logPolicyList: []
     };
 
     this.dispatcherIndex = AppDispatcher.register((payload) => {
@@ -154,6 +156,28 @@ class KubernetesStore extends EventEmitter {
           this.data.policyList= action.data;
           this.emit(EventTypes.KUBERNETES_POLICIES_FETCH_SUCCESS);
           break;
+        // Log Policy events
+        case ActionTypes.REQUEST_KUBERNETES_LOG_POLICY_CREATE_ERROR:
+          this.emit(EventTypes.KUBERNETES_LOG_POLICY_CREATE_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_LOG_POLICY_CREATE_SUCCESS:
+          this.data.logPolicyList = action.data;
+          this.emit(EventTypes.KUBERNETES_LOG_POLICY_CREATE_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_LOG_POLICY_FETCH_ERROR:
+          this.emit(EventTypes.KUBERNETES_LOG_POLICY_FETCH_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_LOG_POLICY_FETCH_SUCCESS:
+          this.data.logPolicy = action.data;
+          this.emit(EventTypes.KUBERNETES_LOG_POLICY_FETCH_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_LOG_POLICIES_FETCH_ERROR:
+          this.emit(EventTypes.KUBERNETES_LOG_POLICIES_FETCH_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_LOG_POLICIES_FETCH_SUCCESS:
+          this.data.logPolicyList= action.data;
+          this.emit(EventTypes.KUBERNETES_LOG_POLICIES_FETCH_SUCCESS);
+          break;
       }
 
       return true;
@@ -207,6 +231,11 @@ class KubernetesStore extends EventEmitter {
     return KubernetesActions.createPolicy(...arguments);
   }
 
+  createLogPolicy() {
+    console.log('Staring to create Log Policy')
+    return KubernetesActions.createLogPolicy(...arguments);
+  }
+
   getPod() {
     console.log('Get a Pod');
     KubernetesActions.getPod(...arguments);
@@ -231,6 +260,12 @@ class KubernetesStore extends EventEmitter {
     return this.data.policy;
   }
 
+  getLogPolicy() {
+    console.log('Get a log policy');
+    KubernetesActions.getLogPolicy(...arguments);
+    return this.data.logPolicy;
+  }
+
   get pvTree() {
     return new PVTree(this.data.pvTree);
   }
@@ -247,8 +282,16 @@ class KubernetesStore extends EventEmitter {
     return new PolicyList({items: this.data.policyList});
   }
 
+  get logPolicyList() {
+    return new LogPolicyList({items: this.data.logPolicyList});
+  }
+
   deletePolicy() {
     console.log('Deleting to create Policy');
+  }
+
+  deleteLogPolicy() {
+    console.log('Deleting to create Log Policy');
   }
 
   get storeID() {
