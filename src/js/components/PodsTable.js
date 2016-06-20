@@ -146,6 +146,13 @@ var PodsTable = React.createClass({
       {
         className,
         headerClassName: className,
+        prop: 'namespace',
+        sortable: true,
+        heading
+      },
+      {
+        className,
+        headerClassName: className,
         prop: 'status',
         sortable: true,
         heading
