@@ -6,13 +6,15 @@ var EventTypes = require('../constants/EventTypes');
 import Framework from '../structs/Framework';
 import HealthBar from './HealthBar';
 import IconNewWindow from './icons/IconNewWindow';
+import Config from '../config/Config';
+import KubernetesStore from '../stores/KubernetesStore';
 var MarathonStore = require('../stores/MarathonStore');
 var ResourceTableUtil = require('../utils/ResourceTableUtil');
 var RCTableHeaderLabels = require('../constants/RCTableHeaderLabels');
 // import ServiceTableUtil from '../utils/ServiceTableUtil';
 // import ServiceTree from '../structs/ServiceTree';
 import StringUtil from '../utils/StringUtil';
-import {Table} from 'reactjs-components';
+import {Confirm, Table} from 'reactjs-components';
 import TableUtil from '../utils/TableUtil';
 var Units = require('../utils/Units');
 
@@ -26,6 +28,37 @@ var RCsTable = React.createClass({
 
   propTypes: {
     services: React.PropTypes.array.isRequired
+  },
+
+  getInitialState: function () {
+    this.store_listeners = [{
+      name: 'kubernetes',
+      events: ['rcDeleteError', 'rcDeleteSuccess'],
+      unmountWhen: function () {
+        return true;
+      },
+      listenAlways: true
+    }];
+
+    return {
+      rcToRemove: null,
+      rcRemoveError: null,
+      pendingRequest: false
+    };
+  },
+
+  onKubernetesStoreRcDeleteError: function (error) {
+    console.log(234325343);
+    this.setState({rcRemoveError: error, pendingRequest: false});
+  },
+
+  onKubernetesStoreRcDeleteSuccess: function () {
+    this.setState({
+      rcToRemove: null,
+      rcRemoveError: null,
+      pendingRequest: false
+    });
+    KubernetesStore.fetchReplicationControllers();
   },
 
   componentDidMount: function () {
@@ -120,6 +153,7 @@ var RCsTable = React.createClass({
     for (var i = 0; i < data.length; i++) {
       var rowObj = {};
       rowObj.name = data[i].metadata.name;
+      rowObj.namespace = data[i].metadata.namespace;
       rowObj.labels = data[i].metadata.labels.app;
       rowObj.pods = data[i].spec.replicas;
       rowObj.createTime = data[i].metadata.creationTimestamp;
@@ -129,6 +163,32 @@ var RCsTable = React.createClass({
     }
 
     return newRows;
+  },
+
+  handleOpenConfirm: function (rcToRemove) {
+    this.setState({rcToRemove});
+  },
+
+  handleDeleteCancel: function () {
+    this.setState({rcToRemove: null});
+  },
+
+  handleDeleteReplicationController: function () {
+    let {rcToRemove} = this.state;
+    KubernetesStore.deleteReplicationController(rcToRemove.namerspace, rcToRemove.name);
+    this.setState({pendingRequest: true});
+  },
+
+  getRemoveButton: function (prop, rcToRemove) {
+    return (
+      <div className="flex-align-right">
+        <a
+          className="button button-link button-danger table-display-on-row-hover"
+          onClick={this.handleOpenConfirm.bind(this, rcToRemove)}>
+          Remove
+        </a>
+      </div>
+    );
   },
 
   getColumns: function () {
@@ -178,6 +238,14 @@ var RCsTable = React.createClass({
         prop: 'images',
         sortable: true,
         heading
+      },
+      {
+        className,
+        headerClassName: className,
+        heading: function () {},
+        prop: 'removed',
+        render: this.getRemoveButton,
+        sortable: false
       }
     ];
   },
@@ -191,7 +259,34 @@ var RCsTable = React.createClass({
         <col />
         <col />
         <col />
+        <col style={{width: '85px'}} />
       </colgroup>
+    );
+  },
+
+  getRemoveModalContent: function () {
+    let {rcRemoveError, rcToRemove} = this.state;
+    let rcLabel = 'This Replication Controller';
+    if (rcToRemove && rcToRemove.name) {
+      rcLabel = rcToRemove.name;
+    }
+
+    let error = null;
+
+    if (rcRemoveError != null) {
+      error = (
+        <p className="text-error-state">{rcRemoveError}</p>
+      );
+    }
+
+    return (
+      <div className="container-pod container-pod-short text-align-center">
+        <h3 className="flush-top">Are you sure?</h3>
+        <p>
+          {`Replication Controller (${rcLabel}) will be removed from ${Config.productName}. You will not be able to use it anymore.`}
+        </p>
+        {error}
+      </div>
     );
   },
 
@@ -207,6 +302,19 @@ var RCsTable = React.createClass({
           itemHeight={TableUtil.getRowHeight()}
           containerSelector=".gm-scroll-view"
           sortBy={{prop: 'name', order: 'asc'}} />
+        <Confirm
+          closeByBackdropClick={true}
+          disabled={this.state.pendingRequest}
+          footerContainerClass="container container-pod container-pod-short
+            container-pod-fluid flush-top flush-bottom"
+          open={!!this.state.rcToRemove}
+          onClose={this.handleDeleteCancel}
+          leftButtonCallback={this.handleDeleteCancel}
+          rightButtonCallback={this.handleDeleteReplicationController}
+          rightButtonClassName="button button-danger"
+          rightButtonText="Remove RC">
+          {this.getRemoveModalContent()}
+        </Confirm>
       </div>
     );
   }
