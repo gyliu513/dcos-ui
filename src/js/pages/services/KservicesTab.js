@@ -16,10 +16,9 @@ import PodDetail from '../../components/PodDetail';
 import PodFilterTypes from '../../constants/PodFilterTypes';
 import PodFormModal from '../../components/modals/PodFormModal';
 import PodSearchFilter from '../../components/PodSearchFilter';
-import PodSidebarFilters from '../../components/ServiceSidebarFilters';
-import PodsBreadcrumb from '../../components/PodsBreadcrumb';
-import PodsTable from '../../components/PodsTable';
-import PodTree from '../../structs/PodTree';
+import KServicesBreadcrumb from '../../components/KServicesBreadcrumb';
+import KServicesTable from '../../components/KServicesTable';
+import KServiceTree from '../../structs/KServiceTree';
 import SidebarActions from '../../events/SidebarActions';
 import SidePanels from '../../components/SidePanels';
 
@@ -30,9 +29,9 @@ var DEFAULT_FILTER_OPTIONS = {
 
 let saveState_properties = Object.keys(DEFAULT_FILTER_OPTIONS);
 
-var KservicesTab = React.createClass({
+var KServicesTab = React.createClass({
 
-  displayName: 'KservicesTab',
+  displayName: 'KServicesTab',
 
   saveState_key: 'kservicesPage',
 
@@ -115,7 +114,7 @@ var KservicesTab = React.createClass({
       <div className="button-collection flush-bottom">
         <button className="button button-success"
           onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-          Deploy Services
+          Deploy Kubernetes Service
         </button>
       </div>
     );
@@ -136,15 +135,15 @@ var KservicesTab = React.createClass({
       );
     }
 
-    if (this.props.params.taskID) {
+    if (this.props.params.name && this.props.params.namespace) {
       return (
         <RouteHandler />
       );
     }
 
     // Render pod table
-    if (item instanceof PodTree && item.getItems().length > 0) {
-      return this.getPodTreeView(item);
+    if (item instanceof KServiceTree && item.getItems().length > 0) {
+      return this.getKServiceTreeView(item);
     }
 
     // Render pod detail
@@ -155,23 +154,23 @@ var KservicesTab = React.createClass({
     // Render empty panel
     return (
       <div>
-        <PodsBreadcrumb podTreeItem={item} />
+        <KServicesBreadcrumb kserviceTreeItem={item} />
         <AlertPanel
           title="No Services Deployed"
           footer={this.getAlertPanelFooter()}
           iconClassName="icon icon-sprite icon-sprite-jumbo
           icon-sprite-jumbo-white icon-services flush-top">
           <p className="flush-bottom">
-            Deploy a new pod.
+            Deploy a new kubernetes service.
           </p>
         </AlertPanel>
       </div>
     );
   },
 
-  getHeadline: function (item, filteredPods) {
+  getHeadline: function (item, filteredKServices) {
     let {state} = this;
-    let pods = item.getItems();
+    let kservices = item.getItems();
 
     const hasFiltersApplied = Object.keys(DEFAULT_FILTER_OPTIONS)
       .some((filterKey) => {
@@ -183,42 +182,39 @@ var KservicesTab = React.createClass({
         <FilterHeadline
           inverseStyle={true}
           onReset={this.resetFilter}
-          name="Pods"
-          currentLength={filteredPods.length}
-          totalLength={pods.length} />
+          name="kubernetes services"
+          currentLength={filteredKServices.length}
+          totalLength={kservices.length} />
       );
     }
 
     return (
-      <PodsBreadcrumb podTreeItem={item} />
+      <KServicesBreadcrumb kserviceTreeItem={item} />
     );
   },
 
-  getPodTreeView(item) {
+  getKServiceTreeView(item) {
     let {state} = this;
-    let pods = item.getItems();
-    let filteredPods = item.filterItemsByFilter({
+    // let pods = item.getItems();
+    let filteredKServices = item.filterItemsByFilter({
       health: state.filterHealth,
       id: state.searchString
     }).getItems();
 
     return (
       <div className="flex-box flush flex-mobile-column">
-        <PodSidebarFilters
-          handleFilterChange={this.handleFilterChange}
-          services={pods} />
         <div className="flex-grow">
-          {this.getHeadline(item, filteredPods)}
+          {this.getHeadline(item, filteredKServices)}
           <FilterBar rightAlignLastNChildren={1}>
             <PodSearchFilter
               handleFilterChange={this.handleFilterChange} />
             <button className="button button-success"
               onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-              Deploy Services
+              Deploy Kubernetes Service
             </button>
           </FilterBar>
-          <PodsTable
-            services={filteredPods} />
+          <KServicesTable
+            services={filteredKServices} />
         </div>
         <SidePanels
           params={this.props.params}
@@ -233,7 +229,7 @@ var KservicesTab = React.createClass({
     let {state} = this;
 
     // Find item in root tree and default to root tree if there is no match
-    let item = DCOSStore.serviceTree.findItemById(id) || DCOSStore.serviceTree;
+    let item = DCOSStore.kserviceTree.findItemById(id) || DCOSStore.kserviceTree;
 
     return (
       <div>
@@ -246,4 +242,4 @@ var KservicesTab = React.createClass({
 
 });
 
-module.exports = KservicesTab;
+module.exports = KServicesTab;

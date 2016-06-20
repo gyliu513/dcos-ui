@@ -4,7 +4,7 @@ import DeploymentsTab from '../pages/services/DeploymentsTab';
 import PodsTab from '../pages/services/PodsTab';
 import RCsTab from '../pages/services/RCsTab';
 import JobsTab from '../pages/services/JobsTab';
-import KservicesTab from '../pages/services/KservicesTab';
+import KServicesTab from '../pages/services/KServicesTab';
 import ServiceOverlay from '../components/ServiceOverlay';
 import ServicesPage from '../pages/ServicesPage';
 import ServicesTab from '../pages/services/ServicesTab';
@@ -79,7 +79,7 @@ let serviceRoutes = {
       type: Route,
       name: 'services-kservices',
       path: 'kservices/',
-      handler: KservicesTab
+      handler: KServicesTab
     },
     {
       type: Route,

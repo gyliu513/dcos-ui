@@ -89,6 +89,9 @@ import {
 
   VISIBILITY_CHANGE,
 
+  KUBERNETES_SERVICE_CREATE_ERROR,
+  KUBERNETES_SERVICE_CREATE_SUCCESS,
+
   KUBERNETES_RC_CREATE_ERROR,
   KUBERNETES_RC_CREATE_SUCCESS,
 
@@ -318,6 +321,8 @@ const ListenersDescription = {
   kubernetes: {
     store: KubernetesStore,
     events: {
+      kserviceCreateSuccess: KUBERNETES_SERVICE_CREATE_SUCCESS,
+      kserviceCreateError: KUBERNETES_SERVICE_CREATE_ERROR,
       rcCreateSuccess: KUBERNETES_RC_CREATE_SUCCESS,
       rcCreateError: KUBERNETES_RC_CREATE_ERROR,
       podCreateSuccess: KUBERNETES_POD_CREATE_SUCCESS,
