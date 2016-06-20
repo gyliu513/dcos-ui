@@ -7,6 +7,41 @@ var AppDispatcher = require('./AppDispatcher');
 var Config = require('../config/Config');
 
 const KubernetesActions = {
+  getReplicationController: RequestUtil.debounceOnError(
+    Config.getRefreshRate(),
+    function (resolve, reject) {
+      return function (name, namespace) {
+        RequestUtil.json({
+          url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/${namespace}/pods/${name}`,
+          success: function (response) {
+            try {
+              AppDispatcher.handleServerAction({
+                type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_SUCCESS,
+                data: response
+              });
+              resolve();
+            } catch (error) {
+              this.error(error);
+            }
+          },
+          error: function (e) {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_ERROR,
+              data: e.message
+            });
+            reject();
+          },
+          hangingRequestCallback: function () {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_ONGOING
+            });
+          }
+        });
+      };
+    },
+    {delayAfterCount: Config.delayAfterErrorCount}
+  ),
+
   getPod: RequestUtil.debounceOnError(
     Config.getRefreshRate(),
     function (resolve, reject) {
@@ -139,6 +174,41 @@ const KubernetesActions = {
           hangingRequestCallback: function () {
             AppDispatcher.handleServerAction({
               type: ActionTypes.REQUEST_KUBERNETES_POLICY_FETCH_ONGOING
+            });
+          }
+        });
+      };
+    },
+    {delayAfterCount: Config.delayAfterErrorCount}
+  ),
+
+  fetchReplicationControllers: RequestUtil.debounceOnError(
+    Config.getRefreshRate(),
+    function (resolve, reject) {
+      return function () {
+        RequestUtil.json({
+          url: `${Config.rootUrl}/kubernetes/api/v1/replicationcontrollers`,
+          success: function (response) {
+            try {
+              AppDispatcher.handleServerAction({
+                type: ActionTypes.REQUEST_KUBERNETES_RCS_FETCH_SUCCESS,
+                data: response
+              });
+              resolve();
+            } catch (error) {
+              this.error(error);
+            }
+          },
+          error: function (e) {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_RCS_FETCH_ERROR,
+              data: e.message
+            });
+            reject();
+          },
+          hangingRequestCallback: function () {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_RCS_FETCH_ONGOING
             });
           }
         });

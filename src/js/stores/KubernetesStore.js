@@ -5,6 +5,7 @@ import ActionTypes from '../constants/ActionTypes';
 import EventTypes from '../constants/EventTypes';
 import Config from '../config/Config';
 import PodTree from '../structs/PodTree';
+import RCTree from '../structs/RCTree';
 import PVTree from '../structs/PVTree';
 import PVCTree from '../structs/PVCTree';
 import PolicyList from '../structs/PolicyList';
@@ -17,6 +18,7 @@ var KubernetesActions = require('../events/KubernetesActions');
 let requestInterval;
 
 function fetchKubernetes() {
+  KubernetesActions.fetchReplicationControllers();
   KubernetesActions.fetchPods();
   KubernetesActions.fetchPVs();
   KubernetesActions.fetchPVCs();
@@ -45,11 +47,13 @@ class KubernetesStore extends EventEmitter {
     super(...arguments);
 
     this.data = {
+      rc: {},
       pod: {},
       pv: {},
       pvc: {},
       policy: {},
       podTree: {id: '/', items: []},
+      rcTree: {id: '/', items: []},
       pvTree: {id: '/', items: []},
       pvcTree: {id: '/', items: []},
       policyList: [],
@@ -63,6 +67,29 @@ class KubernetesStore extends EventEmitter {
 
       var action = payload.action;
       switch (action.type) {
+        // replication controller
+        case ActionTypes.REQUEST_KUBERNETES_RC_CREATE_ERROR:
+          this.emit(EventTypes.KUBERNETES_RC_CREATE_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_RC_CREATE_SUCCESS:
+          this.data.rcTree = action.data;
+          this.emit(EventTypes.KUBERNETES_RC_CREATE_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_RC_FETCH_ERROR:
+          this.emit(EventTypes.KUBERNETES_RC_FETCH_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_RC_FETCH_SUCCESS:
+          this.data.rc = action.data;
+          this.emit(EventTypes.KUBERNETES_RC_FETCH_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_RCS_FETCH_ERROR:
+          this.emit(EventTypes.KUBERNETES_RCS_FETCH_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_RCS_FETCH_SUCCESS:
+          this.data.rcTree = action.data;
+          this.emit(EventTypes.KUBERNETES_RCS_FETCH_SUCCESS);
+          break;
+        // Pod events
         case ActionTypes.REQUEST_KUBERNETES_POD_CREATE_ERROR:
           this.emit(EventTypes.KUBERNETES_POD_CREATE_ERROR, action.data);
           break;
@@ -283,6 +310,10 @@ class KubernetesStore extends EventEmitter {
 
   get podTree() {
     return new PodTree(this.data.podTree);
+  }
+
+  get rcTree() {
+    return new RCTree(this.data.rcTree);
   }
 
   get policyList() {

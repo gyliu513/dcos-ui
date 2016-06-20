@@ -17,11 +17,13 @@ import PodFilterTypes from '../../constants/PodFilterTypes';
 import PodFormModal from '../../components/modals/PodFormModal';
 import PodSearchFilter from '../../components/PodSearchFilter';
 // import PodSidebarFilters from '../../components/PodSidebarFilters';
-import RCsBreadcrumb from '../../components/RCsBreadcrumb';
-import RCsTable from '../../components/RCsTable';
-import RCTree from '../../structs/RCTree';
+import PodsBreadcrumb from '../../components/PodsBreadcrumb';
+import PodsTable from '../../components/PodsTable';
+import PodTree from '../../structs/PodTree';
 import SidebarActions from '../../events/SidebarActions';
 import SidePanels from '../../components/SidePanels';
+
+import KubernetesStore from '../../stores/KubernetesStore';
 
 var DEFAULT_FILTER_OPTIONS = {
   filterHealth: null,
@@ -30,11 +32,11 @@ var DEFAULT_FILTER_OPTIONS = {
 
 let saveState_properties = Object.keys(DEFAULT_FILTER_OPTIONS);
 
-var PodsTab = React.createClass({
+var AppsTab = React.createClass({
 
-  displayName: 'PodsTab',
+  displayName: 'AppsTab',
 
-  saveState_key: 'podsPage',
+  saveState_key: 'appsPage',
 
   saveState_properties,
 
@@ -115,7 +117,7 @@ var PodsTab = React.createClass({
       <div className="button-collection flush-bottom">
         <button className="button button-success"
           onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-          Deploy Replication Controller
+          Deploy Container App
         </button>
       </div>
     );
@@ -143,8 +145,8 @@ var PodsTab = React.createClass({
     }
 
     // Render pod table
-    if (item instanceof RCTree && item.getItems().length > 0) {
-      return this.getRCTreeView(item);
+    if (item instanceof PodTree && item.getItems().length > 0) {
+      return this.getPodTreeView(item);
     }
 
     // Render pod detail
@@ -155,23 +157,23 @@ var PodsTab = React.createClass({
     // Render empty panel
     return (
       <div>
-        <RCsBreadcrumb rcTreeItem={item} />
+        <PodsBreadcrumb podTreeItem={item} />
         <AlertPanel
-          title="No Replication Controllers Deployed"
+          title="No Pods Deployed"
           footer={this.getAlertPanelFooter()}
           iconClassName="icon icon-sprite icon-sprite-jumbo
           icon-sprite-jumbo-white icon-services flush-top">
           <p className="flush-bottom">
-            Deploy a new Replication Controller.
+            Deploy a new pod.
           </p>
         </AlertPanel>
       </div>
     );
   },
 
-  getHeadline: function (item, filteredRCs) {
+  getHeadline: function (item, filteredPods) {
     let {state} = this;
-    let rcs = item.getItems();
+    let pods = item.getItems();
 
     const hasFiltersApplied = Object.keys(DEFAULT_FILTER_OPTIONS)
       .some((filterKey) => {
@@ -183,21 +185,21 @@ var PodsTab = React.createClass({
         <FilterHeadline
           inverseStyle={true}
           onReset={this.resetFilter}
-          name="Replication Controllers"
-          currentLength={filteredRCs.length}
-          totalLength={rcs.length} />
+          name="Pods"
+          currentLength={filteredPods.length}
+          totalLength={pods.length} />
       );
     }
 
     return (
-      <RCsBreadcrumb rcTreeItem={item} />
+      <PodsBreadcrumb podTreeItem={item} />
     );
   },
 
-  getRCTreeView(item) {
+  getPodTreeView(item) {
     let {state} = this;
     // let pods = item.getItems();
-    let filteredRCs = item.filterItemsByFilter({
+    let filteredPods = item.filterItemsByFilter({
       health: state.filterHealth,
       id: state.searchString
     }).getItems();
@@ -205,17 +207,17 @@ var PodsTab = React.createClass({
     return (
       <div className="flex-box flush flex-mobile-column">
         <div className="flex-grow">
-          {this.getHeadline(item, filteredRCs)}
+          {this.getHeadline(item, filteredPods)}
           <FilterBar rightAlignLastNChildren={1}>
             <PodSearchFilter
               handleFilterChange={this.handleFilterChange} />
             <button className="button button-success"
               onClick={() => this.handleOpenModal(POD_FORM_MODAL)}>
-              Deploy Replication Controller
+              Deploy Container App
             </button>
           </FilterBar>
-          <RCsTable
-            rcs={filteredRCs} />
+          <PodsTable
+            services={filteredPods} />
         </div>
         <SidePanels
           params={this.props.params}
@@ -224,18 +226,73 @@ var PodsTab = React.createClass({
     );
   },
 
+  getReplicationControllersContents: function (item) {
+    // Render loading screen
+    if (!DCOSStore.dataProcessed) {
+      return (
+        <div className="container container-fluid container-pod text-align-center
+            vertical-center inverse">
+          <div className="row">
+            <div className="ball-scale">
+              <div />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (this.props.params.name && this.props.params.namespace) {
+      return (
+        <RouteHandler />
+      );
+    }
+
+    // Render pod table
+    if (item instanceof PodTree && item.getItems().length > 0) {
+      return this.getPodTreeView(item);
+    }
+
+    // Render pod detail
+    if (item instanceof Pod) {
+      return (<PodDetail service={item} />);
+    }
+
+    // Render empty panel
+    return (
+      <div>
+        <PodsBreadcrumb podTreeItem={item} />
+        <AlertPanel
+          title="No Pods Deployed"
+          footer={this.getAlertPanelFooter()}
+          iconClassName="icon icon-sprite icon-sprite-jumbo
+          icon-sprite-jumbo-white icon-services flush-top">
+          <p className="flush-bottom">
+            Deploy a new pod.
+          </p>
+        </AlertPanel>
+      </div>
+    );
+  },
+
   render: function () {
-    let {id} = this.props.params;
-    id = decodeURIComponent(id);
+    // params is the uri section, /:namespace/:name/, params = {name, namespace}
+    // query is the query section, /uri/?searchString=xxx, query = {searchString: "xxx"}
+    // let {params, query} = this.props;
+    // let {id} = this.props.params;
     let {state} = this;
 
-    // Find item in root tree and default to root tree if there is no match
-    // let item = DCOSStore.serviceTree.findItemById(id) || DCOSStore.serviceTree;
-    let item = DCOSStore.rcTree.findItemById(id) || DCOSStore.rcTree;
+    // Get the Kubernetes Replication Controller list
+    let replicationControllers = KubernetesStore.replicationControllers;
+
+    // Get the Kubernetes Service list
+    // let services = KubernetesStore.services;
+
+    // Get the Kubernetes Pod list
+    // let pods = KubernetesStore.pods;
 
     return (
       <div>
-        {this.getContents(item)}
+        {this.getReplicationControllersContents(replicationControllers)}
         <PodFormModal open={state.isPodFormModalShown}
           onClose={this.handleClosePodFormModal}/>
       </div>
@@ -244,4 +301,4 @@ var PodsTab = React.createClass({
 
 });
 
-module.exports = PodsTab;
+module.exports = AppsTab;
