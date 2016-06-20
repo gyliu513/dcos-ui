@@ -266,6 +266,10 @@ class KubernetesStore extends EventEmitter {
     return !!this.listeners(KUBERNETES_CHANGE).length;
   }
 
+  createReplicationController() {
+    return KubernetesActions.createReplicationController(...arguments);
+  }
+
   createPod() {
     console.log('Staring to create Pod');
     return KubernetesActions.createPod(...arguments);

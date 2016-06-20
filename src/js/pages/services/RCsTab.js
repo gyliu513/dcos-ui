@@ -14,7 +14,7 @@ import {
 import Pod from '../../structs/Pod';
 import PodDetail from '../../components/PodDetail';
 import PodFilterTypes from '../../constants/PodFilterTypes';
-import PodFormModal from '../../components/modals/PodFormModal';
+import RCFormModal from '../../components/modals/RCFormModal';
 import PodSearchFilter from '../../components/PodSearchFilter';
 // import PodSidebarFilters from '../../components/PodSidebarFilters';
 import RCsBreadcrumb from '../../components/RCsBreadcrumb';
@@ -56,7 +56,7 @@ var PodsTab = React.createClass({
 
   getInitialState: function () {
     return Object.assign({}, DEFAULT_FILTER_OPTIONS, {
-      isPodFormModalShown: false
+      isRCFormModalShown: false
     });
   },
 
@@ -75,8 +75,8 @@ var PodsTab = React.createClass({
     });
   },
 
-  handleClosePodFormModal: function () {
-    this.setState({isPodFormModalShown: false});
+  handleCloseRCFormModal: function () {
+    this.setState({isRCFormModalShown: false});
   },
 
   handleFilterChange: function (filterValues, filterType) {
@@ -88,7 +88,7 @@ var PodsTab = React.createClass({
 
   handleOpenModal: function (id) {
     let modalStates = {
-      isPodFormModalShown: POD_FORM_MODAL === id
+      isRCFormModalShown: POD_FORM_MODAL === id
     };
 
     this.setState(modalStates);
@@ -236,8 +236,8 @@ var PodsTab = React.createClass({
     return (
       <div>
         {this.getContents(item)}
-        <PodFormModal open={state.isPodFormModalShown}
-          onClose={this.handleClosePodFormModal}/>
+        <RCFormModal open={state.isRCFormModalShown}
+          onClose={this.handleCloseRCFormModal}/>
       </div>
     );
   }
