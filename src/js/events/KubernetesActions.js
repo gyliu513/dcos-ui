@@ -395,7 +395,27 @@ const KubernetesActions = {
         });
       }
     });
-  }
+  },
+
+  deletePolicy: function (name, namespace) {
+    console.log('Deleting Policy');
+    RequestUtil.json({
+      url: `${Config.rootUrl}/kubernetes/apis/autoscaling/v1/namespaces/${namespace}/horizontalpodautoscalers/${name}`,
+      method: 'DELETE',
+      success: function () {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_POLICY_DELETE_SUCCESS
+        });
+      },
+      error: function (xhr) {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_POLICY_DELETE_ERROR,
+          data: RequestUtil.parseResponseBody(xhr),
+          xhr
+        });
+      }
+    });
+  },
 };
 
 module.exports = KubernetesActions;

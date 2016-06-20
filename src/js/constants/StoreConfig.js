@@ -94,6 +94,8 @@ import {
 
   KUBERNETES_POLICY_CREATE_ERROR,
   KUBERNETES_POLICY_CREATE_SUCCESS,
+  KUBERNETES_POLICY_DELETE_ERROR,
+  KUBERNETES_POLICY_DELETE_SUCCESS,
 } from './EventTypes';
 import AuthStore from '../stores/AuthStore';
 import ChronosStore from '../stores/ChronosStore';
@@ -316,10 +318,16 @@ const ListenersDescription = {
       podCreateSuccess: KUBERNETES_POD_CREATE_SUCCESS,
       podCreateError: KUBERNETES_POD_CREATE_ERROR,
       policyCreateError: KUBERNETES_POLICY_CREATE_ERROR,
-      policyCreateSuccess: KUBERNETES_POLICY_CREATE_SUCCESS
+      policyCreateSuccess: KUBERNETES_POLICY_CREATE_SUCCESS,
+      policyDeleteError: KUBERNETES_POLICY_DELETE_ERROR,
+      policyDeleteSuccess: KUBERNETES_POLICY_DELETE_SUCCESS
     },
     unmountWhen: function (store, event) {
       if (event === 'podCreateSuccess') {
+        return store.hasProcessedApps();
+      } else if (event === 'policyCreateSuccess') {
+        return store.hasProcessedApps();
+      } else if (event === 'policyDeleteSuccess') {
         return store.hasProcessedApps();
       }
       return true;

@@ -11,19 +11,19 @@ class PolicyActionsModal extends ActionsModal {
 
     this.store_listeners = [
       {
-        name: 'policy',
-        events: ['deleteError', 'deleteSuccess'],
+        name: 'kubernetes',
+        events: ['policyDeleteError', 'policyDeleteSuccess'],
         suppressUpdate: true
       }
     ];
 
   }
 
-  onPolicyStoreDeleteError(requestError) {
+  onKuberntesStorePolicyDeleteError(requestError) {
     this.onActionError(requestError);
   }
 
-  onPolicyStoreDeleteSuccess() {
+  onKubernetesStorePolicyDeleteSuccess() {
     this.onActionSuccess();
   }
 

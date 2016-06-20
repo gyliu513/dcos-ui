@@ -157,6 +157,12 @@ class KubernetesStore extends EventEmitter {
           this.data.policyList= action.data;
           this.emit(EventTypes.KUBERNETES_POLICIES_FETCH_SUCCESS);
           break;
+        case ActionTypes.REQUEST_KUBERNETES_POLICY_DELETE_ERROR:
+          this.emit(EventTypes.KUBERNETES_POLICY_DELETE_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_POLICY_DELETE_SUCCESS:
+          this.emit(EventTypes.KUBERNETES_POLICY_DELETE_SUCCESS);
+          break;
         // Log Policy events
         case ActionTypes.REQUEST_KUBERNETES_LOG_POLICY_CREATE_ERROR:
           this.emit(EventTypes.KUBERNETES_LOG_POLICY_CREATE_ERROR, action.data);
@@ -289,6 +295,7 @@ class KubernetesStore extends EventEmitter {
 
   deletePolicy() {
     console.log('Deleting to create Policy');
+    KubernetesActions.deletePolicy(...arguments);
   }
 
   deleteLogPolicy() {
