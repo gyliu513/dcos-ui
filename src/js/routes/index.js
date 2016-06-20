@@ -11,10 +11,12 @@ import services from './services';
 import images from './images';
 import universe from './universe';
 import storage from './storage';
+import namespaces from './namespaces';
 
 // Statically defined routes
 let applicationRoutes = [
   dashboard,
+  namespaces,
   services,
   nodes,
   images,
