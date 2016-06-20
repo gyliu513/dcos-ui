@@ -1,125 +1,83 @@
 import {Link} from 'react-router';
 var React = require('react');
+import mixin from 'reactjs-mixin';
+import {StoreMixin} from 'mesosphere-shared-reactjs';
 
-import Cluster from '../utils/Cluster';
-var EventTypes = require('../constants/EventTypes');
-import Framework from '../structs/Framework';
-import HealthBar from './HealthBar';
-import IconNewWindow from './icons/IconNewWindow';
-var MarathonStore = require('../stores/MarathonStore');
+import Config from '../config/Config';
+import KubernetesStore from '../stores/KubernetesStore';
+import List from '../structs/List';
 var ResourceTableUtil = require('../utils/ResourceTableUtil');
-var RCTableHeaderLabels = require('../constants/RCTableHeaderLabels');
+var KServiceTableHeaderLabels = require('../constants/KServiceTableHeaderLabels');
 // import ServiceTableUtil from '../utils/ServiceTableUtil';
 // import ServiceTree from '../structs/ServiceTree';
-import StringUtil from '../utils/StringUtil';
-import {Table} from 'reactjs-components';
+import {Confirm, Table} from 'reactjs-components';
 import TableUtil from '../utils/TableUtil';
-var Units = require('../utils/Units');
 
-const StatusMapping = {
-  'Running': 'running-state'
-};
+const METHODS_TO_BIND = [
+  'getRemoveButton',
+  'handleDeleteCancel',
+  'handleDeleteReplicationController',
+  'handleOpenConfirm'
+];
 
-var KServicesTable = React.createClass({
+class KServicesTable extends mixin(StoreMixin) {
+  constructor() {
+    super();
 
-  displayName: 'KServicesTable',
-
-  propTypes: {
-    services: React.PropTypes.array.isRequired
-  },
-
-  componentDidMount: function () {
-    MarathonStore.addChangeListener(
-      EventTypes.MARATHON_APPS_CHANGE,
-      this.onMarathonAppsChange
-    );
-  },
-
-  componentWillUnmount: function () {
-    MarathonStore.removeChangeListener(
-      EventTypes.MARATHON_APPS_CHANGE,
-      this.onMarathonAppsChange
-    );
-  },
-
-  getDefaultProps: function () {
-    return {
-      services: []
+    this.state = {
+      kserviceToRemove: null,
+      kserviceRemoveError: null,
+      pendingRequest: false
     };
-  },
 
-  getOpenInNewWindowLink(service) {
-    if (!(service instanceof Framework) || !service.getWebURL()) {
-      return null;
-    }
+    this.store_listeners = [{
+      name: 'kubernetes',
+      events: ['kserviceDeleteError', 'kserviceDeleteSuccess'],
+      unmountWhen: function () {
+        return true;
+      },
+      listenAlways: true
+    }];
 
-    return (
-      <a className="table-display-on-row-hover"
-        href={Cluster.getServiceLink(service.getName())} target="_blank"
-        title="Open in a new window">
-        <IconNewWindow className="icon icon-new-window icon-align-right
-          icon-margin-wide" />
-      </a>
-    );
-  },
+    METHODS_TO_BIND.forEach((method) => {
+      this[method] = this[method].bind(this);
+    });
+  }
 
-  onMarathonAppsChange: function () {
-    this.forceUpdate();
-  },
+  onKubernetesStoreKServiceDeleteError(error) {
+    this.setState({kserviceRemoveError: error, pendingRequest: false});
+  }
 
-  renderHeadline: function (prop, rc) {
+  onKubernetesStoreKServiceDeleteSuccess() {
+    this.setState({
+      kserviceToRemove: null,
+      kserviceRemoveError: null,
+      pendingRequest: false
+    });
+    KubernetesStore.fetchKServices();
+  }
+
+  renderHeadline(prop, kservice) {
     return (
       <div className="service-table-heading flex-box
         flex-box-align-vertical-center table-cell-flex-box">
-        <Link to="services-rcs"
+        <Link to="services-kservices"
           className="headline table-cell-value flex-box flex-box-col"
-          params={rc}>
+          params={kservice}>
           <span className="text-overflow">
-            {rc.name}
+            {kservice.name}
           </span>
         </Link>
       </div>
     );
-  },
+  }
 
-  renderStatus: function (prop, service) {
-    let instanceCount = service.getInstancesCount();
-    let serviceStatus = service.getStatus();
-    let serviceStatusClassSet = StatusMapping[serviceStatus] || '';
-    let taskSummary = service.getTasksSummary();
-    let {tasksRunning} = taskSummary;
-
-    let text = ` (${tasksRunning} ${StringUtil.pluralize('Task', tasksRunning)})`;
-    if (tasksRunning !== instanceCount) {
-      text = ` (${tasksRunning} of ${instanceCount} Tasks)`;
-    }
-
-    return (
-      <div className="status-bar-wrapper media-object media-object-spacing-wrapper media-object-spacing-narrow media-object-offset">
-        <span className="media-object-item flush-bottom">
-          <HealthBar tasksSummary={taskSummary} instancesCount={instanceCount} />
-        </span>
-        <span className="media-object-item flush-bottom visible-large-inline-block">
-          <span className={serviceStatusClassSet}>{serviceStatus}</span>
-          {text}
-        </span>
-      </div>
-    );
-  },
-
-  renderStats: function (prop, service) {
-    return (
-      <span>
-        {Units.formatResource(prop, service.getResources()[prop])}
-      </span>
-    );
-  },
-
-  getRows: function (data) {
+  getRows(data) {
     let newRows = [];
     for (var i = 0; i < data.length; i++) {
       var rowObj = {};
       rowObj.name = data[i].metadata.name;
+      rowObj.namespace = data[i].metadata.namespace;
       rowObj.labels = data[i].metadata.labels.app;
       rowObj.pods = data[i].spec.replicas;
       rowObj.createTime = data[i].metadata.creationTimestamp;
@@ -129,11 +87,37 @@ var KServicesTable = React.createClass({
     }
 
     return newRows;
-  },
+  }
 
-  getColumns: function () {
+  handleOpenConfirm(kserviceToRemove) {
+    this.setState({kserviceToRemove});
+  }
+
+  handleDeleteCancel() {
+    this.setState({kserviceToRemove: null});
+  }
+
+  handleDeleteKService() {
+    let {kserviceToRemove} = this.state;
+    KubernetesStore.deleteKService(kserviceToRemove.namespace, kserviceToRemove.name);
+    this.setState({pendingRequest: true});
+  }
+
+  getRemoveButton(prop, kserviceToRemove) {
+    return (
+      <div className="flex-align-right">
+        <a
+          className="button button-link button-danger table-display-on-row-hover"
+          onClick={this.handleOpenConfirm.bind(this, kserviceToRemove)}>
+          Remove
+        </a>
+      </div>
+    );
+  }
+
+  getColumns() {
     let className = ResourceTableUtil.getClassName;
-    let heading = ResourceTableUtil.renderHeading(RCTableHeaderLabels);
+    let heading = ResourceTableUtil.renderHeading(KServiceTableHeaderLabels);
 
     return [
       {
@@ -141,6 +125,13 @@ var KServicesTable = React.createClass({
         headerClassName: className,
         prop: 'name',
         render: this.renderHeadline,
+        sortable: true,
+        heading
+      },
+      {
+        className,
+        headerClassName: className,
+        prop: 'namespace',
         sortable: true,
         heading
       },
@@ -178,24 +169,60 @@ var KServicesTable = React.createClass({
         prop: 'images',
         sortable: true,
         heading
+      },
+      {
+        className,
+        headerClassName: className,
+        heading: function () {},
+        prop: 'removed',
+        render: this.getRemoveButton,
+        sortable: false
       }
     ];
-  },
+  }
 
-  getColGroup: function () {
+  getColGroup() {
     return (
       <colgroup>
+        <col />
         <col />
         <col />
         <col style={{width: '100px'}} />
         <col />
         <col />
         <col />
+        <col style={{width: '85px'}} />
       </colgroup>
     );
-  },
+  }
 
-  render: function () {
+  getRemoveModalContent() {
+    let {kserviceRemoveError, kserviceToRemove} = this.state;
+    let kserviceLabel = 'This Kubernetes Service';
+    if (kserviceToRemove && kserviceToRemove.name) {
+      kserviceLabel = kserviceToRemove.name;
+    }
+
+    let error = null;
+
+    if (kserviceRemoveError != null) {
+      error = (
+        <p className="text-error-state">{kserviceRemoveError}</p>
+      );
+    }
+
+    return (
+      <div className="container-pod container-pod-short text-align-center">
+        <h3 className="flush-top">Are you sure?</h3>
+        <p>
+          {`Kubernetes Service (${kserviceLabel}) will be removed from ${Config.productName}. You will not be able to use it anymore.`}
+        </p>
+        {error}
+      </div>
+    );
+  }
+
+  render() {
     return (
       <div>
         <Table
@@ -203,13 +230,34 @@ var KServicesTable = React.createClass({
           className="table inverse table-borderless-outer table-borderless-inner-columns flush-bottom"
           columns={this.getColumns()}
           colGroup={this.getColGroup()}
-          data={this.getRows(this.props.rcs.slice())}
+          data={this.getRows(this.props.kservices.slice())}
           itemHeight={TableUtil.getRowHeight()}
           containerSelector=".gm-scroll-view"
           sortBy={{prop: 'name', order: 'asc'}} />
+        <Confirm
+          closeByBackdropClick={true}
+          disabled={this.state.pendingRequest}
+          footerContainerClass="container container-pod container-pod-short
+            container-pod-fluid flush-top flush-bottom"
+          open={!!this.state.kserviceToRemove}
+          onClose={this.handleDeleteCancel}
+          leftButtonCallback={this.handleDeleteCancel}
+          rightButtonCallback={this.handleDeleteReplicationController}
+          rightButtonClassName="button button-danger"
+          rightButtonText="Remove Kubernetes Service">
+          {this.getRemoveModalContent()}
+        </Confirm>
       </div>
     );
   }
-});
+}
+
+KServicesTable.defaultProps = {
+  kservices: new List()
+};
+
+KServicesTable.propTypes = {
+  kservices: React.PropTypes.object.isRequired
+};
 
 module.exports = KServicesTable;
