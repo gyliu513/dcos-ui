@@ -106,6 +106,7 @@ class RCFormModal extends mixin(StoreMixin) {
   }
 
   onKubernetesStoreRcCreateError(errorMessage) {
+    console.debug(errorMessage);
     this.setState({
       errorMessage
     });

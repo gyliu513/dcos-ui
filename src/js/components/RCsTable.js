@@ -1,36 +1,35 @@
 import {Link} from 'react-router';
 var React = require('react');
+import mixin from 'reactjs-mixin';
+import {StoreMixin} from 'mesosphere-shared-reactjs';
 
-import Cluster from '../utils/Cluster';
-var EventTypes = require('../constants/EventTypes');
-import Framework from '../structs/Framework';
-import HealthBar from './HealthBar';
-import IconNewWindow from './icons/IconNewWindow';
 import Config from '../config/Config';
 import KubernetesStore from '../stores/KubernetesStore';
-var MarathonStore = require('../stores/MarathonStore');
+import List from '../structs/List';
 var ResourceTableUtil = require('../utils/ResourceTableUtil');
 var RCTableHeaderLabels = require('../constants/RCTableHeaderLabels');
 // import ServiceTableUtil from '../utils/ServiceTableUtil';
 // import ServiceTree from '../structs/ServiceTree';
-import StringUtil from '../utils/StringUtil';
 import {Confirm, Table} from 'reactjs-components';
 import TableUtil from '../utils/TableUtil';
-var Units = require('../utils/Units');
 
-const StatusMapping = {
-  'Running': 'running-state'
-};
+const METHODS_TO_BIND = [
+  'getRemoveButton',
+  'handleDeleteCancel',
+  'handleDeleteReplicationController',
+  'handleOpenConfirm'
+];
 
-var RCsTable = React.createClass({
+class RCsTable extends mixin(StoreMixin) {
+  constructor() {
+    super();
 
-  displayName: 'RCsTable',
+    this.state = {
+      rcToRemove: null,
+      rcRemoveError: null,
+      pendingRequest: false
+    };
 
-  propTypes: {
-    services: React.PropTypes.array.isRequired
-  },
-
-  getInitialState: function () {
     this.store_listeners = [{
       name: 'kubernetes',
       events: ['rcDeleteError', 'rcDeleteSuccess'],
@@ -40,67 +39,25 @@ var RCsTable = React.createClass({
       listenAlways: true
     }];
 
-    return {
-      rcToRemove: null,
-      rcRemoveError: null,
-      pendingRequest: false
-    };
-  },
+    METHODS_TO_BIND.forEach((method) => {
+      this[method] = this[method].bind(this);
+    });
+  }
 
-  onKubernetesStoreRcDeleteError: function (error) {
-    console.log(234325343);
+  onKubernetesStoreRcDeleteError(error) {
     this.setState({rcRemoveError: error, pendingRequest: false});
-  },
+  }
 
-  onKubernetesStoreRcDeleteSuccess: function () {
+  onKubernetesStoreRcDeleteSuccess() {
     this.setState({
       rcToRemove: null,
       rcRemoveError: null,
       pendingRequest: false
     });
     KubernetesStore.fetchReplicationControllers();
-  },
+  }
 
-  componentDidMount: function () {
-    MarathonStore.addChangeListener(
-      EventTypes.MARATHON_APPS_CHANGE,
-      this.onMarathonAppsChange
-    );
-  },
-
-  componentWillUnmount: function () {
-    MarathonStore.removeChangeListener(
-      EventTypes.MARATHON_APPS_CHANGE,
-      this.onMarathonAppsChange
-    );
-  },
-
-  getDefaultProps: function () {
-    return {
-      services: []
-    };
-  },
-
-  getOpenInNewWindowLink(service) {
-    if (!(service instanceof Framework) || !service.getWebURL()) {
-      return null;
-    }
-
-    return (
-      <a className="table-display-on-row-hover"
-        href={Cluster.getServiceLink(service.getName())} target="_blank"
-        title="Open in a new window">
-        <IconNewWindow className="icon icon-new-window icon-align-right
-          icon-margin-wide" />
-      </a>
-    );
-  },
-
-  onMarathonAppsChange: function () {
-    this.forceUpdate();
-  },
-
-  renderHeadline: function (prop, rc) {
+  renderHeadline(prop, rc) {
     return (
       <div className="service-table-heading flex-box
         flex-box-align-vertical-center table-cell-flex-box">
@@ -113,42 +70,9 @@ var RCsTable = React.createClass({
         </Link>
       </div>
     );
-  },
+  }
 
-  renderStatus: function (prop, service) {
-    let instanceCount = service.getInstancesCount();
-    let serviceStatus = service.getStatus();
-    let serviceStatusClassSet = StatusMapping[serviceStatus] || '';
-    let taskSummary = service.getTasksSummary();
-    let {tasksRunning} = taskSummary;
-
-    let text = ` (${tasksRunning} ${StringUtil.pluralize('Task', tasksRunning)})`;
-    if (tasksRunning !== instanceCount) {
-      text = ` (${tasksRunning} of ${instanceCount} Tasks)`;
-    }
-
-    return (
-      <div className="status-bar-wrapper media-object media-object-spacing-wrapper media-object-spacing-narrow media-object-offset">
-        <span className="media-object-item flush-bottom">
-          <HealthBar tasksSummary={taskSummary} instancesCount={instanceCount} />
-        </span>
-        <span className="media-object-item flush-bottom visible-large-inline-block">
-          <span className={serviceStatusClassSet}>{serviceStatus}</span>
-          {text}
-        </span>
-      </div>
-    );
-  },
-
-  renderStats: function (prop, service) {
-    return (
-      <span>
-        {Units.formatResource(prop, service.getResources()[prop])}
-      </span>
-    );
-  },
-
-  getRows: function (data) {
+  getRows(data) {
     let newRows = [];
     for (var i = 0; i < data.length; i++) {
       var rowObj = {};
@@ -163,23 +87,23 @@ var RCsTable = React.createClass({
     }
 
     return newRows;
-  },
+  }
 
-  handleOpenConfirm: function (rcToRemove) {
+  handleOpenConfirm(rcToRemove) {
     this.setState({rcToRemove});
-  },
+  }
 
-  handleDeleteCancel: function () {
+  handleDeleteCancel() {
     this.setState({rcToRemove: null});
-  },
+  }
 
-  handleDeleteReplicationController: function () {
+  handleDeleteReplicationController() {
     let {rcToRemove} = this.state;
-    KubernetesStore.deleteReplicationController(rcToRemove.namerspace, rcToRemove.name);
+    KubernetesStore.deleteReplicationController(rcToRemove.namespace, rcToRemove.name);
     this.setState({pendingRequest: true});
-  },
+  }
 
-  getRemoveButton: function (prop, rcToRemove) {
+  getRemoveButton(prop, rcToRemove) {
     return (
       <div className="flex-align-right">
         <a
@@ -189,9 +113,9 @@ var RCsTable = React.createClass({
         </a>
       </div>
     );
-  },
+  }
 
-  getColumns: function () {
+  getColumns() {
     let className = ResourceTableUtil.getClassName;
     let heading = ResourceTableUtil.renderHeading(RCTableHeaderLabels);
 
@@ -248,9 +172,9 @@ var RCsTable = React.createClass({
         sortable: false
       }
     ];
-  },
+  }
 
-  getColGroup: function () {
+  getColGroup() {
     return (
       <colgroup>
         <col />
@@ -262,9 +186,9 @@ var RCsTable = React.createClass({
         <col style={{width: '85px'}} />
       </colgroup>
     );
-  },
+  }
 
-  getRemoveModalContent: function () {
+  getRemoveModalContent() {
     let {rcRemoveError, rcToRemove} = this.state;
     let rcLabel = 'This Replication Controller';
     if (rcToRemove && rcToRemove.name) {
@@ -288,9 +212,9 @@ var RCsTable = React.createClass({
         {error}
       </div>
     );
-  },
+  }
 
-  render: function () {
+  render() {
     return (
       <div>
         <Table
@@ -318,6 +242,14 @@ var RCsTable = React.createClass({
       </div>
     );
   }
-});
+}
+
+RCsTable.defaultProps = {
+  rcs: new List()
+};
+
+RCsTable.propTypes = {
+  rcs: React.PropTypes.object.isRequired
+};
 
 module.exports = RCsTable;

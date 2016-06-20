@@ -452,7 +452,7 @@ const KubernetesActions = {
 
   deleteReplicationController: function (namespace, name) {
     RequestUtil.json({
-      url: `${Config.rootUrl}/kubernetes/api/v1/persistentvolumes/${name}`,
+      url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/${namespace}/replicationcontrollers/${name}`,
       method: 'DELETE',
       success: function () {
         AppDispatcher.handleServerAction({

@@ -286,6 +286,10 @@ class KubernetesStore extends EventEmitter {
     return KubernetesActions.createPV(...arguments);
   }
 
+  fetchReplicationControllers() {
+    return KubernetesActions.fetchReplicationControllers(...arguments);
+  }
+
   deleteReplicationController() {
     return KubernetesActions.deleteReplicationController(...arguments);
   }
