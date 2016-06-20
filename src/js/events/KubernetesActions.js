@@ -291,7 +291,6 @@ const KubernetesActions = {
     Config.getRefreshRate(),
     function (resolve, reject) {
       return function () {
-        console.log('fetchPods');
         RequestUtil.json({
           url: `${Config.rootUrl}/kubernetes/api/v1/pods`,
           success: function (response) {
@@ -328,7 +327,6 @@ const KubernetesActions = {
     Config.getRefreshRate(),
     function (resolve, reject) {
       return function () {
-        console.log('fetchPVs');
         RequestUtil.json({
           url: `${Config.rootUrl}/kubernetes/api/v1/persistentvolumes`,
           success: function (response) {
@@ -364,7 +362,6 @@ const KubernetesActions = {
     Config.getRefreshRate(),
     function (resolve, reject) {
       return function () {
-        console.log('fetchPVCs');
         RequestUtil.json({
           url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/persistentvolumeclaims`,
           success: function (response) {
@@ -401,7 +398,6 @@ const KubernetesActions = {
     Config.getRefreshRate(),
     function (resolve, reject) {
       return function (namespace) {
-        console.log('fetchPolicies');
         RequestUtil.json({
           url: `${Config.rootUrl}/kubernetes/apis/autoscaling/v1/namespaces/${namespace}/horizontalpodautoscalers`,
           success: function (response) {
@@ -447,6 +443,25 @@ const KubernetesActions = {
       error: function (xhr) {
         AppDispatcher.handleServerAction({
           type: ActionTypes.REQUEST_KUBERNETES_PV_CREATE_ERROR,
+          data: RequestUtil.parseResponseBody(xhr),
+          xhr
+        });
+      }
+    });
+  },
+
+  deleteReplicationController: function (namespace, name) {
+    RequestUtil.json({
+      url: `${Config.rootUrl}/kubernetes/api/v1/persistentvolumes/${name}`,
+      method: 'DELETE',
+      success: function () {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_RC_DELETE_SUCCESS
+        });
+      },
+      error: function (xhr) {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_RC_DELETE_ERROR,
           data: RequestUtil.parseResponseBody(xhr),
           xhr
         });

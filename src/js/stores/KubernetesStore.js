@@ -101,6 +101,12 @@ class KubernetesStore extends EventEmitter {
           this.data.rcTree = action.data;
           this.emit(EventTypes.KUBERNETES_RC_CREATE_SUCCESS);
           break;
+        case ActionTypes.REQUEST_KUBERNETES_RC_DELETE_ERROR:
+          this.emit(EventTypes.KUBERNETES_RC_DELETE_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_RC_DELETE_SUCCESS:
+          this.emit(EventTypes.KUBERNETES_RC_DELETE_SUCCESS);
+          break;
         case ActionTypes.REQUEST_KUBERNETES_RC_FETCH_ERROR:
           this.emit(EventTypes.KUBERNETES_RC_FETCH_ERROR, action.data);
           break;
@@ -280,8 +286,11 @@ class KubernetesStore extends EventEmitter {
     return KubernetesActions.createPV(...arguments);
   }
 
+  deleteReplicationController() {
+    return KubernetesActions.deleteReplicationController(...arguments);
+  }
+
   removePV() {
-    console.log('Starting to remove PV');
     return KubernetesActions.removePV(...arguments);
   }
 
