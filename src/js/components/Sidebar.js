@@ -19,7 +19,6 @@ var SidebarActions = require('../events/SidebarActions');
 
 let defaultMenuItems = [
   'dashboard',
-  'namespaces-page',
   'services-page',
   'policies',
   'images-page',
