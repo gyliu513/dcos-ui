@@ -1,6 +1,5 @@
-var RCTableHeaderLabels = {
+var KServiceTableHeaderLabels = {
   name: 'Name',
-  namespace: 'Namespace',
   labels: 'Lables',
   pods: 'Pods',
   createTime: 'Create Time',
@@ -8,4 +7,4 @@ var RCTableHeaderLabels = {
   images: 'Images',
 };
 
-module.exports = RCTableHeaderLabels;
+module.exports = KServiceTableHeaderLabels;

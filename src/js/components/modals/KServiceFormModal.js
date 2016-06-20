@@ -22,11 +22,11 @@ const METHODS_TO_BIND = [
   'handleJSONChange',
   'handleJSONToggle',
   'handleSubmit',
-  'onKubernetesStoreRcCreateError',
-  'onKubernetesStoreRcCreateSuccess'
+  'onKubernetesStorePodCreateError',
+  'onKubernetesStorePodCreateSuccess'
 ];
 
-class RCFormModal extends mixin(StoreMixin) {
+class KServiceFormModal extends mixin(StoreMixin) {
   constructor() {
     super(...arguments);
 
@@ -35,15 +35,15 @@ class RCFormModal extends mixin(StoreMixin) {
     this.state = {
       errorMessage: null,
       jsonDefinition: JSON.stringify({id:'', cmd:''}, null, 2),
-      jsonMode: true,
+      jsonMode: false,
       model,
       service: ServiceUtil.createServiceFromFormModel(model)
     };
 
     this.store_listeners = [
       {
-        name: 'kubernetes',
-        events: ['rcCreateError', 'rcCreateSuccess']
+        name: 'marathon',
+        events: ['serviceCreateError', 'serviceCreateSuccess']
       }
     ];
 
@@ -64,7 +64,7 @@ class RCFormModal extends mixin(StoreMixin) {
     this.setState({
       errorMessage: null,
       jsonDefinition: JSON.stringify({id:'', cmd:''}, null, 2),
-      jsonMode: true,
+      jsonMode: false,
       model,
       service: ServiceUtil.createServiceFromFormModel(model)
     });
@@ -100,13 +100,12 @@ class RCFormModal extends mixin(StoreMixin) {
     this.setState(nextState);
   }
 
-  onKubernetesStoreRcCreateSuccess() {
+  onKubernetesStorePodCreateSuccess() {
     this.resetState();
     this.props.onClose();
   }
 
-  onKubernetesStoreRcCreateError(errorMessage) {
-    console.debug(errorMessage);
+  onKubernetesStorePodCreateError(errorMessage) {
     this.setState({
       errorMessage
     });
@@ -119,7 +118,7 @@ class RCFormModal extends mixin(StoreMixin) {
   handleSubmit() {
     if (this.state.jsonMode) {
       let jsonDefinition = this.state.jsonDefinition;
-      KubernetesStore.createReplicationController(JSON.parse(jsonDefinition));
+      KubernetesStore.createPod(JSON.parse(jsonDefinition));
       this.setState({
         errorMessage: null,
         jsonDefinition,
@@ -132,7 +131,7 @@ class RCFormModal extends mixin(StoreMixin) {
       let service = ServiceUtil.createServiceFromFormModel(model);
       this.setState({service, model, errorMessage: null});
       KubernetesStore
-        .createReplicationController(ServiceUtil.getAppDefinitionFromService(service));
+        .createPod(ServiceUtil.getAppDefinitionFromService(service));
     }
   }
 
@@ -220,7 +219,7 @@ class RCFormModal extends mixin(StoreMixin) {
         showCloseButton={false}
         showHeader={true}
         footer={this.getFooter()}
-        titleText="Deploy New Replication Controller"
+        titleText="Deploy New Pod"
         showFooter={true}>
         {this.getErrorMessage()}
         {this.getModalContents()}
@@ -229,15 +228,15 @@ class RCFormModal extends mixin(StoreMixin) {
   }
 }
 
-RCFormModal.defaultProps = {
+KServiceFormModal.defaultProps = {
   onClose: function () {},
   open: false
 };
 
-RCFormModal.propTypes = {
+KServiceFormModal.propTypes = {
   open: React.PropTypes.bool,
   model: React.PropTypes.object,
   onClose: React.PropTypes.func
 };
 
-module.exports = RCFormModal;
+module.exports = KServiceFormModal;

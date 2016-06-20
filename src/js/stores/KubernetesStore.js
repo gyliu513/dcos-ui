@@ -5,6 +5,7 @@ import ActionTypes from '../constants/ActionTypes';
 import EventTypes from '../constants/EventTypes';
 import Config from '../config/Config';
 import PodTree from '../structs/PodTree';
+import KServiceTree from '../structs/KServiceTree';
 import RCTree from '../structs/RCTree';
 import PVTree from '../structs/PVTree';
 import PVCTree from '../structs/PVCTree';
@@ -18,6 +19,7 @@ var KubernetesActions = require('../events/KubernetesActions');
 let requestInterval;
 
 function fetchKubernetes() {
+  KubernetesActions.fetchKServices();
   KubernetesActions.fetchReplicationControllers();
   KubernetesActions.fetchPods();
   KubernetesActions.fetchPVs();
@@ -47,12 +49,14 @@ class KubernetesStore extends EventEmitter {
     super(...arguments);
 
     this.data = {
+      kservice: {},
       rc: {},
       pod: {},
       pv: {},
       pvc: {},
       policy: {},
       podTree: {id: '/', items: []},
+      kserviceTree: {id: '/', items: []},
       rcTree: {id: '/', items: []},
       pvTree: {id: '/', items: []},
       pvcTree: {id: '/', items: []},
@@ -67,6 +71,28 @@ class KubernetesStore extends EventEmitter {
 
       var action = payload.action;
       switch (action.type) {
+        // kservice
+        case ActionTypes.REQUEST_KUBERNETES_SERVICE_CREATE_ERROR:
+          this.emit(EventTypes.KUBERNETES_SERVICE_CREATE_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_SERVICE_CREATE_SUCCESS:
+          this.data.rcTree = action.data;
+          this.emit(EventTypes.KUBERNETES_SERVICE_CREATE_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_SERVICE_FETCH_ERROR:
+          this.emit(EventTypes.KUBERNETES_SERVICE_FETCH_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_SERVICE_FETCH_SUCCESS:
+          this.data.rc = action.data;
+          this.emit(EventTypes.KUBERNETES_SERVICE_FETCH_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_SERVICES_FETCH_ERROR:
+          this.emit(EventTypes.KUBERNETES_SERVICES_FETCH_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_SERVICES_FETCH_SUCCESS:
+          this.data.rcTree = action.data;
+          this.emit(EventTypes.KUBERNETES_SERVICES_FETCH_SUCCESS);
+          break;
         // replication controller
         case ActionTypes.REQUEST_KUBERNETES_RC_CREATE_ERROR:
           this.emit(EventTypes.KUBERNETES_RC_CREATE_ERROR, action.data);
@@ -74,6 +100,12 @@ class KubernetesStore extends EventEmitter {
         case ActionTypes.REQUEST_KUBERNETES_RC_CREATE_SUCCESS:
           this.data.rcTree = action.data;
           this.emit(EventTypes.KUBERNETES_RC_CREATE_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_RC_DELETE_ERROR:
+          this.emit(EventTypes.KUBERNETES_RC_DELETE_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_RC_DELETE_SUCCESS:
+          this.emit(EventTypes.KUBERNETES_RC_DELETE_SUCCESS);
           break;
         case ActionTypes.REQUEST_KUBERNETES_RC_FETCH_ERROR:
           this.emit(EventTypes.KUBERNETES_RC_FETCH_ERROR, action.data);
@@ -240,6 +272,10 @@ class KubernetesStore extends EventEmitter {
     return !!this.listeners(KUBERNETES_CHANGE).length;
   }
 
+  createReplicationController() {
+    return KubernetesActions.createReplicationController(...arguments);
+  }
+
   createPod() {
     console.log('Staring to create Pod');
     return KubernetesActions.createPod(...arguments);
@@ -250,8 +286,15 @@ class KubernetesStore extends EventEmitter {
     return KubernetesActions.createPV(...arguments);
   }
 
+  fetchReplicationControllers() {
+    return KubernetesActions.fetchReplicationControllers(...arguments);
+  }
+
+  deleteReplicationController() {
+    return KubernetesActions.deleteReplicationController(...arguments);
+  }
+
   removePV() {
-    console.log('Starting to remove PV');
     return KubernetesActions.removePV(...arguments);
   }
 
@@ -310,6 +353,10 @@ class KubernetesStore extends EventEmitter {
 
   get podTree() {
     return new PodTree(this.data.podTree);
+  }
+
+  get kserviceTree() {
+    return new KServiceTree(this.data.kserviceTree);
   }
 
   get rcTree() {

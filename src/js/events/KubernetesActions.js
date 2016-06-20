@@ -7,6 +7,41 @@ var AppDispatcher = require('./AppDispatcher');
 var Config = require('../config/Config');
 
 const KubernetesActions = {
+  getKService: RequestUtil.debounceOnError(
+    Config.getRefreshRate(),
+    function (resolve, reject) {
+      return function (name, namespace) {
+        RequestUtil.json({
+          url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/${namespace}/pods/${name}`,
+          success: function (response) {
+            try {
+              AppDispatcher.handleServerAction({
+                type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_SUCCESS,
+                data: response
+              });
+              resolve();
+            } catch (error) {
+              this.error(error);
+            }
+          },
+          error: function (e) {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_ERROR,
+              data: e.message
+            });
+            reject();
+          },
+          hangingRequestCallback: function () {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_ONGOING
+            });
+          }
+        });
+      };
+    },
+    {delayAfterCount: Config.delayAfterErrorCount}
+  ),
+
   getReplicationController: RequestUtil.debounceOnError(
     Config.getRefreshRate(),
     function (resolve, reject) {
@@ -182,6 +217,41 @@ const KubernetesActions = {
     {delayAfterCount: Config.delayAfterErrorCount}
   ),
 
+  fetchKServices: RequestUtil.debounceOnError(
+    Config.getRefreshRate(),
+    function (resolve, reject) {
+      return function () {
+        RequestUtil.json({
+          url: `${Config.rootUrl}/kubernetes/api/v1/svc`,
+          success: function (response) {
+            try {
+              AppDispatcher.handleServerAction({
+                type: ActionTypes.REQUEST_KUBERNETES_SERVICES_FETCH_SUCCESS,
+                data: response
+              });
+              resolve();
+            } catch (error) {
+              this.error(error);
+            }
+          },
+          error: function (e) {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_SERVICES_FETCH_ERROR,
+              data: e.message
+            });
+            reject();
+          },
+          hangingRequestCallback: function () {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_SERVICES_FETCH_ONGOING
+            });
+          }
+        });
+      };
+    },
+    {delayAfterCount: Config.delayAfterErrorCount}
+  ),
+
   fetchReplicationControllers: RequestUtil.debounceOnError(
     Config.getRefreshRate(),
     function (resolve, reject) {
@@ -221,7 +291,6 @@ const KubernetesActions = {
     Config.getRefreshRate(),
     function (resolve, reject) {
       return function () {
-        console.log('fetchPods');
         RequestUtil.json({
           url: `${Config.rootUrl}/kubernetes/api/v1/pods`,
           success: function (response) {
@@ -258,7 +327,6 @@ const KubernetesActions = {
     Config.getRefreshRate(),
     function (resolve, reject) {
       return function () {
-        console.log('fetchPVs');
         RequestUtil.json({
           url: `${Config.rootUrl}/kubernetes/api/v1/persistentvolumes`,
           success: function (response) {
@@ -294,7 +362,6 @@ const KubernetesActions = {
     Config.getRefreshRate(),
     function (resolve, reject) {
       return function () {
-        console.log('fetchPVCs');
         RequestUtil.json({
           url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/persistentvolumeclaims`,
           success: function (response) {
@@ -331,7 +398,6 @@ const KubernetesActions = {
     Config.getRefreshRate(),
     function (resolve, reject) {
       return function (namespace) {
-        console.log('fetchPolicies');
         RequestUtil.json({
           url: `${Config.rootUrl}/kubernetes/apis/autoscaling/v1/namespaces/${namespace}/horizontalpodautoscalers`,
           success: function (response) {
@@ -384,6 +450,25 @@ const KubernetesActions = {
     });
   },
 
+  deleteReplicationController: function (namespace, name) {
+    RequestUtil.json({
+      url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/${namespace}/replicationcontrollers/${name}`,
+      method: 'DELETE',
+      success: function () {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_RC_DELETE_SUCCESS
+        });
+      },
+      error: function (xhr) {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_RC_DELETE_ERROR,
+          data: RequestUtil.parseResponseBody(xhr),
+          xhr
+        });
+      }
+    });
+  },
+
   removePV: function (name) {
     console.log('Removing PV');
     RequestUtil.json({
@@ -418,6 +503,27 @@ const KubernetesActions = {
       error: function (xhr) {
         AppDispatcher.handleServerAction({
           type: ActionTypes.REQUEST_KUBERNETES_PVC_CREATE_ERROR,
+          data: RequestUtil.parseResponseBody(xhr),
+          xhr
+        });
+      }
+    });
+  },
+
+  createReplicationController: function (data) {
+    console.log('Creating Replication Controller');
+    RequestUtil.json({
+      url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/replicationcontrollers`,
+      method: 'POST',
+      data,
+      success: function () {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_RC_CREATE_SUCCESS
+        });
+      },
+      error: function (xhr) {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_RC_CREATE_ERROR,
           data: RequestUtil.parseResponseBody(xhr),
           xhr
         });
