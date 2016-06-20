@@ -141,7 +141,7 @@ var KServicesTab = React.createClass({
       );
     }
 
-    // Render pod table
+    // Render kservice table
     if (item instanceof KServiceTree && item.getItems().length > 0) {
       return this.getKServiceTreeView(item);
     }

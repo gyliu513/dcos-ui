@@ -19,7 +19,7 @@ class KServicesBreadcrumb extends React.Component {
 
     let breadcrumbNodes = [(
       <span className="crumb" key="/">
-        <Link to="services-rcs">Kubernetes Services</Link>
+        <Link to="services-kservices">Kubernetes Services</Link>
       </span>
     )];
 

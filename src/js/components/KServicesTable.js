@@ -16,7 +16,7 @@ import TableUtil from '../utils/TableUtil';
 const METHODS_TO_BIND = [
   'getRemoveButton',
   'handleDeleteCancel',
-  'handleDeleteReplicationController',
+  'handleDeleteKService',
   'handleOpenConfirm'
 ];
 
