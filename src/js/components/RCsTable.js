@@ -186,6 +186,7 @@ class RCsTable extends mixin(StoreMixin) {
       <colgroup>
         <col />
         <col />
+        <col />
         <col style={{width: '100px'}} />
         <col />
         <col />
