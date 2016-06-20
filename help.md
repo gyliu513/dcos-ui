@@ -1,4 +1,6 @@
 
+kubectl get rc xxx -o json
+
 Monitor: https://github.com/kubernetes/heapster/tree/master/deploy/kube-config/influxdb
 
 ABAC http://dockone.io/article/599
