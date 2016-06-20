@@ -425,6 +425,27 @@ const KubernetesActions = {
     });
   },
 
+  createReplicationController: function (data) {
+    console.log('Creating Replication Controller');
+    RequestUtil.json({
+      url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/replicationcontrollers`,
+      method: 'POST',
+      data,
+      success: function () {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_RC_CREATE_SUCCESS
+        });
+      },
+      error: function (xhr) {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_RC_CREATE_ERROR,
+          data: RequestUtil.parseResponseBody(xhr),
+          xhr
+        });
+      }
+    });
+  },
+
   createPod: function (data) {
     console.log('Creating Pod');
     RequestUtil.json({
