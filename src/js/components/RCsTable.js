@@ -131,6 +131,13 @@ class RCsTable extends mixin(StoreMixin) {
       {
         className,
         headerClassName: className,
+        prop: 'namespace',
+        sortable: true,
+        heading
+      },
+      {
+        className,
+        headerClassName: className,
         prop: 'labels',
         sortable: true,
         heading
