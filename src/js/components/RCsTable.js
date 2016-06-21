@@ -1,16 +1,15 @@
 import {Link} from 'react-router';
-var React = require('react');
 import mixin from 'reactjs-mixin';
 import {StoreMixin} from 'mesosphere-shared-reactjs';
 
 import Config from '../config/Config';
 import KubernetesStore from '../stores/KubernetesStore';
-var ResourceTableUtil = require('../utils/ResourceTableUtil');
-var RCTableHeaderLabels = require('../constants/RCTableHeaderLabels');
-// import ServiceTableUtil from '../utils/ServiceTableUtil';
-// import ServiceTree from '../structs/ServiceTree';
 import {Confirm, Table} from 'reactjs-components';
 import TableUtil from '../utils/TableUtil';
+
+var React = require('react');
+var ResourceTableUtil = require('../utils/ResourceTableUtil');
+var RCTableHeaderLabels = require('../constants/RCTableHeaderLabels');
 
 const METHODS_TO_BIND = [
   'getRemoveButton',

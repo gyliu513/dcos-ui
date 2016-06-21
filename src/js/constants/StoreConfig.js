@@ -101,6 +101,8 @@ import {
 
   KUBERNETES_POD_CREATE_ERROR,
   KUBERNETES_POD_CREATE_SUCCESS,
+  KUBERNETES_POD_DELETE_ERROR,
+  KUBERNETES_POD_DELETE_SUCCESS,
 
   KUBERNETES_POLICY_CREATE_ERROR,
   KUBERNETES_POLICY_CREATE_SUCCESS,
@@ -335,19 +337,14 @@ const ListenersDescription = {
       rcDeleteError: KUBERNETES_RC_DELETE_ERROR,
       podCreateSuccess: KUBERNETES_POD_CREATE_SUCCESS,
       podCreateError: KUBERNETES_POD_CREATE_ERROR,
+      podDeleteSuccess: KUBERNETES_POD_DELETE_SUCCESS,
+      podDeleteError: KUBERNETES_POD_DELETE_ERROR,
       policyCreateError: KUBERNETES_POLICY_CREATE_ERROR,
       policyCreateSuccess: KUBERNETES_POLICY_CREATE_SUCCESS,
       policyDeleteError: KUBERNETES_POLICY_DELETE_ERROR,
       policyDeleteSuccess: KUBERNETES_POLICY_DELETE_SUCCESS
     },
-    unmountWhen: function (store, event) {
-      if (event === 'podCreateSuccess') {
-        return store.hasProcessedApps();
-      } else if (event === 'policyCreateSuccess') {
-        return store.hasProcessedApps();
-      } else if (event === 'policyDeleteSuccess') {
-        return store.hasProcessedApps();
-      }
+    unmountWhen: function () {
       return true;
     },
     listenAlways: true

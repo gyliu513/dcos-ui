@@ -215,7 +215,7 @@ var PodsTab = React.createClass({
             </button>
           </FilterBar>
           <PodsTable
-            services={filteredPods} />
+            pods={filteredPods} />
         </div>
         <SidePanels
           params={this.props.params}

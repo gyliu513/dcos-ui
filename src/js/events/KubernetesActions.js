@@ -7,7 +7,7 @@ var AppDispatcher = require('./AppDispatcher');
 var Config = require('../config/Config');
 
 const KubernetesActions = {
-  getKService: RequestUtil.debounceOnError(
+  getReplicationController: RequestUtil.debounceOnError(
     Config.getRefreshRate(),
     function (resolve, reject) {
       return function (name, namespace) {
@@ -42,7 +42,7 @@ const KubernetesActions = {
     {delayAfterCount: Config.delayAfterErrorCount}
   ),
 
-  getReplicationController: RequestUtil.debounceOnError(
+  getKService: RequestUtil.debounceOnError(
     Config.getRefreshRate(),
     function (resolve, reject) {
       return function (name, namespace) {
@@ -217,41 +217,6 @@ const KubernetesActions = {
     {delayAfterCount: Config.delayAfterErrorCount}
   ),
 
-  fetchKServices: RequestUtil.debounceOnError(
-    Config.getRefreshRate(),
-    function (resolve, reject) {
-      return function () {
-        RequestUtil.json({
-          url: `${Config.rootUrl}/kubernetes/api/v1/services`,
-          success: function (response) {
-            try {
-              AppDispatcher.handleServerAction({
-                type: ActionTypes.REQUEST_KUBERNETES_SERVICES_FETCH_SUCCESS,
-                data: response
-              });
-              resolve();
-            } catch (error) {
-              this.error(error);
-            }
-          },
-          error: function (e) {
-            AppDispatcher.handleServerAction({
-              type: ActionTypes.REQUEST_KUBERNETES_SERVICES_FETCH_ERROR,
-              data: e.message
-            });
-            reject();
-          },
-          hangingRequestCallback: function () {
-            AppDispatcher.handleServerAction({
-              type: ActionTypes.REQUEST_KUBERNETES_SERVICES_FETCH_ONGOING
-            });
-          }
-        });
-      };
-    },
-    {delayAfterCount: Config.delayAfterErrorCount}
-  ),
-
   fetchReplicationControllers: RequestUtil.debounceOnError(
     Config.getRefreshRate(),
     function (resolve, reject) {
@@ -287,6 +252,41 @@ const KubernetesActions = {
     {delayAfterCount: Config.delayAfterErrorCount}
   ),
 
+  fetchKServices: RequestUtil.debounceOnError(
+    Config.getRefreshRate(),
+    function (resolve, reject) {
+      return function () {
+        RequestUtil.json({
+          url: `${Config.rootUrl}/kubernetes/api/v1/services`,
+          success: function (response) {
+            try {
+              AppDispatcher.handleServerAction({
+                type: ActionTypes.REQUEST_KUBERNETES_SERVICES_FETCH_SUCCESS,
+                data: response
+              });
+              resolve();
+            } catch (error) {
+              this.error(error);
+            }
+          },
+          error: function (e) {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_SERVICES_FETCH_ERROR,
+              data: e.message
+            });
+            reject();
+          },
+          hangingRequestCallback: function () {
+            AppDispatcher.handleServerAction({
+              type: ActionTypes.REQUEST_KUBERNETES_SERVICES_FETCH_ONGOING
+            });
+          }
+        });
+      };
+    },
+    {delayAfterCount: Config.delayAfterErrorCount}
+  ),
+
   fetchPods: RequestUtil.debounceOnError(
     Config.getRefreshRate(),
     function (resolve, reject) {
@@ -295,10 +295,9 @@ const KubernetesActions = {
           url: `${Config.rootUrl}/kubernetes/api/v1/pods`,
           success: function (response) {
             try {
-              let data = KubernetesUtil.parsePods(response.items);
               AppDispatcher.handleServerAction({
                 type: ActionTypes.REQUEST_KUBERNETES_PODS_FETCH_SUCCESS,
-                data
+                data: response
               });
               resolve();
             } catch (error) {
@@ -488,6 +487,25 @@ const KubernetesActions = {
     });
   },
 
+  deletePod: function (namespace, name) {
+    RequestUtil.json({
+      url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/${namespace}/pods/${name}`,
+      method: 'DELETE',
+      success: function () {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_POD_DELETE_SUCCESS
+        });
+      },
+      error: function (xhr) {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_POD_DELETE_ERROR,
+          data: RequestUtil.parseResponseBody(xhr),
+          xhr
+        });
+      }
+    });
+  },
+
   removePV: function (name) {
     console.log('Removing PV');
     RequestUtil.json({
@@ -571,7 +589,6 @@ const KubernetesActions = {
   },
 
   createPod: function (data) {
-    console.log('Creating Pod');
     RequestUtil.json({
       url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/pods`,
       method: 'POST',

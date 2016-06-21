@@ -130,8 +130,13 @@ class KubernetesStore extends EventEmitter {
           this.emit(EventTypes.KUBERNETES_POD_CREATE_ERROR, action.data);
           break;
         case ActionTypes.REQUEST_KUBERNETES_POD_CREATE_SUCCESS:
-          this.data.podTree = action.data;
           this.emit(EventTypes.KUBERNETES_POD_CREATE_SUCCESS);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_POD_DELETE_ERROR:
+          this.emit(EventTypes.KUBERNETES_POD_DELETE_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_POD_DELETE_SUCCESS:
+          this.emit(EventTypes.KUBERNETES_POD_DELETE_SUCCESS);
           break;
         case ActionTypes.REQUEST_KUBERNETES_POD_FETCH_ERROR:
           this.emit(EventTypes.KUBERNETES_POD_FETCH_ERROR, action.data);
@@ -285,21 +290,23 @@ class KubernetesStore extends EventEmitter {
   }
 
   createPod() {
-    console.log('Staring to create Pod');
     return KubernetesActions.createPod(...arguments);
   }
 
   createPV() {
-    console.log('Staring to create PV');
     return KubernetesActions.createPV(...arguments);
+  }
+
+  fetchReplicationControllers() {
+    return KubernetesActions.fetchReplicationControllers(...arguments);
   }
 
   fetchKServices() {
     return KubernetesActions.fetchKServices(...arguments);
   }
 
-  fetchReplicationControllers() {
-    return KubernetesActions.fetchReplicationControllers(...arguments);
+  fetchPods() {
+    return KubernetesActions.fetchPods(...arguments);
   }
 
   deleteReplicationController() {
@@ -308,6 +315,10 @@ class KubernetesStore extends EventEmitter {
 
   deleteKService() {
     return KubernetesActions.deleteKService(...arguments);
+  }
+
+  deletePod() {
+    return KubernetesActions.deletePod(...arguments);
   }
 
   removePV() {

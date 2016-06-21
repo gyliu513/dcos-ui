@@ -35,15 +35,15 @@ class ServiceFormModal extends mixin(StoreMixin) {
     this.state = {
       errorMessage: null,
       jsonDefinition: JSON.stringify({id:'', cmd:''}, null, 2),
-      jsonMode: false,
+      jsonMode: true,
       model,
       service: ServiceUtil.createServiceFromFormModel(model)
     };
 
     this.store_listeners = [
       {
-        name: 'marathon',
-        events: ['serviceCreateError', 'serviceCreateSuccess']
+        name: 'kubernetes',
+        events: ['podCreateError', 'podCreateSuccess']
       }
     ];
 
@@ -64,7 +64,7 @@ class ServiceFormModal extends mixin(StoreMixin) {
     this.setState({
       errorMessage: null,
       jsonDefinition: JSON.stringify({id:'', cmd:''}, null, 2),
-      jsonMode: false,
+      jsonMode: true,
       model,
       service: ServiceUtil.createServiceFromFormModel(model)
     });
