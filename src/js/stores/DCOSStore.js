@@ -218,10 +218,10 @@ class DCOSStore extends EventEmitter {
   }
 
   /**
-   * @type {PodTree}
+   * @type {PodsList}
    */
-  get podTree() {
-    return KubernetesStore.podTree;
+  get podList() {
+    return KubernetesStore.podList;
   }
 
   /**

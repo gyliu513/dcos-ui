@@ -19,7 +19,7 @@ import PodSearchFilter from '../../components/PodSearchFilter';
 // import PodSidebarFilters from '../../components/PodSidebarFilters';
 import PodsBreadcrumb from '../../components/PodsBreadcrumb';
 import PodsTable from '../../components/PodsTable';
-import PodTree from '../../structs/PodTree';
+import PodsList from '../../structs/PodsList';
 import SidebarActions from '../../events/SidebarActions';
 import SidePanels from '../../components/SidePanels';
 
@@ -143,8 +143,8 @@ var PodsTab = React.createClass({
     }
 
     // Render pod table
-    if (item instanceof PodTree && item.getItems().length > 0) {
-      return this.getPodTreeView(item);
+    if (item instanceof PodsList && item.getItems().length > 0) {
+      return this.getPodsListView(item);
     }
 
     // Render pod detail
@@ -194,7 +194,7 @@ var PodsTab = React.createClass({
     );
   },
 
-  getPodTreeView(item) {
+  getPodsListView(item) {
     let {state} = this;
     // let pods = item.getItems();
     let filteredPods = item.filterItemsByFilter({
@@ -225,18 +225,14 @@ var PodsTab = React.createClass({
   },
 
   render: function () {
-    let {id} = this.props.params;
-    id = decodeURIComponent(id);
-    let {state} = this;
+    let {name, namespace} = this.props.params;
 
-    // Find item in root tree and default to root tree if there is no match
-    // let item = DCOSStore.serviceTree.findItemById(id) || DCOSStore.serviceTree;
-    let item = DCOSStore.podTree.findItemById(id) || DCOSStore.podTree;
+    let item = DCOSStore.podList.findItemByNameAndNamespace(name, namespace) || DCOSStore.podList;
 
     return (
       <div>
         {this.getContents(item)}
-        <PodFormModal open={state.isPodFormModalShown}
+        <PodFormModal open={this.isPodFormModalShown}
           onClose={this.handleClosePodFormModal}/>
       </div>
     );

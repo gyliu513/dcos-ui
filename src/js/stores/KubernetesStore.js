@@ -4,7 +4,7 @@ import AppDispatcher from '../events/AppDispatcher';
 import ActionTypes from '../constants/ActionTypes';
 import EventTypes from '../constants/EventTypes';
 import Config from '../config/Config';
-import PodTree from '../structs/PodTree';
+import PodsList from '../structs/PodsList';
 import KServiceTree from '../structs/KServiceTree';
 import RCTree from '../structs/RCTree';
 import PVTree from '../structs/PVTree';
@@ -55,7 +55,7 @@ class KubernetesStore extends EventEmitter {
       pv: {},
       pvc: {},
       policy: {},
-      podTree: {id: '/', items: []},
+      podList: {},
       kserviceTree: {id: '/', items: []},
       rcTree: {id: '/', items: []},
       pvTree: {id: '/', items: []},
@@ -149,7 +149,7 @@ class KubernetesStore extends EventEmitter {
           this.emit(EventTypes.KUBERNETES_PODS_FETCH_ERROR, action.data);
           break;
         case ActionTypes.REQUEST_KUBERNETES_PODS_FETCH_SUCCESS:
-          this.data.podTree = action.data;
+          this.data.podList = action.data;
           this.emit(EventTypes.KUBERNETES_PODS_FETCH_SUCCESS);
           break;
         // PV events
@@ -378,8 +378,8 @@ class KubernetesStore extends EventEmitter {
     return new PVCTree(this.data.pvcTree);
   }
 
-  get podTree() {
-    return new PodTree(this.data.podTree);
+  get podList() {
+    return new PodsList(this.data.podList);
   }
 
   get kserviceTree() {

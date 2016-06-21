@@ -1,7 +1,6 @@
 import {RequestUtil} from 'mesosphere-shared-reactjs';
 
 import ActionTypes from '../constants/ActionTypes';
-import KubernetesUtil from '../utils/KubernetesUtil';
 
 var AppDispatcher = require('./AppDispatcher');
 var Config = require('../config/Config');
@@ -365,10 +364,9 @@ const KubernetesActions = {
           url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/persistentvolumeclaims`,
           success: function (response) {
             try {
-              let data = KubernetesUtil.parsePods(response.items);
               AppDispatcher.handleServerAction({
                 type: ActionTypes.REQUEST_KUBERNETES_PVCS_FETCH_SUCCESS,
-                data
+                data: response
               });
               resolve();
             } catch (error) {
