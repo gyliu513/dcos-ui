@@ -80,7 +80,14 @@ class KServicesTable extends mixin(StoreMixin) {
       rowObj.labels = data[i].metadata.name;
       rowObj.clusterIP = data[i].spec.clusterIP;
       rowObj.createTime = data[i].metadata.creationTimestamp;
-      rowObj.ports = data[i].metadata.uid;
+      var ports = '';
+      for (var j = 0; j < data[i].spec.ports.length; j++) {
+        ports += data[i].spec.ports[j].targetPort + '/' + data[i].spec.ports[j].protocol;
+        if (j !== data[i].spec.ports.length - 1) {
+          ports += ',';
+        }
+      }
+      rowObj.ports = ports;
       newRows.push(rowObj);
     }
 
