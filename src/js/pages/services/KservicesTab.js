@@ -214,7 +214,7 @@ var KServicesTab = React.createClass({
             </button>
           </FilterBar>
           <KServicesTable
-            services={filteredKServices} />
+            kservices={filteredKServices} />
         </div>
         <SidePanels
           params={this.props.params}

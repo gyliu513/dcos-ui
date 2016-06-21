@@ -76,21 +76,20 @@ class KubernetesStore extends EventEmitter {
           this.emit(EventTypes.KUBERNETES_SERVICE_CREATE_ERROR, action.data);
           break;
         case ActionTypes.REQUEST_KUBERNETES_SERVICE_CREATE_SUCCESS:
-          this.data.rcTree = action.data;
           this.emit(EventTypes.KUBERNETES_SERVICE_CREATE_SUCCESS);
           break;
         case ActionTypes.REQUEST_KUBERNETES_SERVICE_FETCH_ERROR:
           this.emit(EventTypes.KUBERNETES_SERVICE_FETCH_ERROR, action.data);
           break;
         case ActionTypes.REQUEST_KUBERNETES_SERVICE_FETCH_SUCCESS:
-          this.data.rc = action.data;
+          this.data.kservice = action.data;
           this.emit(EventTypes.KUBERNETES_SERVICE_FETCH_SUCCESS);
           break;
         case ActionTypes.REQUEST_KUBERNETES_SERVICES_FETCH_ERROR:
           this.emit(EventTypes.KUBERNETES_SERVICES_FETCH_ERROR, action.data);
           break;
         case ActionTypes.REQUEST_KUBERNETES_SERVICES_FETCH_SUCCESS:
-          this.data.rcTree = action.data;
+          this.data.kserviceTree = action.data;
           this.emit(EventTypes.KUBERNETES_SERVICES_FETCH_SUCCESS);
           break;
         // replication controller

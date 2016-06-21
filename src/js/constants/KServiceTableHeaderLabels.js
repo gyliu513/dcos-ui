@@ -1,10 +1,10 @@
 var KServiceTableHeaderLabels = {
   name: 'Name',
+  namespace: 'Namespace',
   labels: 'Lables',
-  pods: 'Pods',
+  clusterIP: 'Cluster IP',
   createTime: 'Create Time',
-  endpoints: 'Endpoints',
-  images: 'Images',
+  ports: 'Ports',
 };
 
 module.exports = KServiceTableHeaderLabels;

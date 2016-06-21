@@ -222,7 +222,7 @@ const KubernetesActions = {
     function (resolve, reject) {
       return function () {
         RequestUtil.json({
-          url: `${Config.rootUrl}/kubernetes/api/v1/replicationcontrollers`,
+          url: `${Config.rootUrl}/kubernetes/api/v1/services`,
           success: function (response) {
             try {
               AppDispatcher.handleServerAction({

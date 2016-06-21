@@ -78,11 +78,10 @@ class KServicesTable extends mixin(StoreMixin) {
       var rowObj = {};
       rowObj.name = data[i].metadata.name;
       rowObj.namespace = data[i].metadata.namespace;
-      rowObj.labels = data[i].metadata.labels.app;
-      rowObj.pods = data[i].spec.replicas;
+      rowObj.labels = data[i].metadata.name;
+      rowObj.clusterIP = data[i].spec.clusterIP;
       rowObj.createTime = data[i].metadata.creationTimestamp;
-      rowObj.endpoints = data[i].metadata.uid;
-      rowObj.images = data[i].metadata.name;
+      rowObj.ports = data[i].metadata.uid;
       newRows.push(rowObj);
     }
 
@@ -145,7 +144,7 @@ class KServicesTable extends mixin(StoreMixin) {
       {
         className,
         headerClassName: className,
-        prop: 'pods',
+        prop: 'clusterIP',
         sortable: true,
         heading
       },
@@ -159,14 +158,7 @@ class KServicesTable extends mixin(StoreMixin) {
       {
         className,
         headerClassName: className,
-        prop: 'endpoints',
-        sortable: true,
-        heading
-      },
-      {
-        className,
-        headerClassName: className,
-        prop: 'images',
+        prop: 'ports',
         sortable: true,
         heading
       },
@@ -187,7 +179,6 @@ class KServicesTable extends mixin(StoreMixin) {
         <col />
         <col />
         <col />
-        <col style={{width: '100px'}} />
         <col />
         <col />
         <col />
