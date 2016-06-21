@@ -103,6 +103,7 @@ class RCFormModal extends mixin(StoreMixin) {
   onKubernetesStoreRcCreateSuccess() {
     this.resetState();
     this.props.onClose();
+    KubernetesStore.fetchReplicationControllers();
   }
 
   onKubernetesStoreRcCreateError(errorMessage) {
