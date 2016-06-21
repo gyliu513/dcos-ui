@@ -103,6 +103,7 @@ class ServiceFormModal extends mixin(StoreMixin) {
   onKubernetesStorePodCreateSuccess() {
     this.resetState();
     this.props.onClose();
+    KubernetesStore.fetchPods();
   }
 
   onKubernetesStorePodCreateError(errorMessage) {
