@@ -372,7 +372,7 @@ class KubernetesStore extends EventEmitter {
     return new KServiceTree(this.data.kserviceTree);
   }
 
-  get rcList() {
+  get rcTree() {
     return new RCTree(this.data.rcList);
   }
 
