@@ -15,7 +15,7 @@ const KubernetesActions = {
           success: function (response) {
             try {
               AppDispatcher.handleServerAction({
-                type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_SUCCESS,
+                type: ActionTypes.REQUEST_KUBERNETES_RC_FETCH_SUCCESS,
                 data: response
               });
               resolve();
@@ -25,14 +25,14 @@ const KubernetesActions = {
           },
           error: function (e) {
             AppDispatcher.handleServerAction({
-              type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_ERROR,
+              type: ActionTypes.REQUEST_KUBERNETES_RC_FETCH_ERROR,
               data: e.message
             });
             reject();
           },
           hangingRequestCallback: function () {
             AppDispatcher.handleServerAction({
-              type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_ONGOING
+              type: ActionTypes.REQUEST_KUBERNETES_RC_FETCH_ONGOING
             });
           }
         });
@@ -50,7 +50,7 @@ const KubernetesActions = {
           success: function (response) {
             try {
               AppDispatcher.handleServerAction({
-                type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_SUCCESS,
+                type: ActionTypes.REQUEST_KUBERNETES_SERVICE_FETCH_SUCCESS,
                 data: response
               });
               resolve();
@@ -60,49 +60,14 @@ const KubernetesActions = {
           },
           error: function (e) {
             AppDispatcher.handleServerAction({
-              type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_ERROR,
+              type: ActionTypes.REQUEST_KUBERNETES_SERVICE_FETCH_ERROR,
               data: e.message
             });
             reject();
           },
           hangingRequestCallback: function () {
             AppDispatcher.handleServerAction({
-              type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_ONGOING
-            });
-          }
-        });
-      };
-    },
-    {delayAfterCount: Config.delayAfterErrorCount}
-  ),
-
-  getPod: RequestUtil.debounceOnError(
-    Config.getRefreshRate(),
-    function (resolve, reject) {
-      return function (name, namespace) {
-        RequestUtil.json({
-          url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/${namespace}/pods/${name}`,
-          success: function (response) {
-            try {
-              AppDispatcher.handleServerAction({
-                type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_SUCCESS,
-                data: response
-              });
-              resolve();
-            } catch (error) {
-              this.error(error);
-            }
-          },
-          error: function (e) {
-            AppDispatcher.handleServerAction({
-              type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_ERROR,
-              data: e.message
-            });
-            reject();
-          },
-          hangingRequestCallback: function () {
-            AppDispatcher.handleServerAction({
-              type: ActionTypes.REQUEST_KUBERNETES_POD_FETCH_ONGOING
+              type: ActionTypes.REQUEST_KUBERNETES_SERVICE_FETCH_ONGOING
             });
           }
         });

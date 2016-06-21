@@ -4,8 +4,6 @@ import React from 'react';
 /* eslint-enable no-unused-vars */
 import DescriptionList from './DescriptionList';
 // import MarathonTaskDetailsList from './MarathonTaskDetailsList';
-import MesosStateStore from '../stores/MesosStateStore';
-import KubernetesStore from '../stores/KubernetesStore';
 import PageHeader from './PageHeader';
 import RequestErrorMsg from './RequestErrorMsg';
 import ResourcesUtil from '../utils/ResourcesUtil';
@@ -48,13 +46,8 @@ class PodDetail extends mixin(TabsMixin) {
     });
   }
 
-  // componentDidMount() {
-  //   super.componentDidMount(...arguments);
-  //   this.store_removeEventListenerForStoreID('summary', 'success');
-  // }
-
   onStateStoreSuccess() {
-    let task = MesosStateStore.getTaskFromTaskID(this.props.params.taskID);
+    let task = {};
     TaskDirectoryStore.getDirectory(task);
   }
 
@@ -198,29 +191,8 @@ class PodDetail extends mixin(TabsMixin) {
     )
   }
 
-  getMesosTaskLabelDescriptionList(mesosTask) {
-    if (mesosTask == null) {
-      return null;
-    }
-
-    let labelMapping = {};
-
-    if (mesosTask.labels) {
-      mesosTask.labels.forEach(function (label) {
-        labelMapping[label.key] = label.value;
-      });
-    }
-
-    return (
-      <DescriptionList
-        className="container container-fluid flush container-pod container-pod-super-short flush-top"
-        hash={labelMapping}
-        headline="Labels" />
-    );
-  }
-
   renderDetailsTabView() {
-    let pod = this.pod;
+    let pod = this.props.pod;
 
     return (
       <div className="container container-fluid flush">
@@ -280,40 +252,17 @@ class PodDetail extends mixin(TabsMixin) {
     super.tabs_handleTabClick(...arguments);
   }
 
-  getNotFound(item, name, namespace) {
-    return (
-      <div className="container container-fluid container-pod text-align-center">
-        <h3 className="flush-top text-align-center">
-          {`Error finding ${item}`}
-        </h3>
-        <p className="flush">
-          {`Did not find a ${item} with name "${name}" and namespace "${namespace}"`}
-        </p>
-      </div>
-    );
-  }
-
   getPodsBreadcrumb() {
-    let {name, namespace} = this.props.params;
-
-    // if (name == null) {
-    //   return null;
-    // }
-
+    let pod = this.props.pod;
+    let name = pod.getName();
+    let namespace = pod.getNamespace()
     return (<PodsBreadcrumb namespace={namespace} name={name} />);
   }
 
   render() {
+    let pod = this.props.pod;
 
-    let name = this.props.params.name;
-    let namespace = this.props.params.namespace;
-    let pod = KubernetesStore.getPod(name, namespace);
-    this.pod = pod;
-
-    if (pod === undefined) {
-      return this.getNotFound('Pod', name, namespace);
-    }
-
+    // loading page
     if (pod.metadata === undefined) {
       return (
         <div className="container container-fluid container-pod text-align-center

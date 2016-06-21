@@ -9,7 +9,6 @@ import ServiceOverlay from '../components/ServiceOverlay';
 import ServicesPage from '../pages/ServicesPage';
 import ServicesTab from '../pages/services/ServicesTab';
 import TaskDetail from '../components/TaskDetail';
-import PodDetail from '../components/PodDetail';
 
 let serviceRoutes = {
   type: Route,
@@ -32,8 +31,7 @@ let serviceRoutes = {
         {
           type: Route,
           name: 'services-pods-detail',
-          path: ':namespace/:name/?',
-          handler: PodDetail
+          path: ':namespace/:name/?'
         }
       ]
     },

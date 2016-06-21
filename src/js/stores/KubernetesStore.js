@@ -51,13 +51,12 @@ class KubernetesStore extends EventEmitter {
     this.data = {
       kservice: {},
       rc: {},
-      pod: {},
       pv: {},
       pvc: {},
       policy: {},
       podList: {},
       kserviceTree: {id: '/', items: []},
-      rcTree: {id: '/', items: []},
+      rcList: {},
       pvTree: {id: '/', items: []},
       pvcTree: {id: '/', items: []},
       policyList: [],
@@ -122,7 +121,7 @@ class KubernetesStore extends EventEmitter {
           this.emit(EventTypes.KUBERNETES_RCS_FETCH_ERROR, action.data);
           break;
         case ActionTypes.REQUEST_KUBERNETES_RCS_FETCH_SUCCESS:
-          this.data.rcTree = action.data;
+          this.data.rcList = action.data;
           this.emit(EventTypes.KUBERNETES_RCS_FETCH_SUCCESS);
           break;
         // Pod events
@@ -137,13 +136,6 @@ class KubernetesStore extends EventEmitter {
           break;
         case ActionTypes.REQUEST_KUBERNETES_POD_DELETE_SUCCESS:
           this.emit(EventTypes.KUBERNETES_POD_DELETE_SUCCESS);
-          break;
-        case ActionTypes.REQUEST_KUBERNETES_POD_FETCH_ERROR:
-          this.emit(EventTypes.KUBERNETES_POD_FETCH_ERROR, action.data);
-          break;
-        case ActionTypes.REQUEST_KUBERNETES_POD_FETCH_SUCCESS:
-          this.data.pod = action.data;
-          this.emit(EventTypes.KUBERNETES_POD_FETCH_SUCCESS);
           break;
         case ActionTypes.REQUEST_KUBERNETES_PODS_FETCH_ERROR:
           this.emit(EventTypes.KUBERNETES_PODS_FETCH_ERROR, action.data);
@@ -340,12 +332,6 @@ class KubernetesStore extends EventEmitter {
     return KubernetesActions.createLogPolicy(...arguments);
   }
 
-  getPod() {
-    console.log('Get a Pod');
-    KubernetesActions.getPod(...arguments);
-    return this.data.pod;
-  }
-
   getPV() {
     console.log('Get a PV');
     KubernetesActions.getPV(...arguments);
@@ -386,8 +372,8 @@ class KubernetesStore extends EventEmitter {
     return new KServiceTree(this.data.kserviceTree);
   }
 
-  get rcTree() {
-    return new RCTree(this.data.rcTree);
+  get rcList() {
+    return new RCTree(this.data.rcList);
   }
 
   get policyList() {

@@ -1,7 +1,8 @@
 import React from 'react';
-import {RouteHandler} from 'react-router';
 import {StoreMixin} from 'mesosphere-shared-reactjs';
 
+import Pod from '../../structs/Pod';
+import PodDetail from '../../components/PodDetail';
 import AlertPanel from '../../components/AlertPanel';
 import DCOSStore from '../../stores/DCOSStore';
 import FilterBar from '../../components/FilterBar';
@@ -11,8 +12,6 @@ import SaveStateMixin from '../../mixins/SaveStateMixin';
 import {
   POD_FORM_MODAL
 } from '../../constants/ModalKeys';
-import Pod from '../../structs/Pod';
-import PodDetail from '../../components/PodDetail';
 import PodFilterTypes from '../../constants/PodFilterTypes';
 import PodFormModal from '../../components/modals/PodFormModal';
 import PodSearchFilter from '../../components/PodSearchFilter';
@@ -121,6 +120,19 @@ var PodsTab = React.createClass({
     );
   },
 
+  getNotFound: function (name, namespace) {
+    return (
+      <div className="container container-fluid container-pod text-align-center">
+        <h3 className="flush-top text-align-center">
+          {`Error finding ${name}`}
+        </h3>
+        <p className="flush">
+          {`Did not find a Pod with name "${name}" and namespace "${namespace}"`}
+        </p>
+      </div>
+    );
+  },
+
   getContents: function (item) {
     // Render loading screen
     if (!DCOSStore.dataProcessed) {
@@ -136,20 +148,13 @@ var PodsTab = React.createClass({
       );
     }
 
-    if (this.props.params.name && this.props.params.namespace) {
-      return (
-        <RouteHandler />
-      );
-    }
-
     // Render pod table
     if (item instanceof PodsList && item.getItems().length > 0) {
       return this.getPodsListView(item);
     }
 
-    // Render pod detail
     if (item instanceof Pod) {
-      return (<PodDetail service={item} />);
+      return (<PodDetail pod={item} />);
     }
 
     // Render empty panel
@@ -225,9 +230,16 @@ var PodsTab = React.createClass({
   },
 
   render: function () {
+    let item = DCOSStore.podList;
     let {name, namespace} = this.props.params;
 
-    let item = DCOSStore.podList.findItemByNameAndNamespace(name, namespace) || DCOSStore.podList;
+    if (name && namespace) {
+      item = DCOSStore.podList.findItemByNameAndNamespace(name, namespace);
+    }
+
+    if (item === undefined) {
+      return this.getNotFound(name, namespace);
+    }
 
     return (
       <div>
