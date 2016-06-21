@@ -14,7 +14,7 @@ import {
 import Pod from '../../structs/Pod';
 import PodDetail from '../../components/PodDetail';
 import PodFilterTypes from '../../constants/PodFilterTypes';
-import PodFormModal from '../../components/modals/PodFormModal';
+import KServiceFormModal from '../../components/modals/KServiceFormModal';
 import PodSearchFilter from '../../components/PodSearchFilter';
 import KServicesBreadcrumb from '../../components/KServicesBreadcrumb';
 import KServicesTable from '../../components/KServicesTable';
@@ -23,7 +23,6 @@ import SidebarActions from '../../events/SidebarActions';
 import SidePanels from '../../components/SidePanels';
 
 var DEFAULT_FILTER_OPTIONS = {
-  filterHealth: null,
   searchString: ''
 };
 
@@ -55,7 +54,7 @@ var KServicesTab = React.createClass({
 
   getInitialState: function () {
     return Object.assign({}, DEFAULT_FILTER_OPTIONS, {
-      isPodFormModalShown: false
+      isKServiceFormModalShown: false
     });
   },
 
@@ -74,8 +73,8 @@ var KServicesTab = React.createClass({
     });
   },
 
-  handleClosePodFormModal: function () {
-    this.setState({isPodFormModalShown: false});
+  handleCloseKServiceFormModal: function () {
+    this.setState({isKServiceFormModalShown: false});
   },
 
   handleFilterChange: function (filterValues, filterType) {
@@ -87,7 +86,7 @@ var KServicesTab = React.createClass({
 
   handleOpenModal: function (id) {
     let modalStates = {
-      isPodFormModalShown: POD_FORM_MODAL === id
+      isKServiceFormModalShown: POD_FORM_MODAL === id
     };
 
     this.setState(modalStates);
@@ -197,7 +196,6 @@ var KServicesTab = React.createClass({
     let {state} = this;
     // let pods = item.getItems();
     let filteredKServices = item.filterItemsByFilter({
-      health: state.filterHealth,
       id: state.searchString
     }).getItems();
 
@@ -234,8 +232,8 @@ var KServicesTab = React.createClass({
     return (
       <div>
         {this.getContents(item)}
-        <PodFormModal open={state.isPodFormModalShown}
-          onClose={this.handleClosePodFormModal}/>
+        <KServiceFormModal open={state.isKServiceFormModalShown}
+          onClose={this.handleCloseKServiceFormModal}/>
       </div>
     );
   }

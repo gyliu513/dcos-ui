@@ -5,7 +5,6 @@ import {StoreMixin} from 'mesosphere-shared-reactjs';
 
 import Config from '../config/Config';
 import KubernetesStore from '../stores/KubernetesStore';
-import List from '../structs/List';
 var ResourceTableUtil = require('../utils/ResourceTableUtil');
 var KServiceTableHeaderLabels = require('../constants/KServiceTableHeaderLabels');
 // import ServiceTableUtil from '../utils/ServiceTableUtil';
@@ -32,7 +31,7 @@ class KServicesTable extends mixin(StoreMixin) {
 
     this.store_listeners = [{
       name: 'kubernetes',
-      events: ['kserviceDeleteError', 'kserviceDeleteSuccess'],
+      events: ['serviceDeleteError', 'serviceDeleteSuccess'],
       unmountWhen: function () {
         return true;
       },
@@ -44,11 +43,11 @@ class KServicesTable extends mixin(StoreMixin) {
     });
   }
 
-  onKubernetesStoreKServiceDeleteError(error) {
+  onKubernetesStoreServiceDeleteError(error) {
     this.setState({kserviceRemoveError: error, pendingRequest: false});
   }
 
-  onKubernetesStoreKServiceDeleteSuccess() {
+  onKubernetesStoreServiceDeleteSuccess() {
     this.setState({
       kserviceToRemove: null,
       kserviceRemoveError: null,
@@ -233,7 +232,7 @@ class KServicesTable extends mixin(StoreMixin) {
           open={!!this.state.kserviceToRemove}
           onClose={this.handleDeleteCancel}
           leftButtonCallback={this.handleDeleteCancel}
-          rightButtonCallback={this.handleDeleteReplicationController}
+          rightButtonCallback={this.handleDeleteKService}
           rightButtonClassName="button button-danger"
           rightButtonText="Remove Kubernetes Service">
           {this.getRemoveModalContent()}
@@ -243,12 +242,8 @@ class KServicesTable extends mixin(StoreMixin) {
   }
 }
 
-KServicesTable.defaultProps = {
-  kservices: new List()
-};
-
 KServicesTable.propTypes = {
-  kservices: React.PropTypes.object.isRequired
+  kservices: React.PropTypes.array.isRequired
 };
 
 module.exports = KServicesTable;

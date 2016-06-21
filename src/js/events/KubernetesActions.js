@@ -469,6 +469,25 @@ const KubernetesActions = {
     });
   },
 
+  deleteKService: function (namespace, name) {
+    RequestUtil.json({
+      url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/${namespace}/services/${name}`,
+      method: 'DELETE',
+      success: function () {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_SERVICE_DELETE_SUCCESS
+        });
+      },
+      error: function (xhr) {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_SERVICE_DELETE_ERROR,
+          data: RequestUtil.parseResponseBody(xhr),
+          xhr
+        });
+      }
+    });
+  },
+
   removePV: function (name) {
     console.log('Removing PV');
     RequestUtil.json({
@@ -524,6 +543,26 @@ const KubernetesActions = {
       error: function (xhr) {
         AppDispatcher.handleServerAction({
           type: ActionTypes.REQUEST_KUBERNETES_RC_CREATE_ERROR,
+          data: RequestUtil.parseResponseBody(xhr),
+          xhr
+        });
+      }
+    });
+  },
+
+  createKService: function (data) {
+    RequestUtil.json({
+      url: `${Config.rootUrl}/kubernetes/api/v1/namespaces/default/services`,
+      method: 'POST',
+      data,
+      success: function () {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_SERVICE_CREATE_SUCCESS
+        });
+      },
+      error: function (xhr) {
+        AppDispatcher.handleServerAction({
+          type: ActionTypes.REQUEST_KUBERNETES_SERVICE_CREATE_ERROR,
           data: RequestUtil.parseResponseBody(xhr),
           xhr
         });

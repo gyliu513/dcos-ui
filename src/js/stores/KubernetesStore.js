@@ -78,6 +78,12 @@ class KubernetesStore extends EventEmitter {
         case ActionTypes.REQUEST_KUBERNETES_SERVICE_CREATE_SUCCESS:
           this.emit(EventTypes.KUBERNETES_SERVICE_CREATE_SUCCESS);
           break;
+        case ActionTypes.REQUEST_KUBERNETES_SERVICE_DELETE_ERROR:
+          this.emit(EventTypes.KUBERNETES_SERVICE_DELETE_ERROR, action.data);
+          break;
+        case ActionTypes.REQUEST_KUBERNETES_SERVICE_DELETE_SUCCESS:
+          this.emit(EventTypes.KUBERNETES_SERVICE_DELETE_SUCCESS);
+          break;
         case ActionTypes.REQUEST_KUBERNETES_SERVICE_FETCH_ERROR:
           this.emit(EventTypes.KUBERNETES_SERVICE_FETCH_ERROR, action.data);
           break;
@@ -274,6 +280,10 @@ class KubernetesStore extends EventEmitter {
     return KubernetesActions.createReplicationController(...arguments);
   }
 
+  createKService() {
+    return KubernetesActions.createKService(...arguments);
+  }
+
   createPod() {
     console.log('Staring to create Pod');
     return KubernetesActions.createPod(...arguments);
@@ -294,6 +304,10 @@ class KubernetesStore extends EventEmitter {
 
   deleteReplicationController() {
     return KubernetesActions.deleteReplicationController(...arguments);
+  }
+
+  deleteKService() {
+    return KubernetesActions.deleteKService(...arguments);
   }
 
   removePV() {

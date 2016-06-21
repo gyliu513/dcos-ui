@@ -22,8 +22,8 @@ const METHODS_TO_BIND = [
   'handleJSONChange',
   'handleJSONToggle',
   'handleSubmit',
-  'onKubernetesStorePodCreateError',
-  'onKubernetesStorePodCreateSuccess'
+  'onKubernetesStoreServiceCreateError',
+  'onKubernetesStoreServiceCreateSuccess'
 ];
 
 class KServiceFormModal extends mixin(StoreMixin) {
@@ -35,14 +35,14 @@ class KServiceFormModal extends mixin(StoreMixin) {
     this.state = {
       errorMessage: null,
       jsonDefinition: JSON.stringify({id:'', cmd:''}, null, 2),
-      jsonMode: false,
+      jsonMode: true,
       model,
       service: ServiceUtil.createServiceFromFormModel(model)
     };
 
     this.store_listeners = [
       {
-        name: 'marathon',
+        name: 'kubernetes',
         events: ['serviceCreateError', 'serviceCreateSuccess']
       }
     ];
@@ -64,7 +64,7 @@ class KServiceFormModal extends mixin(StoreMixin) {
     this.setState({
       errorMessage: null,
       jsonDefinition: JSON.stringify({id:'', cmd:''}, null, 2),
-      jsonMode: false,
+      jsonMode: true,
       model,
       service: ServiceUtil.createServiceFromFormModel(model)
     });
@@ -100,12 +100,13 @@ class KServiceFormModal extends mixin(StoreMixin) {
     this.setState(nextState);
   }
 
-  onKubernetesStorePodCreateSuccess() {
+  onKubernetesStoreServiceCreateSuccess() {
     this.resetState();
     this.props.onClose();
+    KubernetesStore.fetchKServices();
   }
 
-  onKubernetesStorePodCreateError(errorMessage) {
+  onKubernetesStoreServiceCreateError(errorMessage) {
     this.setState({
       errorMessage
     });
@@ -118,7 +119,7 @@ class KServiceFormModal extends mixin(StoreMixin) {
   handleSubmit() {
     if (this.state.jsonMode) {
       let jsonDefinition = this.state.jsonDefinition;
-      KubernetesStore.createPod(JSON.parse(jsonDefinition));
+      KubernetesStore.createKService(JSON.parse(jsonDefinition));
       this.setState({
         errorMessage: null,
         jsonDefinition,
@@ -131,7 +132,7 @@ class KServiceFormModal extends mixin(StoreMixin) {
       let service = ServiceUtil.createServiceFromFormModel(model);
       this.setState({service, model, errorMessage: null});
       KubernetesStore
-        .createPod(ServiceUtil.getAppDefinitionFromService(service));
+        .createKService(ServiceUtil.getAppDefinitionFromService(service));
     }
   }
 
@@ -219,7 +220,7 @@ class KServiceFormModal extends mixin(StoreMixin) {
         showCloseButton={false}
         showHeader={true}
         footer={this.getFooter()}
-        titleText="Deploy New Pod"
+        titleText="Deploy New Kubernetes Service"
         showFooter={true}>
         {this.getErrorMessage()}
         {this.getModalContents()}
