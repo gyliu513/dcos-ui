@@ -5,7 +5,6 @@ import {StoreMixin} from 'mesosphere-shared-reactjs';
 
 import Config from '../config/Config';
 import KubernetesStore from '../stores/KubernetesStore';
-import List from '../structs/List';
 var ResourceTableUtil = require('../utils/ResourceTableUtil');
 var RCTableHeaderLabels = require('../constants/RCTableHeaderLabels');
 // import ServiceTableUtil from '../utils/ServiceTableUtil';
@@ -251,10 +250,6 @@ class RCsTable extends mixin(StoreMixin) {
     );
   }
 }
-
-RCsTable.defaultProps = {
-  rcs: new List()
-};
 
 RCsTable.propTypes = {
   rcs: React.PropTypes.object.isRequired

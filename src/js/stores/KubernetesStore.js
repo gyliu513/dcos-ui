@@ -98,7 +98,6 @@ class KubernetesStore extends EventEmitter {
           this.emit(EventTypes.KUBERNETES_RC_CREATE_ERROR, action.data);
           break;
         case ActionTypes.REQUEST_KUBERNETES_RC_CREATE_SUCCESS:
-          this.data.rcTree = action.data;
           this.emit(EventTypes.KUBERNETES_RC_CREATE_SUCCESS);
           break;
         case ActionTypes.REQUEST_KUBERNETES_RC_DELETE_ERROR:
