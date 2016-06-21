@@ -2,13 +2,13 @@
   "apiVersion": "extensions/v1beta1",
   "kind": "HorizontalPodAutoscaler",
   "metadata": {
-    "name": "php-apache",
+    "name": "gyliu-nginx",
     "namespace": "default"
   },
   "spec": {
     "scaleRef": {
       "kind": "ReplicationController",
-      "name": "php-apache",
+      "name": "gyliu-nginx",
       "subresource": "scale"
     },
     "minReplicas": 1,
