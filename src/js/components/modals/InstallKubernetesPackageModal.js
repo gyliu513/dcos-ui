@@ -130,7 +130,7 @@ class InstallKubernetesPackageModal extends mixin(InternalStorageMixin, TabsMixi
     this.setState({schemaIncorrect: false});
   }
 
-  onCosmosPackagesStoreInstallError(installKubernetesError) {
+  onCosmosPackagesStoreInstallKubernetesError(installKubernetesError) {
     this.internalStorage_update({
       installKubernetesError,
       pendingRequest: false
@@ -138,7 +138,7 @@ class InstallKubernetesPackageModal extends mixin(InternalStorageMixin, TabsMixi
     this.setState({currentTab: 'defaultInstall'});
   }
 
-  onCosmosPackagesStoreInstallSuccess() {
+  onCosmosPackagesStoreInstallKubernetesSuccess() {
     this.internalStorage_update({
       installKubernetesError: null,
       pendingRequest: false
