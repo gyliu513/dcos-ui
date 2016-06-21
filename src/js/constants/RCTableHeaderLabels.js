@@ -2,9 +2,9 @@ var RCTableHeaderLabels = {
   name: 'Name',
   namespace: 'Namespace',
   labels: 'Lables',
-  pods: 'Pods',
+  desired: 'Desired',
+  current: 'Current',
   createTime: 'Create Time',
-  endpoints: 'Endpoints',
   images: 'Images',
 };
 

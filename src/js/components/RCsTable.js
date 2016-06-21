@@ -77,9 +77,9 @@ class RCsTable extends mixin(StoreMixin) {
       rowObj.name = data[i].metadata.name;
       rowObj.namespace = data[i].metadata.namespace;
       rowObj.labels = data[i].metadata.labels.app;
-      rowObj.pods = data[i].spec.replicas;
+      rowObj.current = data[i].spec.replicas;
+      rowObj.desired = data[i].status.replicas;
       rowObj.createTime = data[i].metadata.creationTimestamp;
-      rowObj.endpoints = data[i].metadata.uid;
       rowObj.images = data[i].metadata.name;
       newRows.push(rowObj);
     }
@@ -143,7 +143,14 @@ class RCsTable extends mixin(StoreMixin) {
       {
         className,
         headerClassName: className,
-        prop: 'pods',
+        prop: 'desired',
+        sortable: true,
+        heading
+      },
+      {
+        className,
+        headerClassName: className,
+        prop: 'current',
         sortable: true,
         heading
       },
@@ -151,13 +158,6 @@ class RCsTable extends mixin(StoreMixin) {
         className,
         headerClassName: className,
         prop: 'createTime',
-        sortable: true,
-        heading
-      },
-      {
-        className,
-        headerClassName: className,
-        prop: 'endpoints',
         sortable: true,
         heading
       },
