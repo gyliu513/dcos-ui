@@ -252,7 +252,7 @@ class RCsTable extends mixin(StoreMixin) {
 }
 
 RCsTable.propTypes = {
-  rcs: React.PropTypes.object.isRequired
+  rcs: React.PropTypes.array.isRequired
 };
 
 module.exports = RCsTable;
