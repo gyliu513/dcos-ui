@@ -57,20 +57,22 @@ const CosmosPackagesActions = {
     });
   },
 
-  fetchInstalledPackages: function (packageName, appId) {
+  fetchInstalledPackages: function (packageName, service, namespace) {
+    console.log(JSON.stringify({packageName, service, namespace}));
     RequestUtil.json({
-      contentType: getContentType('list', 'request'),
-      headers: {Accept: getContentType('list', 'response')},
+      contentType: getContentType('list-kubernetes', 'request'),
+      headers: {Accept: getContentType('list-kubernetes', 'response')},
       method: 'POST',
       url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/list`,
-      data: JSON.stringify({packageName, appId}),
+      data: JSON.stringify({packageName, service, namespace}),
       timeout: REQUEST_TIMEOUT,
       success: function (response) {
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_PACKAGES_LIST_SUCCESS,
           data: response.packages,
           packageName,
-          appId
+          service,
+          namespace
         });
       },
       error: function (xhr) {
@@ -78,7 +80,8 @@ const CosmosPackagesActions = {
           type: REQUEST_COSMOS_PACKAGES_LIST_ERROR,
           data: RequestUtil.getErrorFromXHR(xhr),
           packageName,
-          appId
+          service,
+          namespace
         });
       }
     });
@@ -249,10 +252,11 @@ const CosmosPackagesActions = {
       contentType: getContentType('install-kubernetes', 'request'),
       headers: {Accept: getContentType('install-kubernetes', 'response')},
       method: 'POST',
-      url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/install-kubernetes`,
+      url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/install`,
       data: JSON.stringify({packageName, packageVersion, options}),
       timeout: REQUEST_TIMEOUT,
       success: function (response) {
+        console.log(response)
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_KUBERNETES_PACKAGE_INSTALL_SUCCESS,
           data: response,

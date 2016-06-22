@@ -91,14 +91,16 @@ class CosmosPackagesStore extends GetSetBaseStore {
           this.processInstalledPackagesSuccess(
             data,
             action.packageName,
-            action.appId
+            action.service,
+            action.namespace
           );
           break;
         case REQUEST_COSMOS_PACKAGES_LIST_ERROR:
           this.processInstalledPackagesError(
             data,
             action.packageName,
-            action.appId
+            action.service,
+            action.namespace
           );
           break;
         case REQUEST_COSMOS_PACKAGES_SEARCH_SUCCESS:
@@ -284,14 +286,14 @@ class CosmosPackagesStore extends GetSetBaseStore {
     this.emit(COSMOS_SEARCH_ERROR, error, query);
   }
 
-  processInstalledPackagesSuccess(packages, name, appId) {
+  processInstalledPackagesSuccess(packages, name, service, namespace) {
     this.set({installedPackages: packages});
 
-    this.emit(COSMOS_LIST_CHANGE, name, appId);
+    this.emit(COSMOS_LIST_CHANGE, name, service, namespace);
   }
 
-  processInstalledPackagesError(error, name, appId) {
-    this.emit(COSMOS_LIST_ERROR, error, name, appId);
+  processInstalledPackagesError(error, name, service, namespace) {
+    this.emit(COSMOS_LIST_ERROR, error, name, service, namespace);
   }
 
   processPackageDescriptionSuccess(cosmosPackage, name, version) {

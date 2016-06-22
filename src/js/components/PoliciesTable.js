@@ -1,4 +1,3 @@
-// import {Link} from 'react-router';
 var React = require('react');
 
 var EventTypes = require('../constants/EventTypes');

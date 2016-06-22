@@ -1,14 +1,15 @@
 import React from 'react';
-import {RouteHandler} from 'react-router';
 import {StoreMixin} from 'mesosphere-shared-reactjs';
-
-import AlertPanel from '../../../components/AlertPanel';
 import DCOSStore from '../../../stores/DCOSStore';
 import FilterBar from '../../../components/FilterBar';
 import FilterHeadline from '../../../components/FilterHeadline';
 import QueryParamsMixin from '../../../mixins/QueryParamsMixin';
 import SaveStateMixin from '../../../mixins/SaveStateMixin';
 import SidebarActions from '../../../events/SidebarActions';
+import PolicySearchFilter from '../../../components/PolicySearchFilter';
+// import ScaleInfoTable from '../../../components/ScaleInfoTable';
+import {Table, Tr} from 'reactjs-components';
+import TableUtil from '../../../utils/TableUtil';
 
 var DEFAULT_FILTER_OPTIONS = {
   filterHealth: null,
@@ -62,23 +63,11 @@ var ScaleTab = React.createClass({
     });
   },
 
-  handleClosePolicyFormModal: function () {
-    this.setState({isPolicyFormModalShown: false});
-  },
-
   handleFilterChange: function (filterValues, filterType) {
     var stateChanges = Object.assign({}, this.state);
     stateChanges[filterType] = filterValues;
 
     this.setState(stateChanges);
-  },
-
-  handleOpenModal: function (id) {
-    let modalStates = {
-      isPolicyFormModalShown: POLICY_FORM_MODAL === id
-    };
-
-    this.setState(modalStates);
   },
 
   resetFilterQueryParams: function () {
@@ -97,19 +86,7 @@ var ScaleTab = React.createClass({
     this.setState(state, this.resetFilterQueryParams);
   },
 
-  getAlertPanelFooter: function () {
-    return (
-      <div className="button-collection flush-bottom">
-        <button className="button button-success"
-          onClick={() => this.handleOpenModal(POLICY_FORM_MODAL)}>
-          Deploy Policies
-        </button>
-      </div>
-    );
-  },
-
   getContents: function (item) {
-    // Render loading screen
     if (!DCOSStore.dataProcessed) {
       return (
         <div className="container container-fluid container-pod text-align-center
@@ -123,31 +100,7 @@ var ScaleTab = React.createClass({
       );
     }
 
-    if (this.props.params.name && this.props.params.namespace) {
-      return (
-        <RouteHandler />
-      );
-    }
-
-    // Render policy table
-    if (item instanceof PolicyTree && item.getItems().length > 0) {
-      return this.getPolicyTreeView(item);
-    }
-
-    // Render empty panel
-    return (
-      <div>
-        <AlertPanel
-          title="No Policy Defined"
-          footer={this.getAlertPanelFooter()}
-          iconClassName="icon icon-sprite icon-sprite-jumbo
-          icon-sprite-jumbo-white icon-services flush-top">
-          <p className="flush-bottom">
-            Define a new policy.
-          </p>
-        </AlertPanel>
-      </div>
-    );
+    return this.getPolicyListView(item);
   },
 
   getHeadline: function (item, filteredPolices) {
@@ -171,10 +124,65 @@ var ScaleTab = React.createClass({
     }
   },
 
-  getPolicyTreeView(item) {
+  getColumns() {
+    return [
+      {
+        className: 'ScaleTab',
+        prop: 'name',
+        heading: 'Name',
+        sortable: false
+      },
+      {
+        className: 'ScaleTab',
+        prop: 'currentReplicas',
+        heading: 'Current Replicas',
+        sortable: false
+      },
+      {
+        className: 'ScaleTab',
+        prop: 'desiredReplicas',
+        heading: 'Desired Replicas',
+        sortable: false
+      },
+      {
+        className: 'ScaleTab',
+        prop: 'lastScaleTime',
+        heading: 'Last ScaleTime',
+        sortable: false
+      }
+    ];
+  },
+
+  getColGroup() {
+    return (
+      <colgroup>
+        <col />
+        <col />
+        <col />
+        <col />
+      </colgroup>
+    );
+  },
+
+  getRows(policies) {
+    let newRows = [];
+
+    for (var i = 0; i < policies.length; i++) {
+      var rowObj = {};
+      rowObj.name = policies[i].metadata.name;
+      rowObj.currentReplicas = policies[i].status.currentReplicas;
+      rowObj.desiredReplicas = policies[i].status.desiredReplicas;
+      rowObj.lastScaleTime = policies[i].status.lastScaleTime;
+      newRows.push(rowObj);
+    }
+
+    return newRows;
+  },
+
+  getPolicyListView(item) {
     let {state} = this;
-    let filteredPolicies = item.filterItemsByFilter({
-      id: state.searchString
+    let filteredPolicies = item.filter({
+      name: state.searchString
     }).getItems();
 
     return (
@@ -182,11 +190,19 @@ var ScaleTab = React.createClass({
         <div className="flex-grow">
           {this.getHeadline(item, filteredPolicies)}
           <FilterBar rightAlignLastNChildren={1}>
-            <button className="button button-success"
-              onClick={() => this.handleOpenModal(POLICY_FORM_MODAL)}>
-              Define Policy
-            </button>
+            <PolicySearchFilter
+              handleFilterChange={this.handleFilterChange} />
           </FilterBar>
+          <Table
+          buildRowOptions={this.getRowAttributes}
+          className="table inverse table-borderless-outer table-borderless-inner-columns flush-bottom"
+          columns={this.getColumns()}
+          colGroup={this.getColGroup()}
+          itemHeight={TableUtil.getRowHeight()}
+          data={this.getRows(filteredPolicies.slice())} >
+            <Tr className="special-row"
+              data={[]} />
+          </Table>
         </div>
       </div>
     );
@@ -195,12 +211,11 @@ var ScaleTab = React.createClass({
   render: function () {
     let {id} = this.props.params;
     id = decodeURIComponent(id);
-
-    let item = DCOSStore.policyTree.findItemById(id) || DCOSStore.policyTree;
+    let items = DCOSStore.policyList;
 
     return (
       <div>
-        {this.getContents(item)}
+        {this.getContents(items)}
       </div>
     );
   }
