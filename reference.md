@@ -5,6 +5,8 @@ Kubernetes RBAC: https://github.com/kubernetes/kubernetes/pull/23502
 
 node js client: https://github.com/tenxcloud/node-kubernetes-client
 
+XCloud: https://ringcloud.cn.ibm.com/provision/index
+
 Kubernetes Env:
 root/Letmein123
 9.111.141.63 
