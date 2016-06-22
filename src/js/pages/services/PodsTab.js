@@ -235,10 +235,9 @@ var PodsTab = React.createClass({
 
     if (name && namespace) {
       item = DCOSStore.podList.findItemByNameAndNamespace(name, namespace);
-    }
-
-    if (item === undefined) {
-      return this.getNotFound(name, namespace);
+      if (item === undefined) {
+        return this.getNotFound(name, namespace);
+      }
     }
 
     return (

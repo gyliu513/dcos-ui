@@ -59,7 +59,7 @@ class RCsTable extends mixin(StoreMixin) {
     return (
       <div className="service-table-heading flex-box
         flex-box-align-vertical-center table-cell-flex-box">
-        <Link to="services-rcs"
+        <Link to="services-rcs-detail"
           className="headline table-cell-value flex-box flex-box-col"
           params={rc}>
           <span className="text-overflow">

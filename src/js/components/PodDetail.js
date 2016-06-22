@@ -137,12 +137,12 @@ class PodDetail extends mixin(TabsMixin) {
   }
 
   getBasicInfo(pod) {
-    if (pod == null) {
-      return null;
-    }
+    let name = pod.getName();
+    let status = pod.getStatus();
+    let image = pod.getImage();
 
     let podIcon = (
-      <img src="/kuber.png" />
+      <img src={image} />
     );
 
     let tabs = (
@@ -160,10 +160,10 @@ class PodDetail extends mixin(TabsMixin) {
     return (
       <PageHeader
         icon={podIcon}
-        subTitle={pod.status.phase}
+        subTitle={status}
         navigationTabs={tabs}
         mediaWrapperClassName={mediaWrapperClassNames}
-        title={pod.metadata.name} />
+        title={name} />
     );
   }
 
@@ -173,14 +173,14 @@ class PodDetail extends mixin(TabsMixin) {
     }
 
     let headerValueMapping = {
-      'ID': pod.metadata.uid,
-      'Name': pod.metadata.name,
-      'Namespace': pod.metadata.namespace,
-      'Node': pod.status.hostIP,
-      'IP': pod.status.podIP,
-      'Start Time': pod.status.startTime,
-      'Status': pod.status.phase,
-      'Image': pod.status.containerStatuses[0].image,
+      'ID': pod.getUID(),
+      'Name': pod.getName(),
+      'Namespace': pod.getNamespace(),
+      'Node': pod.getHostIP(),
+      'IP': pod.getPodIP(),
+      'Start Time': pod.getAge(),
+      'Status': pod.getStatus(),
+      'Image': pod.getContainerImages(),
     };
 
     return (

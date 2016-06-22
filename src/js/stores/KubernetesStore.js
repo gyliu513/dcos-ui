@@ -5,8 +5,8 @@ import ActionTypes from '../constants/ActionTypes';
 import EventTypes from '../constants/EventTypes';
 import Config from '../config/Config';
 import PodsList from '../structs/PodsList';
-import KServiceTree from '../structs/KServiceTree';
-import RCTree from '../structs/RCTree';
+import KServicesList from '../structs/KServicesList';
+import RCsList from '../structs/RCsList';
 import PVTree from '../structs/PVTree';
 import PVCTree from '../structs/PVCTree';
 import PolicyList from '../structs/PolicyList';
@@ -55,7 +55,7 @@ class KubernetesStore extends EventEmitter {
       pvc: {},
       policy: {},
       podList: {},
-      kserviceTree: {id: '/', items: []},
+      kserviceList: {id: '/', items: []},
       rcList: {},
       pvTree: {id: '/', items: []},
       pvcTree: {id: '/', items: []},
@@ -83,18 +83,11 @@ class KubernetesStore extends EventEmitter {
         case ActionTypes.REQUEST_KUBERNETES_SERVICE_DELETE_SUCCESS:
           this.emit(EventTypes.KUBERNETES_SERVICE_DELETE_SUCCESS);
           break;
-        case ActionTypes.REQUEST_KUBERNETES_SERVICE_FETCH_ERROR:
-          this.emit(EventTypes.KUBERNETES_SERVICE_FETCH_ERROR, action.data);
-          break;
-        case ActionTypes.REQUEST_KUBERNETES_SERVICE_FETCH_SUCCESS:
-          this.data.kservice = action.data;
-          this.emit(EventTypes.KUBERNETES_SERVICE_FETCH_SUCCESS);
-          break;
         case ActionTypes.REQUEST_KUBERNETES_SERVICES_FETCH_ERROR:
           this.emit(EventTypes.KUBERNETES_SERVICES_FETCH_ERROR, action.data);
           break;
         case ActionTypes.REQUEST_KUBERNETES_SERVICES_FETCH_SUCCESS:
-          this.data.kserviceTree = action.data;
+          this.data.kserviceList = action.data;
           this.emit(EventTypes.KUBERNETES_SERVICES_FETCH_SUCCESS);
           break;
         // replication controller
@@ -109,13 +102,6 @@ class KubernetesStore extends EventEmitter {
           break;
         case ActionTypes.REQUEST_KUBERNETES_RC_DELETE_SUCCESS:
           this.emit(EventTypes.KUBERNETES_RC_DELETE_SUCCESS);
-          break;
-        case ActionTypes.REQUEST_KUBERNETES_RC_FETCH_ERROR:
-          this.emit(EventTypes.KUBERNETES_RC_FETCH_ERROR, action.data);
-          break;
-        case ActionTypes.REQUEST_KUBERNETES_RC_FETCH_SUCCESS:
-          this.data.rc = action.data;
-          this.emit(EventTypes.KUBERNETES_RC_FETCH_SUCCESS);
           break;
         case ActionTypes.REQUEST_KUBERNETES_RCS_FETCH_ERROR:
           this.emit(EventTypes.KUBERNETES_RCS_FETCH_ERROR, action.data);
@@ -368,12 +354,12 @@ class KubernetesStore extends EventEmitter {
     return new PodsList(this.data.podList);
   }
 
-  get kserviceTree() {
-    return new KServiceTree(this.data.kserviceTree);
+  get kserviceList() {
+    return new KServicesList(this.data.kserviceList);
   }
 
-  get rcTree() {
-    return new RCTree(this.data.rcList);
+  get rcList() {
+    return new RCsList(this.data.rcList);
   }
 
   get policyList() {

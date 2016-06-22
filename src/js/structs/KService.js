@@ -1,152 +1,46 @@
-import HealthStatus from '../constants/HealthStatus';
 import Item from './Item';
-import PodImages from '../constants/ServiceImages';
-import PodStatus from '../constants/PodStatus';
 
+// copied rom Pod.js, need to adjust to KService type
 module.exports = class KService extends Item {
-  getArguments() {
-    return this.get('args');
-  }
-
-  getCommand() {
-    return this.get('cmd');
-  }
-
-  getContainerSettings() {
-    return this.get('container');
-  }
-
-  getCpus() {
-    return this.get('cpus');
-  }
-
-  getContainer() {
-    return this.get('container');
-  }
-
-  getDeployments() {
-    return this.get('deployments');
-  }
-
-  getDisk() {
-    return this.get('disk');
-  }
-
-  getExecutor() {
-    return this.get('executor');
-  }
-
-  getHealth() {
-    let {tasksHealthy, tasksUnhealthy, tasksRunning} = this.getTasksSummary();
-
-    if (tasksUnhealthy > 0) {
-      return HealthStatus.UNHEALTHY;
-    }
-
-    if (tasksRunning > 0 && tasksHealthy === tasksRunning) {
-      return HealthStatus.HEALTHY;
-    }
-
-    if (this.getHealthChecks() && tasksRunning === 0) {
-      return HealthStatus.IDLE;
-    }
-
-    return HealthStatus.NA;
-  }
-
-  getHealthChecks() {
-    return this.get('healthChecks');
-  }
-
-  getId() {
-    return this.get('id') || '';
-  }
-
-  getImages() {
-    return this.get('images') || PodImages.NA_IMAGES;
-  }
-
-  getInstancesCount() {
-    return this.get('instances');
-  }
-
-  getLabels() {
-    return this.get('labels');
-  }
-
-  getLastConfigChange() {
-    return this.getVersionInfo().lastConfigChangeAt;
-  }
-
-  getLastScaled() {
-    return this.getVersionInfo().lastScalingAt;
-  }
-
-  getMem() {
-    return this.get('mem');
-  }
-
   getName() {
-    return this.getId().split('/').pop();
+    return this.get('metadata').name;
   }
 
-  getPorts() {
-    return this.get('ports');
-  }
-
-  getResources() {
-    return {
-      cpus: this.get('cpus'),
-      mem: this.get('mem'),
-      disk: this.get('disk')
-    };
+  getNamespace() {
+    return this.get('metadata').namespace;
   }
 
   getStatus() {
-    let {tasksRunning} = this.getTasksSummary();
-    let deployments = this.getDeployments();
-
-    if (deployments.length > 0) {
-      return PodStatus.DEPLOYING.displayName;
-    }
-
-    if (tasksRunning > 0) {
-      return PodStatus.RUNNING.displayName;
-    }
-
-    let instances = this.getInstancesCount();
-    if (instances === 0) {
-      return PodStatus.SUSPENDED.displayName;
-    }
+    return this.get('status').phase;
   }
 
-  getTasksSummary() {
-    return {
-      tasksHealthy: this.get('tasksHealthy'),
-      tasksRunning: this.get('tasksRunning'),
-      tasksStaged: this.get('tasksStaged'),
-      tasksUnhealthy: this.get('tasksUnhealthy'),
-      tasksUnknown: this.get('tasksRunning') -
-        this.get('tasksHealthy') - this.get('tasksUnhealthy'),
-    };
+  getImage() {
+    return '/kuber.png';
   }
 
-  getFetch() {
-    return this.get('fetch');
+  getUID() {
+    return this.get('metadata').uid;
   }
 
-  getUser() {
-    return this.get('user');
+  getHostIP() {
+    return this.get('status').hostIP;
   }
 
-  getVersions() {
-    return this.get('versions') || new Map();
+  getPodIP() {
+    return this.get('status').podIP;
   }
 
-  getVersionInfo() {
-    let currentVersionID = this.get('version');
-    let {lastConfigChangeAt, lastScalingAt} =  this.get('versionInfo');
+  getAge() {
+    // TODO: format time stamp to string
+    return this.get('status').startTime;
+  }
 
-    return {lastConfigChangeAt, lastScalingAt, currentVersionID};
+  getContainerImages() {
+    // TODO: concat all container image here
+    return this.get('status').containerStatuses[0].image;
+  }
+
+  getRestartCount() {
+    return this.get('status').containerStatuses[0].restartCount;
   }
 };

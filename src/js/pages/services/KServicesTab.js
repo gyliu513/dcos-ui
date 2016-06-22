@@ -1,5 +1,4 @@
 import React from 'react';
-import {RouteHandler} from 'react-router';
 import {StoreMixin} from 'mesosphere-shared-reactjs';
 
 import AlertPanel from '../../components/AlertPanel';
@@ -11,14 +10,14 @@ import SaveStateMixin from '../../mixins/SaveStateMixin';
 import {
   POD_FORM_MODAL
 } from '../../constants/ModalKeys';
-import Pod from '../../structs/Pod';
-import PodDetail from '../../components/PodDetail';
+import KService from '../../structs/KService';
+import KServiceDetail from '../../components/KServiceDetail';
 import PodFilterTypes from '../../constants/PodFilterTypes';
 import KServiceFormModal from '../../components/modals/KServiceFormModal';
 import PodSearchFilter from '../../components/PodSearchFilter';
 import KServicesBreadcrumb from '../../components/KServicesBreadcrumb';
 import KServicesTable from '../../components/KServicesTable';
-import KServiceTree from '../../structs/KServiceTree';
+import KServicesList from '../../structs/KServicesList';
 import SidebarActions from '../../events/SidebarActions';
 import SidePanels from '../../components/SidePanels';
 
@@ -134,26 +133,20 @@ var KServicesTab = React.createClass({
       );
     }
 
-    if (this.props.params.name && this.props.params.namespace) {
-      return (
-        <RouteHandler />
-      );
-    }
-
     // Render kservice table
-    if (item instanceof KServiceTree && item.getItems().length > 0) {
-      return this.getKServiceTreeView(item);
+    if (item instanceof KServicesList && item.getItems().length > 0) {
+      return this.getKServicesListView(item);
     }
 
     // Render pod detail
-    if (item instanceof Pod) {
-      return (<PodDetail service={item} />);
+    if (item instanceof KService) {
+      return (<KServiceDetail kservice={item} />);
     }
 
     // Render empty panel
     return (
       <div>
-        <KServicesBreadcrumb kserviceTreeItem={item} />
+        <KServicesBreadcrumb kserviceListItem={item} />
         <AlertPanel
           title="No Services Deployed"
           footer={this.getAlertPanelFooter()}
@@ -188,11 +181,11 @@ var KServicesTab = React.createClass({
     }
 
     return (
-      <KServicesBreadcrumb kserviceTreeItem={item} />
+      <KServicesBreadcrumb kserviceListItem={item} />
     );
   },
 
-  getKServiceTreeView(item) {
+  getKServicesListView(item) {
     let {state} = this;
     // let pods = item.getItems();
     let filteredKServices = item.filterItemsByFilter({
@@ -222,17 +215,20 @@ var KServicesTab = React.createClass({
   },
 
   render: function () {
-    let {id} = this.props.params;
-    id = decodeURIComponent(id);
-    let {state} = this;
+    let item = DCOSStore.kserviceList;
+    let {name, namespace} = this.props.params;
 
-    // Find item in root tree and default to root tree if there is no match
-    let item = DCOSStore.kserviceTree.findItemById(id) || DCOSStore.kserviceTree;
+    if (name && namespace) {
+      item = DCOSStore.kserviceList.findItemByNameAndNamespace(name, namespace);
+      if (item === undefined) {
+        return this.getNotFound(name, namespace);
+      }
+    }
 
     return (
       <div>
         {this.getContents(item)}
-        <KServiceFormModal open={state.isKServiceFormModalShown}
+        <KServiceFormModal open={this.state.isKServiceFormModalShown}
           onClose={this.handleCloseKServiceFormModal}/>
       </div>
     );

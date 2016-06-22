@@ -1,11 +1,6 @@
 import Item from './Item';
-import PodStatus from '../constants/PodStatus';
 
 module.exports = class Pod extends Item {
-  getArguments() {
-    return this.get('args');
-  }
-
   getName() {
     return this.get('metadata').name;
   }
@@ -15,20 +10,36 @@ module.exports = class Pod extends Item {
   }
 
   getStatus() {
-    let {tasksRunning} = this.getTasksSummary();
-    let deployments = this.getDeployments();
+    return this.get('status').phase;
+  }
 
-    if (deployments.length > 0) {
-      return PodStatus.DEPLOYING.displayName;
-    }
+  getImage() {
+    return '/kuber.png';
+  }
 
-    if (tasksRunning > 0) {
-      return PodStatus.RUNNING.displayName;
-    }
+  getUID() {
+    return this.get('metadata').uid;
+  }
 
-    let instances = this.getInstancesCount();
-    if (instances === 0) {
-      return PodStatus.SUSPENDED.displayName;
-    }
+  getHostIP() {
+    return this.get('status').hostIP;
+  }
+
+  getPodIP() {
+    return this.get('status').podIP;
+  }
+
+  getAge() {
+    // TODO: format time stamp to string
+    return this.get('status').startTime;
+  }
+
+  getContainerImages() {
+    // TODO: concat all container image here
+    return this.get('status').containerStatuses[0].image;
+  }
+
+  getRestartCount() {
+    return this.get('status').containerStatuses[0].restartCount;
   }
 };

@@ -5,15 +5,12 @@ import React from 'react';
 import DescriptionList from './DescriptionList';
 // import MarathonTaskDetailsList from './MarathonTaskDetailsList';
 import MesosStateStore from '../stores/MesosStateStore';
-import KubernetesStore from '../stores/KubernetesStore';
 import PageHeader from './PageHeader';
 import RequestErrorMsg from './RequestErrorMsg';
-import ResourcesUtil from '../utils/ResourcesUtil';
-import PodsBreadcrumb from './PodsBreadcrumb';
+import RCsBreadcrumb from './RCsBreadcrumb';
 import TaskDebugView from './TaskDebugView';
 import TaskDirectoryView from './TaskDirectoryView';
 import TaskDirectoryStore from '../stores/TaskDirectoryStore';
-import Units from '../utils/Units';
 import TabsMixin from '../mixins/TabsMixin';
 
 const TABS = {
@@ -22,6 +19,7 @@ const TABS = {
   debug: 'Logs'
 };
 
+// TODO(zhiwei): remove redundant stuff
 const METHODS_TO_BIND = [
   'onPodDirectoryStoreError',
   'onPodDirectoryStoreSuccess'
@@ -99,57 +97,13 @@ class RCDetail extends mixin(TabsMixin) {
     this.setState({selectedLogFile, currentTab: 'debug'});
   }
 
-  getResources(pod) {
-    if (pod.spec.containers[0].resources.limits == null) {
-      return null;
-    }
+  getBasicInfo(rc) {
+    let name = rc.getName();
+    let status = rc.getStatus();
+    let image = rc.getImage();
 
-    let resourceColors = ResourcesUtil.getResourceColors();
-    let resourceLabels = ResourcesUtil.getResourceLabels();
-
-    return ResourcesUtil.getDefaultResources().map(function (resource) {
-      if (resource === 'ports' || resource === 'disk') {
-        return null;
-      }
-
-      let colorIndex = resourceColors[resource];
-      let resourceLabel = resourceLabels[resource];
-      let resourceIconClasses = `icon icon-sprite icon-sprite-medium
-        icon-sprite-medium-color icon-resources-${resourceLabel.toLowerCase()}`;
-      // remove this setting
-      let resourceValue = Units.formatResource(
-        resource, pod.spec.containers[0].resources.limits[resource]
-      );
-      return (
-        <div key={resource} className="media-object-item">
-          <div className="media-object-spacing-wrapper media-object-spacing-narrow media-object-offset">
-            <div className="media-object media-object-align-middle">
-              <div className="media-object-item">
-                <i className={resourceIconClasses}></i>
-              </div>
-              <div className="media-object-item">
-                <h4 className="flush-top flush-bottom inverse">
-                  {resourceValue}
-                </h4>
-                <span className={`side-panel-resource-label
-                    text-color-${colorIndex}`}>
-                  {resourceLabel.toUpperCase()}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    });
-  }
-
-  getBasicInfo(pod) {
-    if (pod == null) {
-      return null;
-    }
-
-    let podIcon = (
-      <img src="/kuber.png" />
+    let rcIcon = (
+      <img src={image} />
     );
 
     let tabs = (
@@ -166,28 +120,24 @@ class RCDetail extends mixin(TabsMixin) {
 
     return (
       <PageHeader
-        icon={podIcon}
-        subTitle={pod.status.phase}
+        icon={rcIcon}
+        subTitle={status}
         navigationTabs={tabs}
         mediaWrapperClassName={mediaWrapperClassNames}
-        title={pod.metadata.name} />
+        title={name} />
     );
   }
 
-  getPodDetailsDescriptionList(pod) {
-    if (pod == null) {
-      return null;
-    }
-
+  getRCDetailsDescriptionList(rc) {
     let headerValueMapping = {
-      'ID': pod.metadata.uid,
-      'Name': pod.metadata.name,
-      'Namespace': pod.metadata.namespace,
-      'Node': pod.status.hostIP,
-      'IP': pod.status.podIP,
-      'Start Time': pod.status.startTime,
-      'Status': pod.status.phase,
-      'Image': pod.status.containerStatuses[0].image,
+      'Name': rc.getName(),
+      'Namespace': rc.getNamespace(),
+      'Name1': rc.getName(),
+      'Name2': rc.getName(),
+      'Name3': rc.getName(),
+      'Namespace1': rc.getNamespace(),
+      'Namespace2': rc.getNamespace(),
+      'Namespace3': rc.getNamespace(),
     };
 
     return (
@@ -220,16 +170,11 @@ class RCDetail extends mixin(TabsMixin) {
   }
 
   renderDetailsTabView() {
-    let pod = this.pod;
+    let rc = this.props.rc;
 
     return (
       <div className="container container-fluid flush">
-        <div className="media-object-spacing-wrapper container-pod container-pod-super-short flush-top flush-bottom">
-          <div className="media-object">
-            {this.getResources(pod)}
-          </div>
-        </div>
-        {this.getPodDetailsDescriptionList(pod)}
+        {this.getRCDetailsDescriptionList(rc)}
       </div>
     );
   }
@@ -293,28 +238,18 @@ class RCDetail extends mixin(TabsMixin) {
     );
   }
 
-  getPodsBreadcrumb() {
-    let {name, namespace} = this.props.params;
+  getRCsBreadcrumb() {
+    let rc = this.props.rc;
+    let name = rc.getName();
+    let namespace = rc.getNamespace();
 
-    // if (name == null) {
-    //   return null;
-    // }
-
-    return (<PodsBreadcrumb namespace={namespace} name={name} />);
+    return (<RCsBreadcrumb namespace={namespace} name={name} />);
   }
 
   render() {
+    let rc = this.props.rc;
 
-    let name = this.props.params.name;
-    let namespace = this.props.params.namespace;
-    let pod = KubernetesStore.getPod(name, namespace);
-    this.pod = pod;
-
-    if (pod === undefined) {
-      return this.getNotFound('Pod', name, namespace);
-    }
-
-    if (pod.metadata === undefined) {
+    if (rc.metadata === undefined) {
       return (
         <div className="container container-fluid container-pod text-align-center
             vertical-center inverse">
@@ -334,8 +269,8 @@ class RCDetail extends mixin(TabsMixin) {
           container-pod-short-top flush-bottom flush-top
           service-detail-header media-object-spacing-wrapper
           media-object-spacing-narrow">
-          {this.getPodsBreadcrumb()}
-          {this.getBasicInfo(pod)}
+          {this.getRCsBreadcrumb()}
+          {this.getBasicInfo(rc)}
           {this.tabs_getTabView()}
         </div>
       </div>

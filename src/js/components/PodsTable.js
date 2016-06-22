@@ -74,11 +74,11 @@ class PodsTable extends mixin(StoreMixin) {
     let newRows = [];
     for (var i = 0; i < data.length; i++) {
       var rowObj = {};
-      rowObj.name = data[i].metadata.name;
-      rowObj.namespace = data[i].metadata.namespace;
-      rowObj.status = data[i].status.phase;
-      rowObj.restartCount = data[i].status.containerStatuses[0].restartCount;
-      rowObj.podIP = data[i].status.podIP;
+      rowObj.name = data[i].getName();
+      rowObj.namespace = data[i].getNamespace();
+      rowObj.status = data[i].getStatus();
+      rowObj.restartCount = data[i].getRestartCount();
+      rowObj.podIP = data[i].getPodIP();
       newRows.push(rowObj);
     }
 

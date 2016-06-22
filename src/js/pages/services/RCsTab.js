@@ -1,5 +1,4 @@
 import React from 'react';
-import {RouteHandler} from 'react-router';
 import {StoreMixin} from 'mesosphere-shared-reactjs';
 
 import AlertPanel from '../../components/AlertPanel';
@@ -11,15 +10,15 @@ import SaveStateMixin from '../../mixins/SaveStateMixin';
 import {
   POD_FORM_MODAL
 } from '../../constants/ModalKeys';
-import Pod from '../../structs/Pod';
-import PodDetail from '../../components/PodDetail';
+import RC from '../../structs/RC';
+import RCDetail from '../../components/RCDetail';
 import PodFilterTypes from '../../constants/PodFilterTypes';
 import RCFormModal from '../../components/modals/RCFormModal';
 import PodSearchFilter from '../../components/PodSearchFilter';
 // import PodSidebarFilters from '../../components/PodSidebarFilters';
 import RCsBreadcrumb from '../../components/RCsBreadcrumb';
 import RCsTable from '../../components/RCsTable';
-import RCTree from '../../structs/RCTree';
+import RCsList from '../../structs/RCsList';
 import SidebarActions from '../../events/SidebarActions';
 import SidePanels from '../../components/SidePanels';
 
@@ -32,9 +31,9 @@ let saveState_properties = Object.keys(DEFAULT_FILTER_OPTIONS);
 
 var PodsTab = React.createClass({
 
-  displayName: 'PodsTab',
+  displayName: 'RCsTab',
 
-  saveState_key: 'podsPage',
+  saveState_key: 'rcsPage',
 
   saveState_properties,
 
@@ -121,6 +120,19 @@ var PodsTab = React.createClass({
     );
   },
 
+  getNotFound: function (name, namespace) {
+    return (
+      <div className="container container-fluid container-pod text-align-center">
+        <h3 className="flush-top text-align-center">
+          {`Error finding ${name}`}
+        </h3>
+        <p className="flush">
+          {`Did not find a Replication Controller with name "${name}" and namespace "${namespace}"`}
+        </p>
+      </div>
+    );
+  },
+
   getContents: function (item) {
     // Render loading screen
     if (!DCOSStore.dataProcessed) {
@@ -136,26 +148,20 @@ var PodsTab = React.createClass({
       );
     }
 
-    if (this.props.params.name && this.props.params.namespace) {
-      return (
-        <RouteHandler />
-      );
-    }
-
-    // Render pod table
-    if (item instanceof RCTree && item.getItems().length > 0) {
-      return this.getRCTreeView(item);
+    // Render rc table
+    if (item instanceof RCsList && item.getItems().length > 0) {
+      return this.getRCsListView(item);
     }
 
     // Render pod detail
-    if (item instanceof Pod) {
-      return (<PodDetail service={item} />);
+    if (item instanceof RC) {
+      return (<RCDetail rc={item} />);
     }
 
     // Render empty panel
     return (
       <div>
-        <RCsBreadcrumb rcTreeItem={item} />
+        <RCsBreadcrumb rcListItem={item} />
         <AlertPanel
           title="No Replication Controllers Deployed"
           footer={this.getAlertPanelFooter()}
@@ -190,11 +196,11 @@ var PodsTab = React.createClass({
     }
 
     return (
-      <RCsBreadcrumb rcTreeItem={item} />
+      <RCsBreadcrumb rcListItem={item} />
     );
   },
 
-  getRCTreeView(item) {
+  getRCsListView(item) {
     let {state} = this;
     // let pods = item.getItems();
     let filteredRCs = item.filterItemsByFilter({
@@ -225,18 +231,20 @@ var PodsTab = React.createClass({
   },
 
   render: function () {
-    let {id} = this.props.params;
-    id = decodeURIComponent(id);
-    let {state} = this;
+    let item = DCOSStore.rcList;
+    let {name, namespace} = this.props.params;
 
-    // Find item in root tree and default to root tree if there is no match
-    // let item = DCOSStore.serviceTree.findItemById(id) || DCOSStore.serviceTree;
-    let item = DCOSStore.rcTree.findItemById(id) || DCOSStore.rcTree;
+    if (name && namespace) {
+      item = DCOSStore.rcList.findItemByNameAndNamespace(name, namespace);
+      if (item === undefined) {
+        return this.getNotFound(name, namespace);
+      }
+    }
 
     return (
       <div>
         {this.getContents(item)}
-        <RCFormModal open={state.isRCFormModalShown}
+        <RCFormModal open={this.state.isRCFormModalShown}
           onClose={this.handleCloseRCFormModal}/>
       </div>
     );

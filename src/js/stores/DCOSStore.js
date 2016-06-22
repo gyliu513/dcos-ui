@@ -225,17 +225,17 @@ class DCOSStore extends EventEmitter {
   }
 
   /**
-   * @type {KServiceTree}
+   * @type {KServicesList}
    */
-  get kserviceTree() {
-    return KubernetesStore.kserviceTree;
+  get kserviceList() {
+    return KubernetesStore.kserviceList;
   }
 
   /**
-   * @type {RCTree}
+   * @type {RCsList}
    */
-  get rcTree() {
-    return KubernetesStore.rcTree;
+  get rcList() {
+    return KubernetesStore.rcList;
   }
 
   /**

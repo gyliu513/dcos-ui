@@ -70,14 +70,28 @@ let serviceRoutes = {
     {
       type: Route,
       name: 'services-rcs',
-      path: 'rcs/',
-      handler: RCsTab
+      path: 'rcs/?',
+      handler: RCsTab,
+      children: [
+        {
+          type: Route,
+          name: 'services-rcs-detail',
+          path: ':namespace/:name/?'
+        }
+      ]
     },
     {
       type: Route,
       name: 'services-kservices',
       path: 'kservices/',
-      handler: KServicesTab
+      handler: KServicesTab,
+      children: [
+        {
+          type: Route,
+          name: 'services-kservices-detail',
+          path: ':namespace/:name/?'
+        }
+      ]
     },
     {
       type: Route,
