@@ -19,6 +19,7 @@ var SidebarActions = require('../events/SidebarActions');
 
 let defaultMenuItems = [
   'dashboard',
+  'networks-page',
   'services-page',
   'policies',
   'images-page',
@@ -107,7 +108,7 @@ var Sidebar = React.createClass({
       let notificationCount = NotificationStore.getNotificationCount(routeKey);
       var route = this.context.router.namedRoutes[routeKey];
       // Figure out if current route is active
-      // console.log(JSON.stringify(route));
+      // console.log(JSON.stringify(route.handler.routeConfig));
       var isActive = route.handler.routeConfig.matches.test(currentPath);
       var iconClasses = {
         'sidebar-menu-item-icon icon icon-sprite icon-sprite-medium': true,
