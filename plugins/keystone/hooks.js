@@ -5,6 +5,7 @@ import {Route} from 'react-router';
 import {StoreMixin} from 'mesosphere-shared-reactjs';
 
 import LoginPage from './components/LoginPage';
+import ProjectTab from './components/ProjectTab';
 import UserDropup from './components/UserDropup';
 
 let SDK = require('./SDK').getSDK();
@@ -21,6 +22,17 @@ let nonAdminMenuItems = [
   'storage-page'
 ];
 
+let ORGANIZATION_TABS = {
+  'system-organization-users': {
+    content: 'Users',
+    priority: 50
+  },
+  'system-organization-projects': {
+    content: 'Projects',
+    priority: 50
+  }
+};
+
 module.exports = Object.assign({}, StoreMixin, {
   actions: [
     'AJAXRequestError',
@@ -31,6 +43,7 @@ module.exports = Object.assign({}, StoreMixin, {
   filters: [
     'sidebarFooter',
     'applicationRoutes',
+    'organizationRoutes',
     'serverErrorModalListeners',
     'sidebarNavigation'
   ],
@@ -46,6 +59,10 @@ module.exports = Object.assign({}, StoreMixin, {
       name: 'config',
       events: ['success', 'error']
     }]);
+    // add a filter with highest priority
+    SDK.Hooks.addFilter('system-organization-tabs', function (tabs) {
+      return Object.assign(tabs, ORGANIZATION_TABS);
+    }, 1);
   },
 
   redirectToLogin(transition) {
@@ -130,6 +147,19 @@ module.exports = Object.assign({}, StoreMixin, {
         name: 'login',
         path: 'login',
         type: Route
+      }
+    );
+    return routes;
+  },
+
+  organizationRoutes(routes) {
+    routes.routes.unshift(
+      {
+        type: Route,
+        name: 'system-organization-projects',
+        path: 'projects/?',
+        handler: ProjectTab,
+        children: []
       }
     );
     return routes;
