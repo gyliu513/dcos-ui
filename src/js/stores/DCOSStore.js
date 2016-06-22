@@ -230,6 +230,7 @@ class DCOSStore extends EventEmitter {
   }
 
   onKubernetesChange() {
+    this.data.dataProcessed = true;
     this.emit(DCOS_CHANGE);
   }
 

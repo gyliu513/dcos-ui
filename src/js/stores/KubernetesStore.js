@@ -128,7 +128,7 @@ class KubernetesStore extends EventEmitter {
           break;
         case ActionTypes.REQUEST_KUBERNETES_PODS_FETCH_SUCCESS:
           this.data.podList = action.data;
-          this.emit(EventTypes.KUBERNETES_PODS_FETCH_SUCCESS);
+          this.emit(EventTypes.KUBERNETES_CHANGE);
           break;
         // PV events
         case ActionTypes.REQUEST_KUBERNETES_PV_CREATE_ERROR:
