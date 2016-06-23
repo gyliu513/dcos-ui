@@ -1,4 +1,4 @@
-var EventDispatcher = require('flux').Dispatcher;
+var Dispatcher = require('flux').Dispatcher;
 
 var EventDispatcher = Object.assign(new Dispatcher(), {
 
@@ -8,7 +8,7 @@ var EventDispatcher = Object.assign(new Dispatcher(), {
     }
 
     this.dispatch({
-      source: "EventAction",
+      source: 'EventAction',
       action: action
     });
   }

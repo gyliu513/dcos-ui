@@ -2,9 +2,9 @@ import {Dropdown, Modal} from 'reactjs-components';
 import mixin from 'reactjs-mixin';
 import React from 'react';
 import {StoreMixin} from 'mesosphere-shared-reactjs';
-import userURI from '../img/icon-user-default-64x64@2x.png';
+import userURI from '../../img/icon-user-default-64x64@2x.png';
 
-let SDK = require('../SDK').getSDK();
+let SDK = require('../../SDK').getSDK();
 
 let AuthStore = SDK.get('AuthStore');
 

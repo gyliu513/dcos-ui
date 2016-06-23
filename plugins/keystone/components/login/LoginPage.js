@@ -3,10 +3,10 @@ import mixin from 'reactjs-mixin';
 import {StoreMixin} from 'mesosphere-shared-reactjs';
 import {Form, Modal} from 'reactjs-components';
 
-let SDK = require('../SDK').getSDK();
+let SDK = require('../../SDK').getSDK();
 
-let {AuthStore, MetadataStore} =
-  SDK.get(['AuthStore', 'MetadataStore']);
+let {AuthStore} =
+  SDK.get(['AuthStore']);
 
 let METHODS_TO_BIND = [
   'handleModalClose',
@@ -132,10 +132,10 @@ class LoginPage extends mixin(StoreMixin) {
           showHeader={false}
           showFooter={false}>
           <p className="text-align-center">
-            Unable to login to your DC/OS cluster. Clusters must be connected to the internet.
+            Unable to login to your Bluedock cluster.
           </p>
           <p className="flush-bottom text-align-center">
-            Please contact your system administrator or see the <a href={MetadataStore.buildDocsURI('/administration/installing/')} target="_blank">documentation.</a>
+            Please contact your system administrator
           </p>
         </Modal>
       </div>

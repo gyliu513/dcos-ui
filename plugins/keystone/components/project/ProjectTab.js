@@ -1,9 +1,22 @@
 import React from 'react';
 import mixin from 'reactjs-mixin';
 import {StoreMixin} from 'mesosphere-shared-reactjs';
-// import {Form, Modal} from 'reactjs-components';
+
+import ProjectStore from './ProjectStore';
+import ProjectList from './ProjectList';
+
+import ProjectOrganizationTab from './ProjectOrganizationTab';
+import RequestErrorMsg from '../../../../src/js/components/RequestErrorMsg';
+import ProjectFormModal from './ProjectFormModal';
 
 // let SDK = require('../SDK').getSDK();
+
+// import {Form, Modal} from 'reactjs-components';
+
+const PROJECT_CHANGE_EVENTS = [
+  'onProjectStoreCreateSuccess',
+  'onProjectStoreDeleteSuccess'
+];
 
 const METHODS_TO_BIND = [
   'handleNewProjectClick',
@@ -16,21 +29,38 @@ class ProjectPage extends mixin(StoreMixin) {
   constructor() {
     super(...arguments);
 
+    this.store_listeners = [
+      {
+        name: 'project',
+        events: ['success', 'error'],
+        suppressUpdate: true
+      }
+    ];
+
     this.state = {
       openNewProjectModal: false,
       projectStoreError: false,
-      projectStoreSuccess: false
+      projectStoreSuccess: false,
+      projects: []
     };
 
     METHODS_TO_BIND.forEach((method) => {
       this[method] = this[method].bind(this);
     });
+
+    PROJECT_CHANGE_EVENTS.forEach(
+      (event) => {
+        this[event] = this.onProjectChange;
+      }
+    );
   }
 
-  onProjectStoreSuccess() {
+  onProjectStoreSuccess(data) {
+    console.log('get data');
     this.setState({
       projectStoreError: false,
-      projectStoreSuccess: true
+      projectStoreSuccess: true,
+      projects: new ProjectList({items: data})
     });
   }
 
@@ -41,8 +71,12 @@ class ProjectPage extends mixin(StoreMixin) {
     });
   }
 
+  onProjectChange() {
+    ProjectStore.fetchProjects();
+  }
+
   handleNewProjectClick() {
-    this.setState({openNewProejectModal: true});
+    this.setState({openNewProjectModal: true});
   }
 
   handleNewProjectClose() {
@@ -55,6 +89,7 @@ class ProjectPage extends mixin(StoreMixin) {
 
   componentDidMount() {
     super.componentDidMount();
+    ProjectStore.fetchProjects();
   }
 
   getLoadingScreen() {
@@ -73,21 +108,34 @@ class ProjectPage extends mixin(StoreMixin) {
   getContents() {
     // We want to always render the portals (side panel and modal),
     // so only this part is showing loading and error screen.
-    if (this.state.projectStoreError) {
-      return '';
+    if (this.state.usersStoreError) {
+      return (
+        <RequestErrorMsg />
+      );
     }
 
     if (!this.state.projectStoreSuccess) {
       return this.getLoadingScreen();
     }
 
-    return '';
+    let items = this.state.projects.getItems();
+    console.log(items);
+
+    return (<ProjectOrganizationTab
+        key="organization-tab"
+        items={items}
+        itemID="projectid"
+        itemName="project"
+        handleNewItemClick={this.handleNewProjectClick} />);
   }
 
   render() {
     return (
       <div>
         {this.getContents()}
+      <ProjectFormModal
+        open={this.state.openNewProjectModal}
+        onClose={this.handleNewProjectClose}/>
       </div>
     );
   }
