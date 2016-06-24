@@ -8,6 +8,7 @@ import LoginPage from './components/login/LoginPage';
 import ProjectTab from './components/project/ProjectTab';
 import UserDropup from './components/login/UserDropup';
 import ProjectStore from './components/project/ProjectStore';
+import UserOrganizationTab from './components/users/UserOrganizationTab';
 
 let SDK = require('./SDK').getSDK();
 
@@ -65,6 +66,7 @@ module.exports = Object.assign({}, StoreMixin, {
     'organizationRoutes',
     'serverErrorModalListeners',
     'sidebarNavigation',
+    'usersTabContent',
     'userFormModalDefinition'
   ],
 
@@ -244,6 +246,17 @@ module.exports = Object.assign({}, StoreMixin, {
     );
 
     return form;
+  },
+
+  usersTabContent(page, table) {
+    return (
+    <UserOrganizationTab
+      key="organization-tab"
+      items={page.props.items}
+      itemID="uid"
+      itemName="user"
+      handleNewItemClick={table.handleNewUserClick} />
+    );
   },
 
   onConfigStoreSuccess() {

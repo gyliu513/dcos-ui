@@ -6,7 +6,6 @@ import React from 'react';
 /* eslint-enable no-unused-vars */
 
 import BulkOptions from '../constants/BulkOptions';
-
 import UsersActionsModal from '../../../../src/js/components/modals/UsersActionsModal';
 
 let SDK = require('../../SDK').getSDK();
@@ -37,13 +36,13 @@ const METHODS_TO_BIND = [
   'handleHeadingCheckboxChange',
   'handleSearchStringChange',
   'renderCheckbox',
-  'renderFullName',
   'renderHeadingCheckbox',
+  'renderUserID',
   'renderUsername',
   'resetFilter'
 ];
 
-class ProjectOrganizationTab extends mixin(InternalStorageMixin) {
+class OrganizationTab extends mixin(InternalStorageMixin) {
   constructor() {
     super(arguments);
 
@@ -121,8 +120,14 @@ class ProjectOrganizationTab extends mixin(InternalStorageMixin) {
     this.bulkCheck(false);
   }
 
-  renderFullName(prop, subject) {
-    return subject.get('description');
+  renderUserID(prop, subject) {
+    return (
+      <div className="row">
+        <div className="column-small-12 column-large-12 column-x-large-12 text-overflow">
+          {subject.get('uid')}
+        </div>
+      </div>
+    );
   }
 
   renderUsername(prop, subject) {
@@ -231,7 +236,7 @@ class ProjectOrganizationTab extends mixin(InternalStorageMixin) {
         cacheCell: true,
         className: getClassName,
         headerClassName: getClassName,
-        prop: 'projectid',
+        prop: 'name',
         render: this.renderUsername,
         sortable: true,
         sortFunction: TableUtil.getSortFunction(
@@ -240,7 +245,22 @@ class ProjectOrganizationTab extends mixin(InternalStorageMixin) {
             return item.get(prop);
           }
         ),
-        heading: ResourceTableUtil.renderHeading({projectid: 'PROJECT'})
+        heading: ResourceTableUtil.renderHeading({name: 'USERNAME'})
+      },
+      {
+        cacheCell: true,
+        className: getClassName,
+        headerClassName: getClassName,
+        prop: 'uid',
+        render: this.renderUserID,
+        sortable: true,
+        sortFunction: TableUtil.getSortFunction(
+          this.props.itemID,
+          function (item, prop) {
+            return item.get(prop);
+          }
+        ),
+        heading: ResourceTableUtil.renderHeading({uid: 'USERID'})
       }
     ];
   }
@@ -450,11 +470,11 @@ class ProjectOrganizationTab extends mixin(InternalStorageMixin) {
   }
 }
 
-ProjectOrganizationTab.propTypes = {
+OrganizationTab.propTypes = {
   items: React.PropTypes.array.isRequired,
   itemID: React.PropTypes.string.isRequired,
   itemName: React.PropTypes.string.isRequired,
   handleNewItemClick: React.PropTypes.func.isRequired
 };
 
-module.exports = ProjectOrganizationTab;
+module.exports = OrganizationTab;
