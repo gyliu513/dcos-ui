@@ -34,7 +34,7 @@ const ProjectActions = {
       success: function () {
         EventDispatcher.handleServerAction({
           type: 'REQUEST_PROJECT_CREATE_SUCCESS',
-          data: response
+          data: data.name
         });
       },
       error: function (xhr) {
@@ -51,13 +51,13 @@ const ProjectActions = {
       url: `${Config.rootUrl}${Config.acsAPIPrefix}/projects/${projectID}`,
       method: 'DELETE',
       success: function () {
-        AppDispatcher.handleServerAction({
+        EventDispatcher.handleServerAction({
           type: 'REQUEST_PROJECT_DELETE_SUCCESS',
           projectID
         });
       },
       error: function (xhr) {
-        AppDispatcher.handleServerAction({
+        EventDispatcher.handleServerAction({
           type: 'REQUEST_PROJECT_DELETE_ERROR',
           data: RequestUtil.getErrorFromXHR(xhr),
           projectID

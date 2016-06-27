@@ -5,6 +5,13 @@ const BulkOptions = {
       title: 'Are you sure?',
       actionPhrase: 'will be deleted'
     }
+  },
+  project: {
+    delete: {
+      dropdownOption: 'Delete',
+      title: 'Are you sure?',
+      actionPhrase: 'will be deleted'
+    }
   }
 };
 

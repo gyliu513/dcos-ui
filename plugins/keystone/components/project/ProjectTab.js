@@ -32,7 +32,7 @@ class ProjectPage extends mixin(StoreMixin) {
     this.store_listeners = [
       {
         name: 'project',
-        events: ['success', 'error'],
+        events: ['success', 'error', 'createSuccess', 'deleteSuccess'],
         suppressUpdate: true
       }
     ];

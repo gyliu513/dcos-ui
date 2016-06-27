@@ -27,14 +27,14 @@ class ProjectStore extends EventEmitter {
           this.emit('PROJECT_ERROR', action.data);
         // Create user
         case 'REQUEST_PROJECT_CREATE_SUCCESS':
-          this.emit('PROJECT_CREATE_SUCCESS', action.data);
+          this.emit('PROJECT_CREATE_SUCCESS', action);
           break;
         case 'REQUEST_PROJECT_CREATE_ERROR':
           this.emit('PROJECT_CREATE_ERROR', action.data, action.xhr);
           break;
         // Delete user
         case 'REQUEST_PROJECT_DELETE_SUCCESS':
-          this.emit('PROJECT_DELETE_SUCCESS', action.data);
+          this.emit('PROJECT_DELETE_SUCCESS', action);
           break;
         case 'REQUEST_PROJECT_DELETE_ERROR':
           this.emit('PROJECT_DELETE_ERROR', action.data);
@@ -47,11 +47,11 @@ class ProjectStore extends EventEmitter {
     return ProjectActions.fetch(...arguments);
   }
 
-  addProjects() {
+  addProject() {
     return ProjectActions.addProject(...arguments);
   }
 
-  deleteProjects() {
+  deleteProject() {
     return ProjectActions.deleteProject(...arguments);
   }
 

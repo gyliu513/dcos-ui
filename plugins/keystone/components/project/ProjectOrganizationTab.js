@@ -7,7 +7,7 @@ import React from 'react';
 
 import BulkOptions from '../constants/BulkOptions';
 
-import UsersActionsModal from '../../../../src/js/components/modals/UsersActionsModal';
+import ProjectActionsModal from './ProjectActionsModal';
 
 let SDK = require('../../SDK').getSDK();
 
@@ -37,9 +37,9 @@ const METHODS_TO_BIND = [
   'handleHeadingCheckboxChange',
   'handleSearchStringChange',
   'renderCheckbox',
-  'renderFullName',
   'renderHeadingCheckbox',
-  'renderUsername',
+  'renderProjectname',
+  'renderProjectID',
   'resetFilter'
 ];
 
@@ -121,11 +121,17 @@ class ProjectOrganizationTab extends mixin(InternalStorageMixin) {
     this.bulkCheck(false);
   }
 
-  renderFullName(prop, subject) {
-    return subject.get('description');
+  renderProjectID(prop, subject) {
+    return (
+      <div className="row">
+        <div className="column-small-12 column-large-12 column-x-large-12 text-overflow">
+          {subject.get('projectid')}
+        </div>
+      </div>
+    );
   }
 
-  renderUsername(prop, subject) {
+  renderProjectname(prop, subject) {
     return (
       <div className="row">
         <div className="column-small-12 column-large-12 column-x-large-12 text-overflow">
@@ -231,8 +237,8 @@ class ProjectOrganizationTab extends mixin(InternalStorageMixin) {
         cacheCell: true,
         className: getClassName,
         headerClassName: getClassName,
-        prop: 'projectid',
-        render: this.renderUsername,
+        prop: 'name',
+        render: this.renderProjectname,
         sortable: true,
         sortFunction: TableUtil.getSortFunction(
           this.props.itemID,
@@ -240,7 +246,22 @@ class ProjectOrganizationTab extends mixin(InternalStorageMixin) {
             return item.get(prop);
           }
         ),
-        heading: ResourceTableUtil.renderHeading({projectid: 'PROJECT'})
+        heading: ResourceTableUtil.renderHeading({name: 'PROJECT'})
+      },
+      {
+        cacheCell: true,
+        className: getClassName,
+        headerClassName: getClassName,
+        prop: 'projectid',
+        render: this.renderProjectID,
+        sortable: true,
+        sortFunction: TableUtil.getSortFunction(
+          this.props.itemID,
+          function (item, prop) {
+            return item.get(prop);
+          }
+        ),
+        heading: ResourceTableUtil.renderHeading({projectid: 'ID'})
       }
     ];
   }
@@ -339,7 +360,7 @@ class ProjectOrganizationTab extends mixin(InternalStorageMixin) {
     let checkedItemObjects = this.getCheckedItemObjects(items, itemID) || [];
 
     return (
-      <UsersActionsModal
+      <ProjectActionsModal
         action={action}
         actionText={BulkOptions[itemName][action]}
         bodyClass="modal-content allow-overflow"
