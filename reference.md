@@ -7,6 +7,8 @@ node js client: https://github.com/tenxcloud/node-kubernetes-client
 
 XCloud: https://ringcloud.cn.ibm.com/provision/index
 
+https://github.com/vmware/harbor
+
 Kubernetes Env:
 root/Letmein123
 9.111.141.63 
