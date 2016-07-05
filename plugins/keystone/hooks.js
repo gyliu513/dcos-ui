@@ -4,6 +4,7 @@ import React from 'react';
 import {Route} from 'react-router';
 import {StoreMixin} from 'mesosphere-shared-reactjs';
 
+import Redirect from './components/login/Redirect';
 import LoginPage from './components/login/LoginPage';
 import ProjectTab from './components/project/ProjectTab';
 import UserDropup from './components/login/UserDropup';
@@ -105,7 +106,6 @@ module.exports = Object.assign({}, StoreMixin, {
   },
 
   redirectToLogin(transition) {
-    console.log('redirect to login')
     transition.redirect('/login');
   },
 
@@ -171,7 +171,7 @@ module.exports = Object.assign({}, StoreMixin, {
           if (child_.from === '/'
               && AuthStore.getUser()
               && AuthStore.getUser().uid !== 'admin') {
-            child_.to = 'services-page';
+            child_.to = 'redirected';
           }
         });
       }
@@ -189,6 +189,12 @@ module.exports = Object.assign({}, StoreMixin, {
         handler: LoginPage,
         name: 'login',
         path: 'login',
+        type: Route
+      },
+      {
+        handler: Redirect,
+        name: 'redirected',
+        path: 'redirected',
         type: Route
       }
     );
@@ -209,22 +215,31 @@ module.exports = Object.assign({}, StoreMixin, {
   },
 
   userFormModalDefinition(form, props, stat) {
+    var options = [];
+    ProjectStore.projects.forEach(project => {
+      options.push({
+        html: project.name,
+        id: project.projectid
+      });
+    });
+
     form.unshift(
+      {
+        fieldType: 'select',
+        name: 'project',
+        placeholder: 'Project',
+        options: options,
+        showLabel: false,
+        validation: function (value) {
+          return !!value;
+        },
+        validationErrorText: 'One option has to be selected',
+        value: 'Project',
+      },
       {
         fieldType: 'text',
         name: 'name',
         placeholder: 'Name',
-        required: true,
-        showError: stat.errorMsg,
-        showLabel: false,
-        writeType: 'input',
-        validation: function () { return true; },
-        value: ''
-      },
-      {
-        fieldType: 'text',
-        name: 'project',
-        placeholder: 'Project',
         required: true,
         showError: stat.errorMsg,
         showLabel: false,
@@ -285,6 +300,8 @@ module.exports = Object.assign({}, StoreMixin, {
         if (loginRedirectRoute) {
           // Go to redirect route if it is present
           this.applicationRouter.transitionTo(loginRedirectRoute);
+        } else if (AuthStore.getUser() && AuthStore.getUser().uid !== 'admin') {
+          this.applicationRouter.transitionTo('/services');
         } else {
           // Go to home
           this.applicationRouter.transitionTo('/');

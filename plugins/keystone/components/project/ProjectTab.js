@@ -56,7 +56,6 @@ class ProjectPage extends mixin(StoreMixin) {
   }
 
   onProjectStoreSuccess(data) {
-    console.log('get data');
     this.setState({
       projectStoreError: false,
       projectStoreSuccess: true,

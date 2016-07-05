@@ -11,6 +11,10 @@ class ProjectStore extends EventEmitter {
   constructor() {
     super(...arguments);
 
+    this.data = {
+      projects: []
+    };
+
     this.dispatcherIndex = EventDispatcher.register((payload) => {
       if (payload.source !== 'EventAction') {
         return false;
@@ -20,7 +24,7 @@ class ProjectStore extends EventEmitter {
       switch (action.type) {
         // Get user
         case 'REQUEST_PROJECT_SUCCESS':
-          console.log('emit project success event');
+          this.data.projects = action.data;
           this.emit('PROJECT_SUCCESS', action.data);
           break;
         case 'REQUEST_PROJECT_ERROR':
@@ -61,6 +65,10 @@ class ProjectStore extends EventEmitter {
 
   removeChangeListener(eventName, callback) {
     this.removeListener(eventName, callback);
+  }
+
+  get projects() {
+    return this.data.projects;
   }
 
   get storeID() {

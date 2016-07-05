@@ -48,7 +48,7 @@ class ProjectFormModal extends mixin(StoreMixin) {
     this.props.onClose();
   }
 
-  onUserStoreCreateError(errorMsg, userID, xhr) {
+  onProjectStoreCreateError(errorMsg, userID, xhr) {
     this.setState({
       disableNewProject: false,
       errorMsg,

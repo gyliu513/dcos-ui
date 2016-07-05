@@ -2,6 +2,8 @@ import {RequestUtil} from 'mesosphere-shared-reactjs';
 
 import ActionTypes from '../constants/ActionTypes';
 
+import AuthStore from '../stores/AuthStore';
+
 var AppDispatcher = require('./AppDispatcher');
 var Config = require('../config/Config');
 
@@ -115,8 +117,11 @@ const KubernetesActions = {
     Config.getRefreshRate(),
     function (resolve, reject) {
       return function () {
+        var User = AuthStore.getUser();
+        var Namespace = User.projects.length > 0 && User.uid !== 'admin' ?
+            '/namespaces/' + User.projects[0] : '';
         RequestUtil.json({
-          url: `${Config.rootUrl}/kubernetes/api/v1/replicationcontrollers`,
+          url: `${Config.rootUrl}/kubernetes/api/v1${Namespace}/replicationcontrollers`,
           success: function (response) {
             try {
               AppDispatcher.handleServerAction({
@@ -150,8 +155,11 @@ const KubernetesActions = {
     Config.getRefreshRate(),
     function (resolve, reject) {
       return function () {
+        var User = AuthStore.getUser();
+        var Namespace = User.projects.length > 0 && User.uid !== 'admin' ?
+            '/namespaces/' + User.projects[0] : '';
         RequestUtil.json({
-          url: `${Config.rootUrl}/kubernetes/api/v1/services`,
+          url: `${Config.rootUrl}/kubernetes/api/v1${Namespace}/services`,
           success: function (response) {
             try {
               AppDispatcher.handleServerAction({
@@ -185,8 +193,11 @@ const KubernetesActions = {
     Config.getRefreshRate(),
     function (resolve, reject) {
       return function () {
+        var User = AuthStore.getUser();
+        var Namespace = User.projects.length > 0 && User.uid !== 'admin' ?
+            '/namespaces/' + User.projects[0] : '';
         RequestUtil.json({
-          url: `${Config.rootUrl}/kubernetes/api/v1/pods`,
+          url: `${Config.rootUrl}/kubernetes/api/v1${Namespace}/pods`,
           success: function (response) {
             try {
               AppDispatcher.handleServerAction({

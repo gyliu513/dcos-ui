@@ -35,7 +35,6 @@ class LoginPage extends mixin(StoreMixin) {
     METHODS_TO_BIND.forEach(method => {
       this[method] = this[method].bind(this);
     });
-    console.log('load login page');
   }
 
   componentWillUnmount() {

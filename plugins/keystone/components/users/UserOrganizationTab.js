@@ -5,6 +5,8 @@ import mixin from 'reactjs-mixin';
 import React from 'react';
 /* eslint-enable no-unused-vars */
 
+import ProjectStore from '../project/ProjectStore';
+
 import BulkOptions from '../constants/BulkOptions';
 import UsersActionsModal from '../../../../src/js/components/modals/UsersActionsModal';
 
@@ -62,6 +64,8 @@ class OrganizationTab extends mixin(InternalStorageMixin) {
   }
 
   componentWillMount() {
+    console.log('fetch projects');
+    ProjectStore.fetchProjects();
     super.componentWillMount();
     this.resetTablewideCheckboxTabulations();
   }
