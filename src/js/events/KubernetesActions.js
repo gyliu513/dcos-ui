@@ -300,9 +300,12 @@ const KubernetesActions = {
   fetchPolicies: RequestUtil.debounceOnError(
     Config.getRefreshRate(),
     function (resolve, reject) {
-      return function (namespace) {
+      return function () {
+        var User = AuthStore.getUser();
+        var Namespace = User.projects.length > 0 && User.uid !== 'admin' ?
+            '/namespaces/' + User.projects[0] : '';
         RequestUtil.json({
-          url: `${Config.rootUrl}/kubernetes/apis/autoscaling/v1/namespaces/${namespace}/horizontalpodautoscalers`,
+          url: `${Config.rootUrl}/kubernetes/apis/autoscaling/v1/${Namespace}/horizontalpodautoscalers`,
           success: function (response) {
             try {
               AppDispatcher.handleServerAction({

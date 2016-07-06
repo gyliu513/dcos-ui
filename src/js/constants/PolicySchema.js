@@ -29,11 +29,6 @@ let PolicySchema = {
           getter: function (policy) {
             return policy.getNamespace();
           }
-        },
-        'email': {
-          title: 'Email Notification',
-          type: 'string',
-          description: 'Send Email notification when scale is triggered'
         }
       }
     },
@@ -50,8 +45,9 @@ let PolicySchema = {
           title: 'Type of scale target',
           fieldType: 'select',
           options: [
-            'ReplicationController',
-            'Deployment'
+            'Replication Controller',
+            'Deployment',
+            'Replication Set'
           ],
           description: 'Type of scale target',
           getter: function (policy) {

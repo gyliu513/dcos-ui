@@ -111,7 +111,7 @@ var PolicyTab = React.createClass({
       <div className="button-collection flush-bottom">
         <button className="button button-success"
           onClick={() => this.handleOpenModal(POLICY_FORM_MODAL)}>
-          Define Policies
+          Define Policy
         </button>
       </div>
     );
