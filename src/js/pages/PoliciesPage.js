@@ -15,10 +15,6 @@ let DEFAULT_POLICIES_TABS = {
   'policies-app': {
     content: 'Application Policy',
     priority: 50
-  },
-  'policies-log': {
-    content: 'Log Policy',
-    priority: 30
   }
 };
 
