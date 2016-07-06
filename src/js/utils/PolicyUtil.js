@@ -1,4 +1,5 @@
 import Policy from '../structs/Policy';
+import AuthStore from '../stores/AuthStore';
 
 const getFindPropertiesRecursive = function (policy, item) {
 
@@ -22,19 +23,31 @@ const getFindPropertiesRecursive = function (policy, item) {
 const PolicyUtil = {
   createPolicyFromFormModel: function (formModel) {
     let definition = {};
+    let User = AuthStore.getUser();
 
     if (formModel != null) {
-      definition.metadata = {
-        'name': formModel.general.name,
-        'namespace': formModel.general.namespace
+      if (User.projects[0] === 'admin') {
+        definition.metadata = {
+          'name': formModel.general.name,
+          'namespace': formModel.general.namespace
+        }
+      }
+      else
+      {
+        definition.metadata = {
+          'name': formModel.general.name,
+          'namespace': User.projects[0]
+        }
       };
 
       if (formModel.spec != null) {
         let scaleKind = '';
 
         if (formModel.spec.typeOfscaleTarget) {
-          if (formModel.spec.typeOfscaleTarget.toLowerCase() === 'replicationcontroller') {
+          if (formModel.spec.typeOfscaleTarget.toLowerCase() === 'replication controller') {
             scaleKind = 'ReplicationController';
+          } else if (formModel.spec.typeOfscaleTarget.toLowerCase() === 'replica set') {
+            scaleKind = 'ReplicaSet';
           } else if (formModel.spec.typeOfscaleTarget.toLowerCase() === 'deployment') {
             scaleKind = 'Deployment';
           }

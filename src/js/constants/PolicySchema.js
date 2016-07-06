@@ -47,7 +47,7 @@ let PolicySchema = {
           options: [
             'Replication Controller',
             'Deployment',
-            'Replication Set'
+            'Replica Set'
           ],
           description: 'Type of scale target',
           getter: function (policy) {
