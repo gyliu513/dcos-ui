@@ -203,15 +203,15 @@ var PoliciesTable = React.createClass({
   getColGroup: function () {
     return (
       <colgroup>
-        <col style={{width: '400px'}} />
-        <col style={{width: '100px'}} />
-        <col style={{width: '600px'}} />
-        <col style={{width: '50px'}} />
-        <col style={{width: '50px'}} />
-        <col style={{width: '50px'}} />
-        <col style={{width: '50px'}} />
-        <col style={{width: '100px'}} />
-        <col style={{width: '50px'}} />
+        <col />
+        <col />
+        <col />
+        <col />
+        <col />
+        <col />
+        <col />
+        <col />
+        <col />
       </colgroup>
     );
   },

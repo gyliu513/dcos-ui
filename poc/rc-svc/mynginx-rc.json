@@ -24,7 +24,11 @@
                     {
                         "name": "gyliu-nginx",
                         "image": "nginx",
-                        "resources": {},
+                        "resources": {
+                          "requests": {
+                            "cpu": "100m"
+                          }
+                        },
                         "imagePullPolicy": "Always",
                         "securityContext": {
                             "privileged": false
