@@ -5,14 +5,18 @@ import React from 'react';
 let PolicySchema = {
   type: 'object',
   required: [
-    'general',
-    'spec'
+    'general'
   ],
   properties: {
     'general': {
       title: 'General',
       type: 'object',
       description: 'Define your policy',
+      required: [
+        'name',
+        'nameOfScaleTarget',
+        'maxReplicas'
+      ],
       properties: {
         'name': {
           title: 'Name',
@@ -22,25 +26,6 @@ let PolicySchema = {
             return policy.getName();
           }
         },
-        'namespace': {
-          title: 'Namespace',
-          type: 'string',
-          description: 'Choose namespace to create this policy',
-          getter: function (policy) {
-            return policy.getNamespace();
-          }
-        }
-      }
-    },
-    'spec': {
-      title: 'Specification',
-      type: 'object',
-      description: 'Specification of the policy',
-      required: [
-        'scaleTargetRef',
-        'maxReplicas'
-      ],
-      properties: {
         'typeOfscaleTarget': {
           title: 'Type of scale target',
           fieldType: 'select',
@@ -54,6 +39,14 @@ let PolicySchema = {
             return policy.getTypeOfScaleTarget();
           }
         },
+        'namespace': {
+          title: 'Namespace',
+          type: 'string',
+          description: 'Choose namespace to create this policy',
+          getter: function (policy) {
+            return policy.getNamespace();
+          }
+        },
         'nameOfScaleTarget': {
           title: 'Name of scale target',
           type: 'string',
@@ -65,7 +58,7 @@ let PolicySchema = {
         'minReplicas': {
           title: 'Minimum number of replications',
           type: 'number',
-          description: 'Min numer of replications',
+          description: 'Min number of replications',
           getter: function (policy) {
             return policy.getMinReplicas();
           }
@@ -88,7 +81,7 @@ let PolicySchema = {
           validate: {function(v) { return v > 0 && v < 100 }}
         }
       }
-    },
+    }
   }
 };
 

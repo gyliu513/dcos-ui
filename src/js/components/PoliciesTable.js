@@ -7,16 +7,7 @@ import KubernetesStore from '../stores/KubernetesStore';
 
 var ResourceTableUtil = require('../utils/ResourceTableUtil');
 
-var PolicyTableHeaderLabels = {
-  name: 'Name',
-  namespace: 'Namespace',
-  reference: 'Reference',
-  targetCPUUtilization: 'Target',
-  currentCPUUtilization: 'Current',
-  minReplicas: 'MinReplicas',
-  maxReplicas: 'MaxReplicas',
-  creationTimestamp: 'CreationTimestamp',
-};
+var PolicyTableHeaderLabels = require('../constants/PolicyTableHeaderLabels');
 
 var PoliciesTable = React.createClass({
 

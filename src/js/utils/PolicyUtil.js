@@ -40,33 +40,28 @@ const PolicyUtil = {
         }
       };
 
-      if (formModel.spec != null) {
-        let scaleKind = '';
-
-        if (formModel.spec.typeOfscaleTarget) {
-          if (formModel.spec.typeOfscaleTarget.toLowerCase() === 'replication controller') {
-            scaleKind = 'ReplicationController';
-          } else if (formModel.spec.typeOfscaleTarget.toLowerCase() === 'replica set') {
-            scaleKind = 'ReplicaSet';
-          } else if (formModel.spec.typeOfscaleTarget.toLowerCase() === 'deployment') {
-            scaleKind = 'Deployment';
-          }
-        } else {
+      let scaleKind = '';
+      if (formModel.general.typeOfscaleTarget) {
+        if (formModel.general.typeOfscaleTarget.toLowerCase() === 'replication controller') {
           scaleKind = 'ReplicationController';
+        } else if (formModel.general.typeOfscaleTarget.toLowerCase() === 'replica set') {
+          scaleKind = 'ReplicaSet';
+        } else if (formModel.general.typeOfscaleTarget.toLowerCase() === 'deployment') {
+          scaleKind = 'Deployment';
         }
-
-        definition.spec = {
-          'scaleTargetRef': {
-            'kind': scaleKind,
-            'name': formModel.spec.nameOfScaleTarget
-          },
-          'minReplicas': formModel.spec.minReplicas,
-          'maxReplicas': formModel.spec.maxReplicas,
-          'targetCPUUtilizationPercentage': formModel.spec.targetCPUUtilizationPercentage
-        };
+      } else {
+        scaleKind = 'ReplicationController';
       }
+      definition.spec = {
+        'scaleTargetRef': {
+          'kind': scaleKind,
+          'name': formModel.general.nameOfScaleTarget
+        },
+        'minReplicas': formModel.general.minReplicas,
+        'maxReplicas': formModel.general.maxReplicas,
+        'targetCPUUtilizationPercentage': formModel.general.targetCPUUtilizationPercentage
+      };
     }
-
     return new Policy(definition);
   },
 

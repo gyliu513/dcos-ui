@@ -12,7 +12,7 @@ import KubernetesStore from '../../stores/KubernetesStore';
 import SchemaForm from '../SchemaForm';
 import Policy from '../../structs/Policy';
 import PolicyUtil from '../../utils/PolicyUtil';
-import PolicySchema from '../../constants/PolicySchema';
+import PolicySchema from '../../schemas/policy-schema/PolicySchema';
 import ToggleButton from '../ToggleButton';
 
 const METHODS_TO_BIND = [
