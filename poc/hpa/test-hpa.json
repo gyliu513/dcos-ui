@@ -1,18 +1,20 @@
 {
+  "apiVersion": "extensions/v1beta1",
   "kind": "HorizontalPodAutoscaler",
-  "apiVersion": "autoscaling/v1",
   "metadata": {
     "name": "gyliu-nginx",
     "namespace": "default"
   },
   "spec": {
-    "scaleTargetRef": {
+    "scaleRef": {
       "kind": "ReplicationController",
-      "name": "gyliu-nginx",
-      "apiVersion": "v1"
+      "name": "liqlin-nginx",
+      "subresource": "scale"
     },
     "minReplicas": 1,
-    "maxReplicas": 10,
-    "targetCPUUtilizationPercentage": 10
+    "maxReplicas": 20,
+    "cpuUtilization": {
+      "targetPercentage": 20
+    }
   }
 }
