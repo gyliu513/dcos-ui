@@ -1,0 +1,46 @@
+{
+  "kind": "ReplicationController",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "gyliu-nginx",
+    "namespace": "default",
+    "labels": {
+      "app": "gyliu-nginx"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "app": "gyliu-nginx"
+    },
+    "template": {
+      "metadata": {
+        "name": "gyliu-nginx",
+        "labels": {
+          "app": "gyliu-nginx"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "gyliu-nginx",
+            "image": "nginx",
+            "resources": {
+              "requests": {
+                "cpu": "200m"
+              }
+            },
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "privileged": false
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "securityContext": {}
+      }
+    }
+  }
+}
