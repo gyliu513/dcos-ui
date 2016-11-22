@@ -1,8 +1,28 @@
 const HEIGHT_ATTRIBUTES = ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'];
 const WIDTH_ATTRIBUTES = ['paddingLeft', 'paddingRight', 'borderLeftWidth', 'borderRightWidth'];
 
+let matchesFn = (function () {
+  let el = document.querySelector('body');
+  let names = [
+    'matches',
+    'matchesSelector',
+    'msMatchesSelector',
+    'oMatchesSelector',
+    'mozMatchesSelector',
+    'webkitMatchesSelector'
+  ];
+
+  for (let i = 0; i < names.length; i++) {
+    if (el[names[i]]) {
+      return names[i];
+    }
+  }
+
+  return names[0];
+})();
+
 var DOMUtils = {
-  appendScript: function (el, code) {
+  appendScript(el, code) {
     let scriptNode = document.createElement('script');
     scriptNode.type = 'text/javascript';
 
@@ -15,11 +35,25 @@ var DOMUtils = {
     el.appendChild(scriptNode);
   },
 
-  getComputedWidth: function (obj) {
+  closest(el, selector) {
+    var currentEl = el;
+
+    while (currentEl && currentEl.parentElement !== null) {
+      if (currentEl[matchesFn] && currentEl[matchesFn](selector)) {
+        return currentEl;
+      }
+
+      currentEl = currentEl.parentElement;
+    }
+
+    return null;
+  },
+
+  getComputedWidth(obj) {
     return DOMUtils.getComputedDimensions(obj).width;
   },
 
-  getComputedDimensions: function (obj) {
+  getComputedDimensions(obj) {
     var compstyle;
     if (typeof window.getComputedStyle === 'undefined') {
       compstyle = obj.currentStyle;
@@ -47,12 +81,12 @@ var DOMUtils = {
     );
 
     return {
-      width: width,
-      height: height
+      width,
+      height
     };
   },
 
-  getPageHeight: function () {
+  getPageHeight() {
     var body = document.body;
     var html = document.documentElement;
 
@@ -65,11 +99,11 @@ var DOMUtils = {
     );
   },
 
-  getDistanceFromTop: function (element) {
+  getDistanceFromTop(element) {
     return element.pageYOffset || element.scrollTop || 0;
   },
 
-  isTopFrame: function () {
+  isTopFrame() {
     try {
       return window.self === window.top;
     } catch (e) {
@@ -80,7 +114,7 @@ var DOMUtils = {
   // This will ease in and ease out of the transition.
   // Code was modified from this answer:
   // http://stackoverflow.com/questions/21474678/scrolltop-animation-without-jquery
-  scrollTo: function (container, scrollDuration, targetY) {
+  scrollTo(container, scrollDuration, targetY) {
     let scrollHeight = container.scrollHeight;
     let scrollStep = Math.PI / (scrollDuration / 15);
     let cosParameter = scrollHeight / 2;
@@ -104,7 +138,7 @@ var DOMUtils = {
     }
   },
 
-  whichTransitionEvent: function (el) {
+  whichTransitionEvent(el) {
     var transitions = {
       'transition': 'transitionend',
       'OTransition': 'oTransitionEnd',
@@ -119,12 +153,12 @@ var DOMUtils = {
     }
   },
 
-  isElementOnTop: function (el) {
+  isElementOnTop(el) {
     let {left, top, height, width} = el.getBoundingClientRect();
     let elAtPoint = global.document.elementFromPoint(
       // The coords of the middle of the element.
-      left + width / 2,
-      top + height / 2
+      left + (width / 2),
+      top + (height / 2)
     );
 
     // If elAtPoint is null, then the element is off the screen. We return true
@@ -139,7 +173,7 @@ var DOMUtils = {
     return el === elAtPoint || el.contains(elAtPoint) || elAtPoint.contains(el);
   },
 
-  getDistanceFromTopOfParent: function (el) {
+  getDistanceFromTopOfParent(el) {
     let elTop = el.getBoundingClientRect().top;
 
     let parentNode = el.parentNode;

@@ -1,4 +1,5 @@
 import React from 'react';
+import {routerShape} from 'react-router';
 import mixin from 'reactjs-mixin';
 import {StoreMixin} from 'mesosphere-shared-reactjs';
 import {Modal} from 'reactjs-components';
@@ -18,7 +19,7 @@ class LoginPage extends mixin(StoreMixin) {
     super.componentWillMount();
 
     if (AuthStore.getUser()) {
-      this.context.router.transitionTo('/');
+      this.context.router.push('/');
     }
 
     this.store_listeners = [
@@ -33,7 +34,7 @@ class LoginPage extends mixin(StoreMixin) {
       showClusterError: false
     };
 
-    METHODS_TO_BIND.forEach(method => {
+    METHODS_TO_BIND.forEach((method) => {
       this[method] = this[method].bind(this);
     });
 
@@ -48,6 +49,8 @@ class LoginPage extends mixin(StoreMixin) {
 
   onMessageReceived(event) {
     if (event.origin !== SDK.config.authHost) {
+      console.warn(`Event Origin "${event.origin}" does not match allowed origin "${SDK.config.authHost}"`);
+
       return;
     }
 
@@ -60,17 +63,6 @@ class LoginPage extends mixin(StoreMixin) {
       case 'error':
         this.navigateToAccessDenied();
         break;
-    }
-  }
-
-  onAuthStoreSuccess() {
-    let router = this.context.router;
-    let loginRedirectRoute = AuthStore.get('loginRedirectRoute');
-
-    if (loginRedirectRoute) {
-      router.transitionTo(loginRedirectRoute);
-    } else {
-      router.transitionTo('/');
     }
   }
 
@@ -89,7 +81,7 @@ class LoginPage extends mixin(StoreMixin) {
   navigateToAccessDenied() {
     let router = this.context.router;
 
-    router.transitionTo('/access-denied');
+    router.replace('/access-denied');
   }
 
   render() {
@@ -109,7 +101,6 @@ class LoginPage extends mixin(StoreMixin) {
             src={location} />
         </div>
         <Modal
-          maxHeightPercentage={0.9}
           onClose={this.handleModalClose}
           open={this.state.showClusterError}
           showCloseButton={true}
@@ -128,8 +119,7 @@ class LoginPage extends mixin(StoreMixin) {
 }
 
 LoginPage.contextTypes = {
-  router: React.PropTypes.func
+  router: routerShape
 };
 
 module.exports = LoginPage;
-

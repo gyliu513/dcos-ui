@@ -1,109 +1,133 @@
-var classNames = require('classnames');
-var React = require('react');
+import classNames from 'classnames';
+import React, {PropTypes} from 'react';
 
-import ServiceFilterTypes from '../constants/ServiceFilterTypes';
+import Icon from './Icon';
+import ServiceFilterTypes from '../../../plugins/services/src/js/constants/ServiceFilterTypes';
 
-var FilterInputText = React.createClass({
+let METHODS_TO_BIND = [
+  'handleBlur',
+  'handleFocus',
+  'handleChange',
+  'handleInputClear'
+];
 
-  displayName: 'FilterInputText',
+class FilterInputText extends React.Component {
+  constructor() {
+    super(...arguments);
 
-  propTypes: {
-    handleFilterChange: React.PropTypes.func.isRequired,
-    inverseStyle: React.PropTypes.bool,
-    placeholder: React.PropTypes.string,
-    searchString: React.PropTypes.string.isRequired,
-    sideText: React.PropTypes.node
-  },
-
-  getDefaultProps: function () {
-    return {
-      inverseStyle: false,
-      placeholder: 'Filter',
-      searchString: ''
-    };
-  },
-
-  getInitialState: function () {
-    return {
+    this.state = {
       focus: false
     };
-  },
 
-  componentDidUpdate: function () {
-    if (this.state.focus) {
-      this.refs.filterInput.focus();
+    METHODS_TO_BIND.forEach((method) => {
+      this[method] = this[method].bind(this);
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    let {focus} = this.state;
+
+    if (prevState.focus !== focus && focus && this.inputField) {
+      this.inputField.focus();
     }
-  },
+  }
 
-  handleChange: function (e) {
-    e.preventDefault();
-    this.props.handleFilterChange(this.refs.filterInput.value,
-      ServiceFilterTypes.TEXT);
-  },
+  handleChange(event) {
+    let {target} = event;
 
-  handleClearInput: function () {
+    // Make sure to never emit falsy values
+    let value = target.value || '';
+    this.props.handleFilterChange(value, ServiceFilterTypes.TEXT);
+  }
+
+  handleInputClear() {
     this.props.handleFilterChange('', ServiceFilterTypes.TEXT);
-  },
+  }
 
-  handleBlur: function () {
+  handleBlur() {
     this.setState({
       focus: false
     });
-  },
+  }
 
-  handleFocus: function () {
+  handleFocus() {
     this.setState({
       focus: true
     });
-  },
+  }
 
-  renderClearIcon: function (props) {
+  getInputField() {
+    let {inverseStyle, placeholder, searchString} = this.props;
 
-    if (props.searchString) {
+    let inputClasses = classNames({
+      'form-control filter-input-text': true,
+      'form-control-inverse': inverseStyle
+    });
 
-      var clearIconClasses = classNames({
-        'clickable icon icon-sprite icon-sprite-mini icon-close': true,
-        'icon-sprite-mini-white': props.inverseStyle
-      });
+    return (
+      <input
+        className={inputClasses}
+        placeholder={placeholder}
+        onChange={this.handleChange}
+        ref={(ref) => this.inputField = ref}
+        type="text"
+        value={searchString} />
+    );
+  }
 
-      return (
-        <span className="form-control-group-add-on form-control-group-add-on-append">
-          {props.sideText}
-          <a onClick={this.handleClearInput}>
-            <i className={clearIconClasses}></i>
-          </a>
-        </span>
-      );
+  getClearIcon() {
+    if (!this.props.searchString) {
+      return null;
     }
 
-    return null;
-  },
+    let {inverseStyle, sideText} = this.props;
+    let color = 'white';
 
-  render: function () {
-    var props = this.props;
-    var focus = this.state.focus;
+    if (!inverseStyle) {
+      color = 'purple';
+    }
 
-    var iconSearchClasses = classNames({
-      'icon icon-sprite icon-sprite-mini icon-search': true,
-      'icon-sprite-mini-white': props.inverseStyle,
-      'icon-sprite-mini-color': !props.inverseStyle && focus,
+    let iconClassNames = classNames('clickable', {
+      'icon-margin-left': !!sideText
+    });
+
+    return (
+      <span className="form-control-group-add-on">
+        {sideText}
+        <a onClick={this.handleInputClear}>
+          <Icon
+            family="mini"
+            id="ring-close"
+            size="mini"
+            className={iconClassNames}
+            color={color} />
+        </a>
+      </span>
+    );
+  }
+
+  render() {
+    let {className, inputContainerClass, inverseStyle} = this.props;
+    let {focus} = this.state;
+
+    let iconColor = 'grey';
+    let iconSearchClasses = classNames({
       'active': focus
     });
 
-    var inputClasses = classNames({
-      'form-control filter-input-text': true,
-      'form-control-inverse': props.inverseStyle
-    });
+    if (!inverseStyle && focus) {
+      iconColor = 'purple';
+    }
 
     let inputContainerClasses = classNames({
       'form-control form-control-group filter-input-text-group': true,
-      'form-control-inverse': props.inverseStyle,
+      'form-control-inverse': inverseStyle,
       'focus': focus
-    }, props.inputContainerClass);
+    }, inputContainerClass);
 
     let formGroupClasses = classNames(
       'form-group',
-      props.className
+      className
     );
 
     return (
@@ -112,20 +136,33 @@ var FilterInputText = React.createClass({
           onClick={this.handleFocus}
           onBlur={this.handleBlur}>
           <span className="form-control-group-add-on form-control-group-add-on-prepend">
-            <i className={iconSearchClasses}></i>
+            <Icon
+              family="mini"
+              id="search"
+              size="mini"
+              className={iconSearchClasses}
+              color={iconColor} />
           </span>
-          <input
-            type="text"
-            className={inputClasses}
-            placeholder={props.placeholder}
-            value={props.searchString}
-            onChange={this.handleChange}
-            ref="filterInput" />
-          {this.renderClearIcon(props)}
+          {this.getInputField()}
+          {this.getClearIcon()}
         </div>
       </div>
     );
   }
-});
+}
+
+FilterInputText.defaultProps = {
+  inverseStyle: false,
+  placeholder: 'Filter',
+  sideText: null
+};
+
+FilterInputText.propTypes = {
+  handleFilterChange: PropTypes.func.isRequired,
+  inverseStyle: PropTypes.bool,
+  placeholder: PropTypes.string,
+  searchString: PropTypes.string.isRequired,
+  sideText: PropTypes.node
+};
 
 module.exports = FilterInputText;

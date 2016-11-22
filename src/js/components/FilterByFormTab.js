@@ -51,6 +51,8 @@ class FilterByFormTab extends React.Component {
         items={this.getDropdownItems()}
         onItemSelection={this.onItemSelection}
         persistentID={this.props.currentTab}
+        scrollContainer=".gm-scroll-view"
+        scrollContainerParentSelector=".gm-prevented"
         transition={true}
         transitionName="dropdown-menu" />
     );
@@ -65,7 +67,7 @@ FilterByFormTab.propTypes = {
 
 FilterByFormTab.defaultProps = {
   currentTab: '',
-  handleFilterChange: function () {},
+  handleFilterChange() {},
   tabs: []
 };
 

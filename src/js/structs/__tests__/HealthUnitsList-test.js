@@ -1,11 +1,10 @@
 jest.dontMock('../../utils/UnitHealthUtil');
-jest.dontMock('../../stores/MarathonStore');
 jest.dontMock('../../utils/MesosSummaryUtil');
 jest.dontMock('../../utils/StringUtil');
 jest.dontMock('../../utils/Util');
 
-let HealthUnit = require('../HealthUnit');
-let HealthUnitsList = require('../HealthUnitsList');
+const HealthUnit = require('../HealthUnit');
+const HealthUnitsList = require('../HealthUnitsList');
 
 describe('HealthUnitsList', function () {
 

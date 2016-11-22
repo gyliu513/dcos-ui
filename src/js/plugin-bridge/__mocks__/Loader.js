@@ -1,4 +1,4 @@
-let path = require('path');
+import path from 'path';
 
 let _plugins = {};
 let _externalPlugins = {};
@@ -53,13 +53,20 @@ function __requireModule(dir, name) {
   if (name in Mocks) {
     return Mocks[name];
   }
+
+  if (dir === 'navigation' || dir === 'routing') {
+    return require(path.resolve('./foundation-ui', `${dir}/${name}`));
+  }
+
   if (dir === 'internalPlugin') {
     return require(path.resolve(pluginsDir, name));
   }
+
   if (dir === 'externalPlugin') {
     return require(path.resolve(externalPluginsDir, name));
   }
-  return require(`../../${dir}/${name}`);
+
+  return require(path.resolve('./src/js', `${dir}/${name}`));
 }
 
 // Add custom methods for testing

@@ -1,6 +1,7 @@
 import autoprefixer from 'autoprefixer';
 import colorLighten from 'less-color-lighten';
 import fs from 'fs';
+import glob from 'glob';
 import less from 'less';
 import path from 'path';
 import postcss from 'postcss';
@@ -8,6 +9,8 @@ import purifycss from 'purify-css';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import StringReplacePlugin from 'string-replace-webpack-plugin';
+import SVGSprite from 'svg-sprite';
+import vinyl from 'vinyl';
 
 import IconDCOSLogoMark from '../src/js/components/icons/IconDCOSLogoMark.js';
 
@@ -18,7 +21,7 @@ function absPath() {
   return path.resolve.apply(path.resolve, args);
 }
 
-// Can override this with npm config set dcos-ui:external_plugins ../some/relative/path/to/repo
+// Can override this with npm config set externalplugins ../some/relative/path/to/repo
 let externalPluginsDir = absPath(process.env.npm_config_externalplugins || 'plugins');
 
 new Promise(function (resolve, reject) {
@@ -57,6 +60,17 @@ let bootstrap = {
   )
 };
 
+let svgSpriter = new SVGSprite({
+  mode: {
+    symbol: true
+  },
+  shape: {
+    id: {
+      separator: '--'
+    }
+  }
+});
+
 module.exports = {
   lessLoader: {
     lessPlugins: [
@@ -74,24 +88,46 @@ module.exports = {
           replacements: [
             {
               pattern: /<!--\sBOOTSTRAP-HTML\s-->/g,
-              replacement: function () {
+              replacement() {
                 return (
                   '<div id="canvas">' +
-                    '<div class="application-loading-indicator container ' +
-                      'container-pod vertical-center">' +
+                    '<div class="application-loading-indicator pod ' +
+                      'vertical-center">' +
                       bootstrap.HTML +
                     '</div>' +
+                  '</div>'
+                );
+              }
+            },
+            {
+              pattern: /<!--\sICON-SVG-SPRITESHEET\s-->/g,
+              replacement() {
+                let content = null;
+                let baseDir = path.resolve('src/img/components/icons');
+                let files = glob.sync('**/*.svg', {cwd: baseDir});
+
+                files.forEach(function (file) {
+                  svgSpriter.add(new vinyl({
+                    path: path.join(baseDir, file),
+                    base: baseDir,
+                    contents: fs.readFileSync(path.join(baseDir, file))
+                  }));
+                });
+
+                svgSpriter.compile(function (error, result) {
+                  content = result.symbol.sprite.contents.toString();
+                });
+
+                return (
+                  '<div style="height: 0; overflow: hidden; width: 0;' +
+                    ' visibility: hidden;">' +
+                    content +
                   '</div>'
                 );
               }
             }
           ]
         })
-      },
-      {
-        test: /\.js$/,
-        loader: 'eslint-loader',
-        exclude: /node_modules/
       },
       {
         test: /\.js$/,
@@ -109,8 +145,20 @@ module.exports = {
         loader: 'json-loader'
       },
       {
+        test: /\.jison$/,
+        loader: 'jison-loader'
+      },
+      {
+        test: /\.raml$/,
+        loader: 'raml-validator-loader'
+      },
+      {
         test: /\.(ico|icns)$/,
-        loader: 'file?name=[hash]-[name].[ext]',
+        loader: 'file?name=./[hash]-[name].[ext]'
+      },
+      {
+        test: /\.(ttf|woff)$/,
+        loader: 'file?name=./fonts/source-sans-pro/[name].[ext]'
       }
     ],
     postLoaders: [
@@ -121,7 +169,7 @@ module.exports = {
           replacements: [
             {
               pattern: /<!--\sBOOTSTRAP-CSS\s-->/g,
-              replacement: function (match, id, htmlContents) {
+              replacement(match, id, htmlContents) {
                 // Remove requires() that were injected by webpack
                 htmlContents = htmlContents
                   .replace(/"\s+\+\s+require\(".*?"\)\s+\+\s+"/g, '');
@@ -135,7 +183,7 @@ module.exports = {
                 // Webpack doo doo's its pants with some of this CSS for
                 // some stupid reason. So this is why we encode the CSS.
                 let encoded = new Buffer(css).toString('base64');
-                let js = `var css = '${encoded}';css = atob(css);var tag = document.createElement('style');tag.innerHTML = css;document.head.appendChild(tag);`
+                let js = `var css = '${encoded}';css = atob(css);var tag = document.createElement('style');tag.innerHTML = css;document.head.appendChild(tag);`;
 
                 return `<script>${js}</script>`;
               }
@@ -146,6 +194,10 @@ module.exports = {
     ]
   },
 
+  node: {
+    fs: 'empty'
+  },
+
   postcss: [autoprefixer],
 
   resolve: {
@@ -153,13 +205,18 @@ module.exports = {
       PluginSDK: absPath('src/js/plugin-bridge/PluginSDK'),
       PluginTestUtils: absPath('src/js/plugin-bridge/PluginTestUtils'),
       EXTERNAL_PLUGINS: externalPluginsDir,
-      PLUGINS: absPath('plugins')
+      PLUGINS: absPath('plugins'),
+      'foundation-ui': absPath('foundation-ui/index')
     },
     extensions: ['', '.js', '.less', '.css'],
     root: [absPath(), absPath('node_modules')]
   },
 
   resolveLoader: {
-    root: absPath('node_modules')
-  },
+    root: absPath('node_modules'),
+    alias: {
+      'raml-validator-loader': absPath('webpack', 'modules', 'raml-validator-loader', 'lib', 'raml-validator-loader.js')
+    }
+  }
+
 };

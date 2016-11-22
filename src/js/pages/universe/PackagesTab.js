@@ -2,13 +2,17 @@ import mixin from 'reactjs-mixin';
 /* eslint-disable no-unused-vars */
 import React from 'react';
 /* eslint-enable no-unused-vars */
+import {routerShape} from 'react-router';
 import {StoreMixin} from 'mesosphere-shared-reactjs';
 
 import CosmosErrorMessage from '../../components/CosmosErrorMessage';
 import CosmosPackagesStore from '../../stores/CosmosPackagesStore';
-import FilterInputText from '../../components/FilterInputText';
-import InstallPackageModal from '../../components/modals/InstallPackageModal';
+import defaultServiceImage from '../../../../plugins/services/src/img/icon-service-default-medium@2x.png';
 import DisplayPackagesTable from '../../components/DisplayPackagesTable';
+import FilterInputText from '../../components/FilterInputText';
+import Image from '../../components/Image';
+import InstallPackageModal from '../../components/modals/InstallPackageModal';
+import Loader from '../../components/Loader';
 import Panel from '../../components/Panel';
 import StringUtil from '../../utils/StringUtil';
 
@@ -24,11 +28,16 @@ class PackagesTab extends mixin(StoreMixin) {
     this.state = {
       errorMessage: false,
       installModalPackage: null,
-      isLoading: true
+      isLoading: true,
+      searchString: ''
     };
 
     this.store_listeners = [
-      {name: 'cosmosPackages', events: ['availableError', 'availableSuccess']}
+      {
+        name: 'cosmosPackages',
+        events: ['availableError', 'availableSuccess'],
+        suppressUpdate: true
+      }
     ];
 
     METHODS_TO_BIND.forEach((method) => {
@@ -51,11 +60,12 @@ class PackagesTab extends mixin(StoreMixin) {
 
   handleDetailOpen(cosmosPackage, event) {
     event.stopPropagation();
-    this.context.router.transitionTo(
-      'universe-packages-detail',
-      {packageName: cosmosPackage.get('name')},
-      {version: cosmosPackage.get('currentVersion')}
-    );
+    this.context.router.push({
+      pathname: `/universe/packages/${cosmosPackage.getName()}`,
+      query: {
+        version: cosmosPackage.getCurrentVersion()
+      }
+    });
   }
 
   handleInstallModalClose() {
@@ -67,7 +77,7 @@ class PackagesTab extends mixin(StoreMixin) {
     this.setState({installModalPackage: cosmosPackage});
   }
 
-  handleSearchStringChange(searchString) {
+  handleSearchStringChange(searchString = '') {
     this.setState({searchString});
   }
 
@@ -77,7 +87,7 @@ class PackagesTab extends mixin(StoreMixin) {
     return (
       <CosmosErrorMessage
         error={errorMessage}
-        headerClass="h3 text-align-center flush-top inverse" />
+        headerClass="h3 text-align-center flush-top" />
     );
   }
 
@@ -94,21 +104,15 @@ class PackagesTab extends mixin(StoreMixin) {
   getIcon(cosmosPackage) {
     return (
       <div className="icon icon-jumbo icon-image-container icon-app-container icon-default-white">
-        <img src={cosmosPackage.getIcons()['icon-medium']} />
+        <Image
+          fallbackSrc={defaultServiceImage}
+          src={cosmosPackage.getIcons()['icon-medium']} />
       </div>
     );
   }
 
   getLoadingScreen() {
-    return (
-      <div className="container-pod text-align-center vertical-center inverse">
-        <div className="row">
-          <div className="ball-scale">
-            <div />
-          </div>
-        </div>
-      </div>
-    );
+    return <Loader />;
   }
 
   getSelectedPackages(packages) {
@@ -120,20 +124,20 @@ class PackagesTab extends mixin(StoreMixin) {
     return packages.getItems().map((cosmosPackage, index) => {
       return (
         <div
-          className="grid-item column-mini-6 column-medium-4 column-large-3"
+          className="panel-grid-item column-12 column-small-6 column-medium-4 column-large-3"
           key={index}>
           <Panel
-            className="panel panel-inverse clickable"
-            contentClass="panel-content short-bottom tall-top horizontal-center"
+            className="clickable"
+            contentClass="horizontal-center"
             footer={this.getButton(cosmosPackage)}
-            footerClass="panel-footer tall-bottom horizontal-center no-border-top flush-top"
+            footerClass="horizontal-center"
             onClick={this.handleDetailOpen.bind(this, cosmosPackage)}>
             {this.getIcon(cosmosPackage)}
-            <div className="h2 inverse short">
-              {cosmosPackage.get('name')}
+            <div className="h2 short">
+              {cosmosPackage.getName()}
             </div>
-            <p className="inverse flush">
-              {cosmosPackage.get('currentVersion')}
+            <p className="flush">
+              {cosmosPackage.getCurrentVersion()}
             </p>
           </Panel>
         </div>
@@ -141,12 +145,8 @@ class PackagesTab extends mixin(StoreMixin) {
     });
   }
 
-  getBorderedTitle(title) {
-    return (
-      <div className="container-pod container-pod-divider-bottom container-pod-divider-inverse flush-bottom flush-top">
-        <h4 className="inverse">{title}</h4>
-      </div>
-    );
+  getTitle(title) {
+    return <h4>{title}</h4>;
   }
 
   getSelectedPackagesGrid(packages) {
@@ -156,9 +156,9 @@ class PackagesTab extends mixin(StoreMixin) {
 
     return (
       <div className="clearfix">
-        {this.getBorderedTitle('Selected Packages', true)}
-        <div className="container-pod container-pod-short">
-          <div className="grid row">
+        {this.getTitle('Selected Packages', true)}
+        <div className="pod pod-short flush-right flush-left">
+          <div className="panel-grid row">
             {this.getSelectedPackages(packages)}
           </div>
         </div>
@@ -178,7 +178,7 @@ class PackagesTab extends mixin(StoreMixin) {
 
     return (
       <div>
-        {this.getBorderedTitle(title, false)}
+        {this.getTitle(title, false)}
         <DisplayPackagesTable
           onDeploy={this.handleInstallModalOpen.bind(this)}
           onDetailOpen={this.handleDetailOpen.bind(this)}
@@ -200,8 +200,8 @@ class PackagesTab extends mixin(StoreMixin) {
     }
 
     if (state.installModalPackage) {
-      packageName = state.installModalPackage.get('name');
-      packageVersion = state.installModalPackage.get('currentVersion');
+      packageName = state.installModalPackage.getName();
+      packageVersion = state.installModalPackage.getCurrentVersion();
     }
 
     let packages = CosmosPackagesStore.getAvailablePackages();
@@ -221,8 +221,7 @@ class PackagesTab extends mixin(StoreMixin) {
             className="flex-grow"
             placeholder="Search"
             searchString={state.searchString}
-            handleFilterChange={this.handleSearchStringChange}
-            inverseStyle={true} />
+            handleFilterChange={this.handleSearchStringChange} />
         </div>
         {this.getSelectedPackagesGrid(gridPackages)}
         {this.getPackagesTable(tablePackages)}
@@ -237,7 +236,12 @@ class PackagesTab extends mixin(StoreMixin) {
 }
 
 PackagesTab.contextTypes = {
-  router: React.PropTypes.func
+  router: routerShape
+};
+
+PackagesTab.routeConfig = {
+  label: 'Packages',
+  matches: /^\/universe\/packages/
 };
 
 module.exports = PackagesTab;

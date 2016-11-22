@@ -1,14 +1,13 @@
 jest.dontMock('../AppReducer');
 jest.dontMock('../../config/Config');
-jest.dontMock('../../mixins/GetSetMixin');
 jest.dontMock('../../stores/ConfigStore');
 
-var deepEqual = require('deep-equal');
+const deepEqual = require('deep-equal');
 
-var EventTypes = require('../../constants/EventTypes');
-var PluginSDK = require('PluginSDK');
-var PluginConstants = require('../../constants/PluginConstants');
-var PluginTestUtils = require('PluginTestUtils');
+const EventTypes = require('../../constants/EventTypes');
+const PluginSDK = require('PluginSDK');
+const PluginConstants = require('../../constants/PluginConstants');
+const PluginTestUtils = require('PluginTestUtils');
 
 // Get State specific to Application
 function getApplicationState() {
@@ -131,7 +130,7 @@ describe('AppReducer', function () {
     PluginSDK.dispatch({
       type: EventTypes.APP_STORE_CHANGE,
       storeID: 'foo',
-      data: data
+      data
     });
     var state = getApplicationState();
 

@@ -5,30 +5,31 @@ jest.dontMock('../../../components/modals/InstallPackageModal');
 jest.dontMock('../../../stores/CosmosPackagesStore');
 jest.dontMock('../../../../../tests/_fixtures/cosmos/package-describe.json');
 
-var JestUtil = require('../../../utils/JestUtil');
-
-JestUtil.unMockStores(['CosmosPackagesStore']);
-
-// Setting useFixtures for when we load StoreMixinConfig
-var Config = require('../../../config/Config');
+// Setting useFixtures for when we load CosmosPackagesStore/CosmosPackageActions
+/* eslint-disable import/newline-after-import */
+const Config = require('../../../config/Config');
 var configUseFixtures = Config.useFixtures;
 Config.useFixtures = true;
-require('../../../utils/StoreMixinConfig');
+require('../../../stores/CosmosPackagesStore');
 Config.useFixtures = configUseFixtures;
-/* eslint-disable no-unused-vars */
-var React = require('react');
-/* eslint-enable no-unused-vars */
-var ReactDOM = require('react-dom');
-var TestUtils = require('react-addons-test-utils');
+/* eslint-enable import/newline-after-import */
 
-var PackageDetailTab = require('../PackageDetailTab');
+/* eslint-disable no-unused-vars */
+const React = require('react');
+/* eslint-enable no-unused-vars */
+const ReactDOM = require('react-dom');
+const TestUtils = require('react-addons-test-utils');
+
+const PackageDetailTab = require('../PackageDetailTab');
 
 describe('PackageDetailTab', function () {
 
   beforeEach(function () {
     this.container = document.createElement('div');
     this.instance = ReactDOM.render(
-      <PackageDetailTab params={{packageName: 'marathon'}} />,
+      <PackageDetailTab
+        params={{packageName: 'marathon'}}
+        location={{query: {version: 1}}} />,
       this.container
     );
   });
@@ -50,8 +51,7 @@ describe('PackageDetailTab', function () {
         .querySelector('.button.button-success');
       TestUtils.Simulate.click(installButton);
 
-      expect(this.instance.handleInstallModalOpen
-          .calls.mostRecent().args[0].get('package').name).toEqual('marathon');
+      expect(this.instance.handleInstallModalOpen).toHaveBeenCalled();
     });
 
   });
@@ -160,14 +160,6 @@ describe('PackageDetailTab', function () {
 
   describe('#mapLicenses', function () {
 
-    it('returns empty array for null', function () {
-      expect(this.instance.mapLicenses(null)).toEqual([]);
-    });
-
-    it('returns array for undefined', function () {
-      expect(this.instance.mapLicenses(undefined)).toEqual([]);
-    });
-
     it('returns array for empty array', function () {
       expect(this.instance.mapLicenses([])).toEqual([]);
     });
@@ -196,7 +188,7 @@ describe('PackageDetailTab', function () {
 
   describe('#render', function () {
 
-    it('should call getErrorScreen when error occured', function () {
+    it('should call getErrorScreen when error occurred', function () {
       this.instance.state.hasError = true;
       this.instance.getErrorScreen = jasmine.createSpy('getErrorScreen');
 
@@ -204,7 +196,7 @@ describe('PackageDetailTab', function () {
       expect(this.instance.getErrorScreen).toHaveBeenCalled();
     });
 
-    it('ignores getErrorScreen when error has not occured', function () {
+    it('ignores getErrorScreen when error has not occurred', function () {
       this.instance.state.hasError = false;
       this.instance.getErrorScreen = jasmine.createSpy('getErrorScreen');
 
@@ -228,7 +220,7 @@ describe('PackageDetailTab', function () {
       expect(this.instance.getLoadingScreen).not.toHaveBeenCalled();
     });
 
-    it('ignores getLoadingScreen when error has occured', function () {
+    it('ignores getLoadingScreen when error has occurred', function () {
       this.instance.state.hasError = true;
       this.instance.state.isLoading = true;
       this.instance.getLoadingScreen = jasmine.createSpy('getLoadingScreen');

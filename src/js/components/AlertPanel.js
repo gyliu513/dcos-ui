@@ -1,59 +1,77 @@
-var classNames = require('classnames');
-var React = require('react');
+import classNames from 'classnames/dedupe';
+import React from 'react';
 
-var Panel = require('./Panel');
+import Panel from './Panel';
 
 var AlertPanel = React.createClass({
 
   displayName: 'AlertPanel',
 
+  defaultProps: {
+    icon: null
+  },
+
   propTypes: {
     title: React.PropTypes.string,
+    icon: React.PropTypes.node,
     iconClassName: React.PropTypes.string
   },
 
-  getTitle: function () {
+  getTitle() {
     return (
-      <h3 className="inverse flush-top">
+      <h3 className="flush-top" key="heading">
         {this.props.title}
       </h3>
     );
   },
 
-  getIcon: function () {
-    let classes = this.props.iconClassName;
-    if (!classes) {
+  // TODO: Use iconIDs instead of icon classes.
+  getIcon() {
+    let {icon, iconClassName} = this.props;
+
+    if (!!icon) {
+      return icon;
+    }
+
+    if (!iconClassName) {
       return null;
     }
 
     return (
-      <i className={classes}></i>
+      <i className={iconClassName} key="icon"></i>
     );
   },
 
-  render: function () {
-    var classes = {
-      'container container-fluid container-pod': true
-    };
-    if (this.props.className) {
-      classes[this.props.className] = true;
-    }
-
-    var classSet = classNames(classes);
+  render() {
+    let classes = classNames(
+      'panel alert-panel text-align-center flush-bottom',
+      this.props.className
+    );
 
     return (
-      <div className={classSet}>
-        <Panel ref="panel"
-          className="panel panel-inverse vertical-center horizontal-center
-            text-align-center flush-bottom alert-panel"
-          footer={this.props.footer}
-          footerClass="panel-footer flush-top"
-          heading={this.getIcon()}
-          headingClass="panel-header no-border flush-bottom">
-          {this.getTitle()}
-          {this.props.children}
-        </Panel>
-      </div>
+      <Panel ref="panel"
+        className={classes}
+        contentClass={{
+          'panel-cell-narrow': false,
+          'panel-cell-short': false
+        }}
+        footer={this.props.footer}
+        footerClass={{
+          'panel-cell-narrow': false,
+          'panel-cell-short': false
+        }}
+        heading={this.getIcon()}
+        headingClass={[
+          'panel-cell-borderless flush-bottom',
+          {
+            'panel-cell-narrow': false,
+            'panel-cell-shorter': false,
+            'panel-cell-light': false
+          }
+        ]}>
+        {this.getTitle()}
+        {this.props.children}
+      </Panel>
     );
   }
 });

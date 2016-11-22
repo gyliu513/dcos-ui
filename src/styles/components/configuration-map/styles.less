@@ -1,0 +1,201 @@
+& when (@configuration-map-enabled) {
+
+  .configuration-map {
+
+    &-section {
+      margin-bottom: @configuration-map-section-margin-bottom;
+
+      .configuration-map {
+
+        &-heading {
+
+          &:first-child {
+            margin-top: 0;
+          }
+        }
+      }
+    }
+
+    &-heading {
+
+      &-primary {
+        border-bottom: 1px solid @configuration-map-border-color;
+        padding-bottom: @base-spacing-unit * 1/4;
+      }
+    }
+
+    &-row {
+      display: flex;
+
+      & + .configuration-map {
+
+        &-row {
+          border-top: 1px solid @configuration-map-border-color;
+        }
+      }
+    }
+
+    &-label,
+    &-value {
+      padding: @base-spacing-unit * 1/4 0;
+    }
+
+    &-label {
+      color: @neutral;
+      flex: 0 0 @configuration-map-label-width;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    &-value {
+      flex: 1 1 auto;
+
+      &-stacked {
+        padding: 0;
+
+        .configuration-map {
+
+          &-value {
+            border-bottom: 1px dotted @configuration-map-border-color;
+            display: block;
+
+            &:last-child {
+              border-bottom: none;
+            }
+          }
+        }
+      }
+    }
+
+    &-table {
+
+      &-label {
+        width: @configuration-map-label-width;
+      }
+    }
+  }
+}
+
+& when (@configuration-map-enabled) and (@layout-screen-small-enabled) {
+
+  @media (min-width: @layout-screen-small-min-width) {
+
+    .configuration-map {
+
+      &-section {
+        margin-bottom: @configuration-map-section-margin-bottom-screen-small;
+      }
+
+      &-heading {
+
+        &-primary {
+          padding-bottom: @base-spacing-unit-screen-small * 1/4;
+        }
+      }
+
+      &-label {
+        flex-basis: @configuration-map-label-width-screen-small;
+      }
+
+      &-table {
+
+        &-label {
+          width: @configuration-map-label-width-screen-small;
+        }
+      }
+    }
+  }
+}
+
+& when (@configuration-map-enabled) and (@layout-screen-medium-enabled) {
+
+  @media (min-width: @layout-screen-medium-min-width) {
+
+    .configuration-map {
+
+      &-section {
+        margin-bottom: @configuration-map-section-margin-bottom-screen-medium;
+      }
+
+      &-heading {
+
+        &-primary {
+          padding-bottom: @base-spacing-unit-screen-medium * 1/4;
+        }
+      }
+
+      &-label {
+        flex-basis: @configuration-map-label-width-screen-medium;
+      }
+
+      &-table {
+
+        &-label {
+          width: @configuration-map-label-width-screen-medium;
+        }
+      }
+    }
+  }
+}
+
+& when (@configuration-map-enabled) and (@layout-screen-large-enabled) {
+
+  @media (min-width: @layout-screen-large-min-width) {
+
+    .configuration-map {
+
+      &-section {
+        margin-bottom: @configuration-map-section-margin-bottom-screen-large;
+      }
+
+      &-heading {
+
+        &-primary {
+          padding-bottom: @base-spacing-unit-screen-large * 1/4;
+        }
+      }
+
+      &-label {
+        flex-basis: @configuration-map-label-width-screen-large;
+      }
+
+      &-table {
+
+        &-label {
+          width: @configuration-map-label-width-screen-large;
+        }
+      }
+    }
+  }
+}
+
+& when (@configuration-map-enabled) and (@layout-screen-jumbo-enabled) {
+
+  @media (min-width: @layout-screen-jumbo-min-width) {
+
+    .configuration-map {
+
+      &-section {
+        margin-bottom: @configuration-map-section-margin-bottom-screen-jumbo;
+      }
+
+      &-heading {
+
+        &-primary {
+          padding-bottom: @base-spacing-unit-screen-jumbo * 1/4;
+        }
+      }
+
+      &-label {
+        flex-basis: @configuration-map-label-width-screen-jumbo;
+      }
+
+      &-table {
+
+        &-label {
+          width: @configuration-map-label-width-screen-jumbo;
+        }
+      }
+    }
+  }
+}

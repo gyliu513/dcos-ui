@@ -1,5 +1,5 @@
 import {createStore, combineReducers, applyMiddleware, compose} from 'redux';
-import {Store as fluxStore} from 'mesosphere-shared-reactjs';
+import {StoreMixin} from 'mesosphere-shared-reactjs';
 
 import {APPLICATION} from '../constants/PluginConstants';
 import {APP_STORE_CHANGE} from '../constants/EventTypes';
@@ -12,11 +12,12 @@ import PluginSDKStruct from './PluginSDKStruct';
 import Loader from './Loader';
 import PluginModules from './PluginModules';
 
+const hooks = new Hooks();
 const initialState = {};
 const middleware = [ActionsPubSub.pub];
 const PLUGIN_ENV_CACHE = [];
 const REGISTERED_ACTIONS = {};
-const EXISTING_FLUX_STORES = {};
+let existingFluxStores = {};
 
 const constants = {
   APPLICATION,
@@ -95,7 +96,11 @@ const initialize = function (pluginsConfig) {
 
   replaceStoreReducers();
 
-  Hooks.notifyPluginsLoaded();
+  // Allows plugins to do things before the application ever renders
+  let promises = hooks.applyFilter('pluginsLoadedCheck', []);
+  Promise.all(promises).then(function () {
+    hooks.doAction('pluginsConfigured');
+  });
 };
 
 /**
@@ -194,33 +199,18 @@ const getActionsAPI = function (SDK) {
  * @param  {Object} definition - Store definition
  * @return {Object}            - Created store
  */
-const createPluginStore = function (definition) {
-  // Extend with event handling to reduce boilerplate.
-  definition = Object.assign({}, {
-    addChangeListener: function (eventName, callback) {
-      this.on(eventName, callback);
-    },
-    removeChangeListener: function (eventName, callback) {
-      this.removeListener(eventName, callback);
-    }
-  }, definition);
-
-  if (definition.mixinEvents) {
+const addStoreConfig = function (definition) {
+  if (definition) {
     if (!definition.storeID) {
       throw new Error('Must define a valid storeID to expose events');
     }
-    if (definition.storeID in EXISTING_FLUX_STORES) {
+    if (definition.storeID in existingFluxStores) {
       throw new Error(`Store with ID ${definition.storeID} already exists.`);
     }
-    EXISTING_FLUX_STORES[definition.storeID] = true;
-    // Create Store (same as used in core application)
-    definition = fluxStore.createStore(definition);
-    // Register events with StoreMixinConfig. Only import this as needed
+    existingFluxStores[definition.storeID] = definition;
+    // Register events with StoreMixin. Only import this as needed
     // because its presence will degrade test performance.
-    getApplicationModuleAPI().get('StoreMixinConfig')
-      .add(definition.storeID,
-        Object.assign({}, definition.mixinEvents, {store: definition})
-      );
+    StoreMixin.store_configure(existingFluxStores);
   }
 
   return definition;
@@ -273,14 +263,14 @@ const getSDK = function (pluginID, config) {
   }
 
   let SDK = new PluginSDKStruct({
-    config: config || {},
-    createStore: createPluginStore,
-    dispatch: createDispatcher(pluginID),
-    Store: StoreAPI,
-    Hooks,
-    pluginID,
+    addStoreConfig,
+    constants,
     onDispatch,
-    constants
+    pluginID,
+    config: config || {},
+    dispatch: createDispatcher(pluginID),
+    Hooks: hooks,
+    Store: StoreAPI
   });
 
   extendSDK(SDK, getActionsAPI(SDK));

@@ -1,6 +1,6 @@
 jest.dontMock('../DateUtil');
 
-var DateUtil = require('../DateUtil');
+const DateUtil = require('../DateUtil');
 
 describe('DateUtil', function () {
   describe('#msToDateStr', function () {
@@ -11,7 +11,7 @@ describe('DateUtil', function () {
 
       var result = DateUtil.msToDateStr(christmasValue);
 
-      expect(result).toEqual('12-25-15 at 8:13 am');
+      expect(result).toEqual('12-25-2015 at 8:13am');
     });
 
     it('should return the correct string for PM', function () {
@@ -20,7 +20,7 @@ describe('DateUtil', function () {
 
       var result = DateUtil.msToDateStr(halloweenValue);
 
-      expect(result).toEqual('10-31-15 at 8:30 pm');
+      expect(result).toEqual('10-31-2015 at 8:30pm');
     });
 
     it('can handle older dates', function () {
@@ -29,17 +29,44 @@ describe('DateUtil', function () {
 
       var result = DateUtil.msToDateStr(specialDayValue);
 
-      expect(result).toEqual('10-19-93 at 11:29 am');
+      expect(result).toEqual('10-19-1993 at 11:29am');
     });
   });
 
-  describe('#dateToRelativeTime', function () {
+  describe('#msToRelativeTime', function () {
+    it('defaults to returning the suffix', function () {
+      let date = new Date();
+      date.setYear(date.getFullYear() - 1);
+      let result = DateUtil.msToRelativeTime(date.getTime());
+
+      expect(result).toEqual('a year ago');
+    });
+
+    it('suppresses the suffix if specified', function () {
+      let date = new Date();
+      date.setYear(date.getFullYear() - 1);
+      let result = DateUtil.msToRelativeTime(date.getTime(), true);
+
+      expect(result).toEqual('a year');
+    });
+
     it('returns "in a year" if the date in a year from now', function () {
       let date = new Date();
       date.setYear(date.getFullYear() + 1);
-      let result = DateUtil.dateToRelativeTime(date);
+      let result = DateUtil.msToRelativeTime(date);
 
       expect(result).toEqual('in a year');
+    });
+  });
+
+  describe('#strToMs', function () {
+    it('returns value of date in ms', function () {
+      expect(DateUtil.strToMs('1990-01-03T00:00:00Z-1')).toEqual(631324800000);
+    });
+
+    it('returns null if the string is undefined or null', function () {
+      expect(DateUtil.strToMs(null)).toEqual(null);
+      expect(DateUtil.strToMs(undefined)).toEqual(null);
     });
   });
 });

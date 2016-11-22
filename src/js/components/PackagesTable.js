@@ -1,13 +1,15 @@
 import classNames from 'classnames';
 import React from 'react';
+import {ResourceTableUtil} from 'foundation-ui';
 import {Table} from 'reactjs-components';
 
 import CosmosPackagesStore from '../stores/CosmosPackagesStore';
+import defaultServiceImage from '../../../plugins/services/src/img/icon-service-default-small@2x.png';
+import Image from './Image';
 import PackagesTableHeaderLabels from '../constants/PackagesTableHeaderLabels';
-import ResourceTableUtil from '../utils/ResourceTableUtil';
 import TableUtil from '../utils/TableUtil';
-import UniversePackagesList from '../structs/UniversePackagesList';
 import UninstallPackageModal from './modals/UninstallPackageModal';
+import UniversePackagesList from '../structs/UniversePackagesList';
 
 const METHODS_TO_BIND = [
   'getHeadline',
@@ -44,7 +46,7 @@ class PackagesTable extends React.Component {
 
   getClassName(prop, sortBy, row) {
     return classNames({
-      'highlight': prop === sortBy.prop,
+      'active': prop === sortBy.prop,
       'clickable': prop === 'appId' && row == null, // this is a header
       'text-align-right': prop === 'uninstall'
     });
@@ -73,7 +75,7 @@ class PackagesTable extends React.Component {
         headerClassName: getClassName,
         heading,
         prop: 'version',
-        render: function (prop, cosmosPackage) {
+        render(prop, cosmosPackage) {
           return cosmosPackage.getCurrentVersion();
         },
         sortable: false
@@ -81,7 +83,7 @@ class PackagesTable extends React.Component {
       {
         className: getClassName,
         headerClassName: getClassName,
-        heading: function () {},
+        heading() {},
         prop: 'uninstall',
         render: this.getUninstallButton,
         sortable: false
@@ -104,9 +106,11 @@ class PackagesTable extends React.Component {
     let name = cosmosPackage.getAppIdName();
 
     return (
-      <div className="package-table-heading flex-box flex-box-align-vertical-center table-cell-flex-box">
-        <span className="icon icon-small icon-image-container icon-app-container">
-          <img src={packageImages['icon-small']} />
+      <div className="package-table-heading table-cell-emphasized flex-box flex-box-align-vertical-center table-cell-flex-box">
+        <span className="icon icon-margin-right icon-small icon-image-container icon-app-container">
+          <Image
+            fallbackSrc={defaultServiceImage}
+            src={packageImages['icon-small']} />
         </span>
         <span className="headline text-overflow">
           {name}
@@ -132,7 +136,7 @@ class PackagesTable extends React.Component {
     return (
       <div>
         <Table
-          className="table inverse table-borderless-outer table-borderless-inner-columns flush-bottom"
+          className="table table-borderless-outer table-borderless-inner-columns flush-bottom"
           columns={this.getColumns()}
           colGroup={this.getColGroup()}
           data={this.props.packages.getItems().slice()}

@@ -1,4 +1,4 @@
-var React = require('react');
+import React from 'react';
 
 var ChartStripes = React.createClass({
 
@@ -10,14 +10,14 @@ var ChartStripes = React.createClass({
     width: React.PropTypes.number.isRequired
   },
 
-  getStripes: function (props) {
+  getStripes(props) {
     var count = props.count;
     var width = props.width / (2 * count);
 
     return Array(count).fill().map(function (v, i) {
       // indent with margin, start one width length in
       // and add two times width per step
-      var position = width + i * 2 * width;
+      var position = width + (i * 2 * width);
 
       return (
         <rect key={i}
@@ -30,7 +30,7 @@ var ChartStripes = React.createClass({
     });
   },
 
-  render: function () {
+  render() {
     return (
       <g>
         {this.getStripes(this.props)}

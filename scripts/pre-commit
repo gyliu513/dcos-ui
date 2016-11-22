@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+SCRIPT_PATH="$(dirname "$0")/$(dirname "$(readlink "$0")")"
+
+# Import utils
+source ${SCRIPT_PATH}/utils/git
+source ${SCRIPT_PATH}/utils/message
+
+title "Run pre-commit hook..."
+
+# Get a list of staged javascript files and only lint and test changed files
+staged_javascript_files=$(get_staged_files_with_name '*.js');
+if [ -n "${staged_javascript_files}" ]
+then
+  header "Lint staged JavaScript files..."
+  npm run eslint --silent -- ${staged_javascript_files} || exit $?
+  info "Staged JavaScript looks good"
+
+  header "Test staged JavaScript files.."
+  npm run test --silent -- --findRelatedTests \
+    ${staged_javascript_files} || exit $?
+fi
+
+
+
+# Get a list of staged less files and only lint changed files
+staged_less_files=$(get_staged_files_with_name '*.less');
+if [ -n "${staged_less_files}" ]
+then
+  header "Lint staged Less files..."
+  npm run stylelint --silent -- ${staged_less_files} || exit $?
+  info "Staged Less looks good"
+fi

@@ -6,26 +6,23 @@ jest.dontMock('../../../mixins/InternalStorageMixin');
 jest.dontMock('../../../stores/CosmosPackagesStore');
 jest.dontMock('../../../../../tests/_fixtures/cosmos/packages-search.json');
 
-var JestUtil = require('../../../utils/JestUtil');
+/* eslint-disable no-unused-vars */
+const React = require('react');
+/* eslint-enable no-unused-vars */
+const ReactDOM = require('react-dom');
+const TestUtils = require('react-addons-test-utils');
 
-JestUtil.unMockStores(['CosmosPackagesStore']);
-
-// Setting useFixtures for when we load StoreMixinConfig
-var Config = require('../../../config/Config');
+// Setting useFixtures for when we load CosmosPackagesStore/CosmosPackageActions
+/* eslint-disable import/newline-after-import */
+const Config = require('../../../config/Config');
 var configUseFixtures = Config.useFixtures;
 Config.useFixtures = true;
-require('../../../utils/StoreMixinConfig');
+const CosmosPackagesStore = require('../../../stores/CosmosPackagesStore');
 Config.useFixtures = configUseFixtures;
+/* eslint-enable import/newline-after-import */
 
-/* eslint-disable no-unused-vars */
-var React = require('react');
-/* eslint-enable no-unused-vars */
-var ReactDOM = require('react-dom');
-var TestUtils = require('react-addons-test-utils');
-
-var CosmosPackagesStore = require('../../../stores/CosmosPackagesStore');
-var PackagesTab = require('../PackagesTab');
-var UniversePackagesList = require('../../../structs/UniversePackagesList');
+const PackagesTab = require('../PackagesTab');
+const UniversePackagesList = require('../../../structs/UniversePackagesList');
 
 describe('PackagesTab', function () {
 
@@ -71,7 +68,7 @@ describe('PackagesTab', function () {
         jasmine.createSpy('handleInstallModalOpen');
       this.instance.context = {
         router: {
-          transitionTo: jasmine.createSpy()
+          push: jasmine.createSpy()
         }
       };
       jest.runAllTimers();

@@ -3,12 +3,12 @@ jest.dontMock('../DialSlice');
 jest.dontMock('../../../mixins/InternalStorageMixin');
 jest.dontMock('classnames');
 /* eslint-disable no-unused-vars */
-var React = require('react');
+const React = require('react');
 /* eslint-enable no-unused-vars */
-var ReactDOM = require('react-dom');
-var TestUtils = require('react-addons-test-utils');
+const ReactDOM = require('react-dom');
+const TestUtils = require('react-addons-test-utils');
 
-var DialChart = require('../DialChart');
+const DialChart = require('../DialChart');
 
 var getInstanceWithProps = function (props, container) {
   return ReactDOM.render(
@@ -92,7 +92,7 @@ describe('DialChart', function () {
 
     it('when no data is present, it renders a single \'empty\' slice to the DOM', function () {
       this.instance = getInstanceWithProps({
-        slices: [ { name: 'TASK_1' }, { name: 'TASK_2' } ],
+        slices: [{ name: 'TASK_1' }, { name: 'TASK_2' }],
         data: []
       }, this.container);
       var slices = TestUtils.scryRenderedDOMComponentsWithClass(
@@ -110,8 +110,8 @@ describe('DialChart', function () {
 
     it('does not remove 0-length slices from the DOM', function () {
       this.instance = getInstanceWithProps({
-        slices: [ { name: 'TASK_1' }, { name: 'TASK_2' } ],
-        data: [ { name: 'TASK_1', value: 4 } ]
+        slices: [{ name: 'TASK_1' }, { name: 'TASK_2' }],
+        data: [{ name: 'TASK_1', value: 4 }]
       }, this.container);
       var slices = TestUtils.scryRenderedDOMComponentsWithClass(
         this.instance, 'arc'

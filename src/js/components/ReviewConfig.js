@@ -1,9 +1,12 @@
+import classNames from 'classnames';
 import GeminiScrollbar from 'react-gemini-scrollbar';
 import React from 'react';
 
+import defaultServiceImage from '../../../plugins/services/src/img/icon-service-default-small@2x.png';
 import DescriptionList from './DescriptionList';
 import GeminiUtil from '../utils/GeminiUtil';
-import IconDownload from './icons/IconDownload';
+import Icon from './Icon';
+import Image from './Image';
 
 class ReviewConfig extends React.Component {
   componentDidMount() {
@@ -31,14 +34,16 @@ class ReviewConfig extends React.Component {
     };
 
     return (
-      <div className="modal-header modal-header-padding-narrow modal-header-bottom-border modal-header-white flex-no-shrink">
+      <div className="modal-header flex-item-shrink-0">
         <div className="row">
           <div className="column-4">
             <div className="media-object-spacing-wrapper media-object-spacing-narrow media-object-offset">
               <div className="media-object media-object-align-middle">
                 <div className="media-object-item">
-                  <div className="icon icon-sprite icon-sprite-medium icon-sprite-medium-color icon-image-container icon-app-container icon-default-white">
-                    <img src={packageIcon} />
+                  <div className="icon icon-medium icon-image-container icon-app-container icon-default-white">
+                    <Image
+                      fallbackSrc={defaultServiceImage}
+                      src={packageIcon} />
                   </div>
                 </div>
                 <div className="media-object-item">
@@ -58,7 +63,7 @@ class ReviewConfig extends React.Component {
               onClick={ieDownloadConfig}
               download={fileName}
               href={`data:attachment/json;content-disposition=attachment;filename=${fileName};charset=utf-8,${encodeURIComponent(configString)}`}>
-              <IconDownload /> Download config.json
+              <Icon family="mini" id="download" size="mini" /> Download config.json
             </a>
           </div>
         </div>
@@ -66,8 +71,10 @@ class ReviewConfig extends React.Component {
     );
   }
 
-  getFieldTitle(title) {
-    return <h3 key={`${title}-header`}>{title}</h3>;
+  getFieldTitle(title, index) {
+    let classes = classNames({'flush-top': index === 0});
+
+    return <h3 className={classes} key={`${title}-header`}>{title}</h3>;
   }
 
   getFieldSubheader(title) {
@@ -81,7 +88,7 @@ class ReviewConfig extends React.Component {
 
     fields.forEach((field, i) => {
       var fieldObj = configuration[field];
-      elementsToRender.push(this.getFieldTitle(field));
+      elementsToRender.push(this.getFieldTitle(field, i));
 
       Object.keys(fieldObj).forEach((fieldKey) => {
         let fieldValue = fieldObj[fieldKey];
@@ -114,8 +121,8 @@ class ReviewConfig extends React.Component {
       <DescriptionList
         hash={hash}
         key={key}
-        ddClassName="column-6"
-        dtClassName="column-6 emphasize"/>
+        ddClassName="column-6 text-color-neutral"
+        dtClassName="column-6"/>
     );
   }
 
@@ -123,8 +130,8 @@ class ReviewConfig extends React.Component {
     return (
       <div className={this.props.className}>
         {this.getHeader()}
-        <GeminiScrollbar ref="gemini" className="review-config modal-content" autoshow={true}>
-          <div className="modal-content-inner container container-pod container-pod-short flush-top flush-bottom flex-grow">
+        <GeminiScrollbar autoshow={true} className="review-config" ref="gemini">
+          <div className="modal-body flush-top flush-bottom">
             {this.getDefinitionReview()}
           </div>
         </GeminiScrollbar>
@@ -134,7 +141,7 @@ class ReviewConfig extends React.Component {
 }
 
 ReviewConfig.defaultProps = {
-  className: 'flex-container-col'
+  className: 'modal-install-package-body-and-header'
 };
 
 ReviewConfig.propTypes = {

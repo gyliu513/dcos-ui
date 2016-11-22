@@ -2,9 +2,11 @@ import mixin from 'reactjs-mixin';
 /* eslint-disable no-unused-vars */
 import React from 'react';
 /* eslint-enable no-unused-vars */
-import {RouteHandler} from 'react-router';
+import {routerShape} from 'react-router';
 
+import Icon from '../components/Icon';
 import Page from '../components/Page';
+import RouterUtil from '../utils/RouterUtil';
 import SidebarActions from '../events/SidebarActions';
 import TabsMixin from '../mixins/TabsMixin';
 
@@ -20,26 +22,30 @@ class UniversePage extends mixin(TabsMixin) {
     this.updateCurrentTab();
   }
 
-  componentWillReceiveProps() {
-    this.updateCurrentTab();
+  componentWillReceiveProps(nextProps) {
+    this.updateCurrentTab(nextProps);
   }
 
-  updateCurrentTab() {
-    let routes = this.context.router.getCurrentRoutes();
-    let currentTab = routes[routes.length - 1].name;
+  updateCurrentTab(nextProps) {
+    let {routes} = nextProps || this.props;
+    let currentTab = RouterUtil.reconstructPathFromRoutes(routes);
 
     // Universe Tabs
     this.tabs_tabs = {
-      'universe-packages': 'Packages',
-      'universe-installed-packages': 'Installed'
+      '/universe/packages': 'Packages',
+      '/universe/installed-packages': 'Installed'
     };
 
     this.setState({currentTab});
   }
 
   getNavigation() {
+    if (RouterUtil.shouldHideNavigation(this.props.routes)) {
+      return null;
+    }
+
     return (
-      <ul className="tabs list-inline flush-bottom inverse">
+      <ul className="menu-tabbed">
         {this.tabs_getRoutedTabs()}
       </ul>
     );
@@ -50,19 +56,19 @@ class UniversePage extends mixin(TabsMixin) {
       <Page
         title="Universe"
         navigation={this.getNavigation()}>
-        <RouteHandler />
+        {this.props.children}
       </Page>
     );
   }
 }
 
 UniversePage.contextTypes = {
-  router: React.PropTypes.func
+  router: routerShape
 };
 
 UniversePage.routeConfig = {
-  label: 'Universe',
-  icon: 'universe',
+  label: 'Packages',
+  icon: <Icon id="packages-inverse" size="small" family="small" />,
   matches: /^\/universe/
 };
 

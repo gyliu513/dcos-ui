@@ -1,0 +1,43 @@
+& when (@form-elements-enabled) {
+
+  textarea {
+
+    &.form-control {
+      height: 125px;
+    }
+  }
+
+  .form-control-group-add-on {
+    white-space: nowrap;
+
+    .small {
+      display: inline-block;
+    }
+
+    a {
+      vertical-align: middle;
+    }
+  }
+
+  // TODO: Remove this when the full screen Create Service is implemented.
+  .form-control-force-narrow {
+
+    .form-control,
+    .button {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+  }
+
+  .form-colon {
+    bottom: 0.8rem;
+    left: 100%;
+    position: absolute;
+  }
+
+  .form-remove {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+}

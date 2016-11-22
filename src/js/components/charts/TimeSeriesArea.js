@@ -1,6 +1,6 @@
-var d3 = require('d3');
-var React = require('react');
-var ReactDOM = require('react-dom');
+import d3 from 'd3';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 var TimeSeriesArea = React.createClass({
 
@@ -14,7 +14,7 @@ var TimeSeriesArea = React.createClass({
     transitionTime: React.PropTypes.number.isRequired
   },
 
-  componentDidMount: function () {
+  componentDidMount() {
     var props = this.props;
 
     d3.select(ReactDOM.findDOMNode(this))
@@ -24,7 +24,7 @@ var TimeSeriesArea = React.createClass({
       .attr('transform', 'translate(' + props.position + ')');
   },
 
-  componentWillReceiveProps: function (props) {
+  componentWillReceiveProps(props) {
     d3.select(ReactDOM.findDOMNode(this)).interrupt()
       .attr('transform', null)
       .transition()
@@ -33,7 +33,7 @@ var TimeSeriesArea = React.createClass({
       .attr('transform', 'translate(' + props.position + ')');
   },
 
-  render: function () {
+  render() {
     var className = this.props.className;
 
     return (

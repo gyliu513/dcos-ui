@@ -1,8 +1,8 @@
 import classNames from 'classnames';
 import {Form, Table} from 'reactjs-components';
 import React from 'react';
+import {ResourceTableUtil} from 'foundation-ui';
 
-import ResourceTableUtil from '../utils/ResourceTableUtil';
 import TableUtil from '../utils/TableUtil';
 
 const PropTypes = React.PropTypes;
@@ -25,14 +25,18 @@ class CheckboxTable extends React.Component {
   }
 
   handleCheckboxChange(prevCheckboxState, eventObject) {
-    let {checkedItemsMap, onCheckboxChange} = this.props;
+    let {allowMultipleSelect, checkedItemsMap, onCheckboxChange} = this.props;
     let isChecked = eventObject.fieldValue;
     let rowID = eventObject.fieldName;
     let checkedIDs;
 
     if (isChecked) {
       checkedIDs = Object.keys(checkedItemsMap);
-      checkedIDs.push(rowID);
+      if (!allowMultipleSelect) {
+        checkedIDs = [rowID];
+      } else {
+        checkedIDs.push(rowID);
+      }
     } else {
       delete checkedItemsMap[rowID];
       checkedIDs = Object.keys(checkedItemsMap);
@@ -48,7 +52,11 @@ class CheckboxTable extends React.Component {
 
   bulkCheck(isChecked) {
     let checkedIDs = [];
-    let {data, onCheckboxChange, uniqueProperty} = this.props;
+    let {data, onCheckboxChange, uniqueProperty, disabledItemsMap} = this.props;
+
+    data = data.filter(function (datum) {
+      return !disabledItemsMap[datum[uniqueProperty]];
+    });
 
     if (isChecked) {
       data.forEach(function (datum) {
@@ -63,7 +71,7 @@ class CheckboxTable extends React.Component {
 
   getLabelClass() {
     return classNames(
-      'form-row-element form-element-checkbox inverse',
+      'form-row-element form-element-checkbox',
       this.props.labelClass
     );
   }
@@ -71,22 +79,34 @@ class CheckboxTable extends React.Component {
   renderHeadingCheckbox() {
     let checked = false;
     let indeterminate = false;
-    let {checkedItemsMap, data} = this.props;
-    let checkedItemsCount = Object.keys(checkedItemsMap).length;
+    let {
+      allowMultipleSelect,
+      checkedItemsMap,
+      disabledItemsMap,
+      data
+    } = this.props;
 
-    if (checkedItemsCount > 0) {
+    if (!allowMultipleSelect) {
+      return null;
+    }
+
+    let checkedCount = Object.keys(checkedItemsMap).length;
+    let disabledCount = Object.keys(disabledItemsMap).length;
+
+    if (checkedCount > 0) {
       indeterminate = true;
     } else {
       checked = false;
     }
 
-    if (checkedItemsCount === data.length && checkedItemsCount !== 0) {
+    if (disabledCount + checkedCount === data.length && checkedCount !== 0) {
       checked = true;
       indeterminate = false;
     }
 
     return (
       <Form
+        className="table-form-checkbox"
         formGroupClass="form-group flush-bottom"
         definition={[
           {
@@ -104,8 +124,13 @@ class CheckboxTable extends React.Component {
   }
 
   renderCheckbox(prop, row) {
-    let {checkedItemsMap, uniqueProperty} = this.props;
+    let {checkedItemsMap, disabledItemsMap, uniqueProperty} = this.props;
     let rowID = row[uniqueProperty];
+
+    if (disabledItemsMap[rowID]) {
+      return null;
+    }
+
     let checked = false;
 
     if (checkedItemsMap[rowID]) {
@@ -114,6 +139,7 @@ class CheckboxTable extends React.Component {
 
     return (
       <Form
+        className="table-form-checkbox"
         formGroupClass="form-group flush-bottom"
         definition={[{
           checked,
@@ -152,11 +178,11 @@ class CheckboxTable extends React.Component {
   }
 
   render() {
-    let {className, data, getColGroup, sortProp} = this.props;
+    let {className, data, getColGroup, sortOrder, sortProp} = this.props;
     let columns = this.getColumns();
 
     let tableClassSet = classNames(
-      'table inverse table-borderless-outer table-borderless-inner-columns',
+      'table table-borderless-outer table-borderless-inner-columns',
       'flush-bottom',
       className
     );
@@ -170,7 +196,7 @@ class CheckboxTable extends React.Component {
         containerSelector=".gm-scroll-view"
         data={data}
         itemHeight={TableUtil.getRowHeight()}
-        sortBy={{prop: sortProp, order: 'asc'}} />
+        sortBy={{prop: sortProp, order: sortOrder}} />
     );
   }
 }
@@ -183,6 +209,7 @@ CheckboxTable.propTypes = {
   ]),
   columns: PropTypes.array,
   data: PropTypes.array,
+  disabledItemsMap: PropTypes.object,
   getColGroup: PropTypes.func,
   labelClass: PropTypes.oneOfType([
     PropTypes.string,
@@ -190,16 +217,20 @@ CheckboxTable.propTypes = {
   ]),
   onCheckboxChange: PropTypes.func,
   sortProp: PropTypes.string,
+  sortOrder: PropTypes.string,
   uniqueProperty: PropTypes.string
 };
 
 CheckboxTable.defaultProps = {
+  allowMultipleSelect: true,
   checkedItemsMap: {},
   columns: [],
   data: [],
-  getColGroup: function () {},
+  disabledItemsMap: {},
+  getColGroup() {},
   labelClass: {},
-  onCheckboxChange: function () {}
+  onCheckboxChange() {},
+  sortOrder: 'asc'
 };
 
 module.exports = CheckboxTable;

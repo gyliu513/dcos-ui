@@ -1,4 +1,5 @@
 import EventEmitter from 'events';
+import PluginSDK from 'PluginSDK';
 
 import AppDispatcher from '../events/AppDispatcher';
 import {
@@ -22,6 +23,21 @@ import UsersActions from '../events/UsersActions';
 class UserStore extends EventEmitter {
   constructor() {
     super(...arguments);
+
+    PluginSDK.addStoreConfig({
+      store: this,
+      storeID: this.storeID,
+      events: {
+        createSuccess: USER_CREATE_SUCCESS,
+        createError: USER_CREATE_ERROR,
+        deleteSuccess: USER_DELETE_SUCCESS,
+        deleteError: USER_DELETE_ERROR
+      },
+      unmountWhen() {
+        return true;
+      },
+      listenAlways: true
+    });
 
     this.dispatcherIndex = AppDispatcher.register((payload) => {
       if (payload.source !== SERVER_ACTION) {

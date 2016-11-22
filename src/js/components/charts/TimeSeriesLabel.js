@@ -1,8 +1,8 @@
-var classNames = require('classnames');
+import classNames from 'classnames';
 import deepEqual from 'deep-equal';
-var React = require('react');
+import React from 'react';
 
-var ValueTypes = require('../../constants/ValueTypes');
+import ValueTypes from '../../constants/ValueTypes';
 
 var TimeSeriesLabel = React.createClass({
 
@@ -21,19 +21,19 @@ var TimeSeriesLabel = React.createClass({
     y: React.PropTypes.string
   },
 
-  getDefaultProps: function () {
+  getDefaultProps() {
     return {
       y: ValueTypes.PERCENTAGE,
       colorIndex: 0
     };
   },
 
-  shouldComponentUpdate: function (nextProps) {
+  shouldComponentUpdate(nextProps) {
     // If equal, do not update
     return !deepEqual(this.props, nextProps);
   },
 
-  render: function () {
+  render() {
     var props = this.props;
 
     var percentageClassSet = classNames({
@@ -42,11 +42,11 @@ var TimeSeriesLabel = React.createClass({
 
     return (
       <div className="text-align-center">
-        <span className="h1 h1-large inverse flush unit">
+        <span className="unit unit-primary">
           {props.currentValue}
           <sup className={percentageClassSet}>%</sup>
         </span>
-        <span className={'h4 unit-label flush-top tall-bottom path-color-' + props.colorIndex}>
+        <span className={'h4 unit-label flush-top path-color-' + props.colorIndex}>
           {props.subHeading}
         </span>
       </div>

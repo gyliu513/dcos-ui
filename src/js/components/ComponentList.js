@@ -3,28 +3,23 @@ import {Link} from 'react-router';
 import {List} from 'reactjs-components';
 import React from 'react';
 
-import UnitHealthUtil from '../utils/UnitHealthUtil';
+import HealthTypes from '../../../plugins/services/src/js/constants/HealthTypes';
 
 class ComponentList extends React.Component {
 
   getComponentListContent(units) {
     return units.map(function (unit) {
-
       let health = unit.getHealth();
-      let healthClasses = classNames(
-        'h4 inverse flush-top flush-bottom text-align-right',
-        health.classNames
-      );
+      let healthClasses = classNames('text-align-right', health.classNames);
+      let unitID = unit.get('id');
 
       return {
         content: [
           {
-            className: 'dashboard-health-list-item-description',
+            className: 'dashboard-health-list-item-description text-overflow',
             content: (
-              <Link to="system-overview-units-unit-nodes-detail"
-                params={{unitID: unit.get('id')}}
-                className="dashboard-health-list-item-cell h4 inverse flush-top
-                  flush-bottom clickable text-overflow">
+              <Link to={`/components/${unitID}`}
+                className="dashboard-health-list-item-cell emphasis">
                 {unit.getTitle()}
               </Link>
             ),
@@ -45,9 +40,29 @@ class ComponentList extends React.Component {
   }
 
   getVisibleComponents(units, displayCount) {
-    let sortFunction = UnitHealthUtil.getHealthSortFunction;
+    // HealthTypes gives the sorting weight.
+    units = units.sort(function (a, b) {
+      let aHealth = a.getHealth().title.toUpperCase();
+      let bHealth = b.getHealth().title.toUpperCase();
+      let comparison = HealthTypes[aHealth] - HealthTypes[bHealth];
 
-    units = units.sort(sortFunction('health'));
+      if (comparison === 0) {
+        let aTitle = a.getTitle();
+        let bTitle = b.getTitle();
+
+        if (aTitle > bTitle) {
+          return 1;
+        }
+
+        if (aTitle < bTitle) {
+          return -1;
+        }
+
+        return 0;
+      }
+
+      return comparison;
+    });
 
     if (units.length > displayCount) {
       return units.slice(0, displayCount);
@@ -58,9 +73,9 @@ class ComponentList extends React.Component {
 
   getErrorMessage() {
     return (
-      <div>
-        <h3 className="flush-top inverse text-align-center">Components Not Found</h3>
-        <p className="inverse flush text-align-center">An error has occurred.</p>
+      <div className="flex-item-align-center">
+        <h3 className="flush-top text-align-center">Components Not Found</h3>
+        <p className="flush text-align-center">An error has occurred.</p>
       </div>
     );
   }

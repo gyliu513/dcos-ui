@@ -1,7 +1,7 @@
+import PluginSDK from 'PluginSDK';
 import JestUtil from '../utils/JestUtil';
 import Loader from './Loader';
 import PluginModules from './PluginModules';
-import PluginSDK from 'PluginSDK';
 
 /**
  * Loads whatever plugins are passed in. Could be Mocks
@@ -110,7 +110,7 @@ function dontMock(moduleNames) {
     return;
   }
   // Assuming modules have unique names
-  let foundType = Object.keys(PluginModules).filter(moduleType => {
+  let foundType = Object.keys(PluginModules).filter((moduleType) => {
     return name in PluginModules[moduleType];
   });
   if (!foundType.length) {

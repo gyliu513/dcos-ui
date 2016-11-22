@@ -1,7 +1,7 @@
 // Modules to paths
 module.exports = {
   constants: {
-    FrameworkConstants: 'FrameworkConstants',
+    EventTypes: 'EventTypes',
     HTTPStatusCodes: 'HTTPStatusCodes'
   },
   events: {
@@ -9,7 +9,9 @@ module.exports = {
   },
   stores: {
     AuthStore: 'AuthStore',
+    BaseStore: 'BaseStore',
     ConfigStore: 'ConfigStore',
+    CosmosPackagesStore: 'CosmosPackagesStore',
     MetadataStore: 'MetadataStore',
     NotificationStore: 'NotificationStore',
     UsersStore: 'UsersStore',
@@ -23,13 +25,14 @@ module.exports = {
     Tree: 'Tree'
   },
   utils: {
+    ApplicationUtil: 'ApplicationUtil',
     CookieUtils: 'CookieUtils',
     DateUtil: 'DateUtil',
     DOMUtils: 'DOMUtils',
+    FormUtil: 'FormUtil',
     LocalStorageUtil: 'LocalStorageUtil',
     Maths: 'Maths',
-    ResourceTableUtil: 'ResourceTableUtil',
-    StoreMixinConfig: 'StoreMixinConfig',
+    RouterUtil: 'RouterUtil',
     StringUtil: 'StringUtil',
     TableUtil: 'TableUtil',
     TabsUtil: 'TabsUtil',
@@ -45,11 +48,14 @@ module.exports = {
     ActionsModal: 'modals/ActionsModal',
     AlertPanel: 'AlertPanel',
     Authenticated: 'Authenticated',
-    Breadcrumb: 'Breadcrumb',
+    Breadcrumbs: 'Breadcrumbs',
     Chart: 'charts/Chart',
     CheckboxTable: 'CheckboxTable',
+    ClipboardTrigger: 'ClipboardTrigger',
     ClusterHeader: 'ClusterHeader',
     ClusterName: 'ClusterName',
+    CollapsingString: 'CollapsingString',
+    DetailViewHeader: 'DetailViewHeader',
     DCOSLogo: 'DCOSLogo',
     DescriptionList: 'DescriptionList',
     FilterBar: 'FilterBar',
@@ -57,15 +63,29 @@ module.exports = {
     FilterHeadline: 'FilterHeadline',
     FilterInputText: 'FilterInputText',
     FormModal: 'FormModal',
-    IconInfo: 'icons/IconInfo',
+    Icon: 'Icon',
+    Loader: 'Loader',
     MesosphereLogo: 'icons/MesosphereLogo',
+    ModalHeading: 'modals/ModalHeading',
+    NestedServiceLinks: 'NestedServiceLinks',
     Page: 'Page',
-    PageHeader: 'PageHeader',
     RequestErrorMsg: 'RequestErrorMsg',
-    SidePanelContents: 'SidePanelContents',
-    ToggleButton: 'ToggleButton'
+    StatusBar: 'StatusBar',
+    TabForm: 'TabForm',
+    ToggleButton: 'ToggleButton',
+    Typeahead: 'Typeahead',
+    UserDropup: 'UserDropup'
   },
   config: {
     Config: 'Config'
+  },
+  systemPages: {
+    UsersTab: 'UsersTab'
+  },
+  routing: {
+    routing: 'index'
+  },
+  navigation: {
+    navigation: 'index'
   }
 };

@@ -1,10 +1,9 @@
 import {Confirm, Dropdown} from 'reactjs-components';
 import mixin from 'reactjs-mixin';
-/* eslint-disable no-unused-vars */
 import React from 'react';
-/* eslint-enable no-unused-vars */
 import {StoreMixin} from 'mesosphere-shared-reactjs';
 
+import ModalHeading from './ModalHeading';
 import StringUtil from '../../utils/StringUtil';
 import Util from '../../utils/Util';
 
@@ -37,30 +36,29 @@ class ActionsModal extends mixin(StoreMixin) {
   }
 
   componentWillMount() {
-    super.componentWillMount();
-
     this.setState({
       requestsRemaining: this.props.selectedItems.length
     });
   }
 
   componentWillUpdate(nextProps, nextState) {
-    super.componentWillUpdate(...arguments);
     let {requestsRemaining, requestErrors} = nextState;
+
     if (requestsRemaining === 0 && !requestErrors.length) {
       this.handleButtonCancel();
     }
   }
 
   componentDidUpdate() {
-    super.componentDidUpdate(...arguments);
     let {requestsRemaining} = this.state;
 
     if (requestsRemaining === 0) {
+      /* eslint-disable react/no-did-update-set-state */
       this.setState({
         pendingRequest: false,
         requestsRemaining: this.props.selectedItems.length
       });
+      /* eslint-enable react/no-did-update-set-state */
     }
   }
 
@@ -99,29 +97,44 @@ class ActionsModal extends mixin(StoreMixin) {
   }
 
   getActionsModalContents() {
-    let {actionText, itemType, selectedItems} = this.props;
+    let {itemType} = this.props;
     let {requestErrors, validationError} = this.state;
 
+    return (
+      <div className="text-align-center">
+        <p>{this.getActionsModalContentsText()}</p>
+        {this.getDropdown(itemType)}
+        {this.getErrorMessage(validationError)}
+        {this.getRequestErrorMessage(requestErrors)}
+      </div>
+    );
+  }
+
+  getActionsModalContentsText() {
+    let {actionText, itemID, selectedItems} = this.props;
+
     let selectedItemsString = '';
-    let actionContent = '';
     if (selectedItems.length === 1) {
-      selectedItemsString = selectedItems[0].description;
+      selectedItemsString = selectedItems[0][itemID];
     } else {
       // Truncate list of selected user/groups for ease of reading
       let selectedItemsShown = selectedItems.slice(0, ITEMS_DISPLAYED + 1);
 
       // Create a string concatenating n-1 items
       let selectedItemsShownMinusOne = selectedItemsShown.slice(0, -1);
-      let descriptions = selectedItemsShownMinusOne.map(function (item) {
-        return item.description;
+      let itemIDs = selectedItemsShownMinusOne.map(function (item) {
+        return item[itemID];
       });
-      descriptions.forEach(function (description) {
-        selectedItemsString += `${description}, `;
+      itemIDs.forEach(function (_itemID) {
+        selectedItemsString += `${_itemID}, `;
       });
 
       // Handle grammar for nth element and concatenate to list
       if (selectedItems.length <= ITEMS_DISPLAYED) {
-        selectedItemsString += `and ${Util.last(selectedItems).description} `;
+        // SelectedItems may be 0 length and Util.last will retun null
+        if (selectedItems.length > 0) {
+          selectedItemsString += `and ${Util.last(selectedItems)[itemID]} `;
+        }
       } else if (selectedItems.length === ITEMS_DISPLAYED + 1) {
         selectedItemsString += 'and 1 other ';
       } else {
@@ -135,20 +148,10 @@ class ActionsModal extends mixin(StoreMixin) {
       }
     }
     if (actionText.phraseFirst) {
-      actionContent = `${actionText.actionPhrase} ${selectedItemsString}.`;
+      return `${actionText.actionPhrase} ${selectedItemsString}.`;
     } else {
-      actionContent = `${selectedItemsString} ${actionText.actionPhrase}.`;
+      return `${selectedItemsString} ${actionText.actionPhrase}.`;
     }
-
-    return (
-      <div className="container-pod container-pod-short text-align-center">
-        <h3 className="flush-top">{actionText.title}</h3>
-        <p>{actionContent}</p>
-        {this.getDropdown(itemType)}
-        {this.getErrorMessage(validationError)}
-        {this.getRequestErrorMessage(requestErrors)}
-      </div>
-    );
   }
 
   getDropdown(itemType) {
@@ -157,19 +160,19 @@ class ActionsModal extends mixin(StoreMixin) {
     }
 
     return (
-      <div className="container container-pod container-pod-super-short">
-        <Dropdown
-          buttonClassName="button dropdown-toggle"
-          dropdownMenuClassName="dropdown-menu"
-          dropdownMenuListClassName="dropdown-menu-list"
-          dropdownMenuListItemClassName="clickable"
-          initialID={DEFAULT_ID}
-          items={this.getDropdownItems(itemType)}
-          onItemSelection={this.handleItemSelection}
-          transition={true}
-          transitionName="dropdown-menu"
-          wrapperClassName="dropdown text-align-left" />
-      </div>
+      <Dropdown
+        buttonClassName="button dropdown-toggle"
+        dropdownMenuClassName="dropdown-menu"
+        dropdownMenuListClassName="dropdown-menu-list"
+        dropdownMenuListItemClassName="clickable"
+        initialID={DEFAULT_ID}
+        items={this.getDropdownItems(itemType)}
+        onItemSelection={this.handleItemSelection}
+        scrollContainer=".gm-scroll-view"
+        scrollContainerParentSelector=".gm-prevented"
+        transition={true}
+        transitionName="dropdown-menu"
+        wrapperClassName="dropdown text-align-left" />
     );
   }
 
@@ -205,17 +208,22 @@ class ActionsModal extends mixin(StoreMixin) {
       return null;
     }
 
+    let heading = (
+      <ModalHeading>
+        {this.props.actionText.title}
+      </ModalHeading>
+    );
+
     return (
       <Confirm
         disabled={this.state.pendingRequest}
-        dynamicHeight={false}
-        footerContainerClass="container container-pod container-pod-short
-          container-pod-fluid flush-top flush-bottom"
+        header={heading}
         open={!!action}
         onClose={this.handleButtonCancel}
         leftButtonCallback={this.handleButtonCancel}
         rightButtonCallback={this.handleButtonConfirm}
         rightButtonText={StringUtil.capitalize(action)}
+        showHeader={true}
         useGemini={false}
         {...props}>
         {this.getActionsModalContents()}

@@ -1,0 +1,180 @@
+{
+  "id": "foo",
+  "description": "Foo Description",
+  "labels": {
+    "name": "foo",
+    "project": "metronome",
+    "stage": "test"
+  },
+  "schedules": [
+    {
+      "id": "every-once-in-a-while",
+      "description": "lorem ipsum",
+      "cron": "0 1 6 9 *",
+      "timezone": "America/Chicago",
+      "startingDeadlineSeconds": 60,
+      "concurrencyPolicy": "ALLOW",
+      "enabled": true,
+      "nextRunAt": "1990-01-02T00:00:00Z"
+    }
+  ],
+  "run": {
+    "cpus": 1,
+    "mem": 1,
+    "disk": 1,
+    "artifacts": [
+      {
+        "uri": "https://foo.com/archive.zip",
+        "executable": false,
+        "extract": true,
+        "cache": true
+      }
+    ],
+    "placement": {
+      "constraints": [
+        {
+          "attribute": "hostname",
+          "operator": "LIKE",
+          "value": ".*PROD.*"
+        }
+      ]
+    },
+    "cmd": "/foo",
+    "args": [
+      
+    ],
+    "user": "marathon",
+    "env": {
+      "DRY_RUN": "false",
+      "ZK": "zk://master.mesos:2181/marathon"
+    },
+    "docker": {
+      "image": "mesosphere/foo"
+    },
+    "volumes": [
+      {
+        "containerPath": "/logs",
+        "hostPath": "/var/log/mesosphere/foo",
+        "mode": "RW"
+      }
+    ],
+    "restart": {
+      "policy": "NEVER",
+      "activeDeadlineSeconds": 120
+    }
+  },
+  "status": {
+    "successCount": 1,
+    "failureCount": 1,
+    "lastSuccessAt": "1990-01-02T00:00:00Z",
+    "lastFailureAt": "1989-03-01T00:10:15.957Z",
+    "nextScheduledRunAt": "1990-01-02T00:00:00Z"
+  },
+  "activeRuns": [
+    {
+      "id": "foo.1990-01-03t00:00:00z-1",
+      "jobId": "foo",
+      "status": "SUCCESS",
+      "createdAt": "1990-01-03t00:00:00z-1",
+      "completedAt": "1990-01-03T00:00:09Z-1",
+      "tasks": [
+        {
+          "id": "foo.1990-01-03t00:00:00z-1.68d65242-1838-11e6-8d2d-5ec97000bce0",
+          "startedAt": "1990-01-03T00:00:02Z-1",
+          "completedAt": "1990-01-03T00:00:09Z-1",
+          "status": "TASK_FINISHED"
+        },
+        {
+          "id": "dfoo.1990-01-03t00:00:00z-1.68d65242-1838-11e6-8d2d-5ec97000bce0",
+          "startedAt": "1990-01-03T00:00:04.919Z",
+          "completedAt": "1990-01-03T00:00:09.919Z",
+          "status": "TASK_FAILED"
+        }
+      ]
+    },
+    {
+      "id": "foo.1985-01-03t00:00:00z-1",
+      "jobId": "foo",
+      "status": "ACTIVE",
+      "createdAt": "1985-01-03t00:00:00z-1",
+      "tasks": [
+        {
+          "id": "bar.1990-01-03t00:00:00z-1.68d65242-1838-11e6-8d2d-5ec97000bce0",
+          "startedAt": "1990-01-03T00:00:04.919Z",
+          "status": "TASK_STARTED"
+        },
+        {
+          "id": "dbar.1985-01-03t00:00:00z-1.68d65242-1838-11e6-8d2d-5ec97000bce0",
+          "startedAt": "1985-01-03T00:00:04.919Z",
+          "completedAt": "1985-01-03T00:00:09.919Z",
+          "status": "TASK_FAILED"
+        }
+      ]
+    }
+  ],
+  "history": {
+    "failedFinishedRuns": [
+      {
+        "createdAt": "1990-01-01T17:34:59.487+0000",
+        "finishedAt": "1990-01-01T17:34:59.982+0000",
+        "id": "20160630173459Ycmtf"
+      }
+    ],
+    "failureCount": 1,
+    "lastFailureAt": "1990-01-01T17:34:59.980+0000",
+    "lastSuccessAt": "1990-01-02T12:11:19.762+0000",
+    "successCount": 13,
+    "successfulFinishedRuns": [
+      {
+        "createdAt": "1990-01-02T12:10:59.571+0000",
+        "finishedAt": "1990-01-02T12:11:19.762+0000",
+        "id": "20160705121059J7cPJ"
+      },
+      {
+        "createdAt": "1990-01-02T12:09:59.553+0000",
+        "finishedAt": "1990-01-02T12:10:19.706+0000",
+        "id": "20160705120959LEa1W"
+      },
+      {
+        "createdAt": "1990-01-02T12:08:59.536+0000",
+        "finishedAt": "1990-01-02T12:09:19.731+0000",
+        "id": "20160705120859tRq1e"
+      },
+      {
+        "createdAt": "1990-01-02T12:07:59.518+0000",
+        "finishedAt": "1990-01-02T12:08:19.728+0000",
+        "id": "201607051207593FyX6"
+      },
+      {
+        "createdAt": "1990-01-02T12:06:59.498+0000",
+        "finishedAt": "1990-01-02T12:07:19.734+0000",
+        "id": "20160705120659vpJEC"
+      },
+      {
+        "createdAt": "1990-01-02T12:05:59.479+0000",
+        "finishedAt": "1990-01-02T12:06:19.638+0000",
+        "id": "20160705120559aS3zg"
+      },
+      {
+        "createdAt": "1990-01-02T12:04:59.464+0000",
+        "finishedAt": "1990-01-02T12:05:19.653+0000",
+        "id": "20160705120459U4win"
+      },
+      {
+        "createdAt": "1990-01-02T12:04:23.016+0000",
+        "finishedAt": "1990-01-02T12:04:43.210+0000",
+        "id": "20160705120423wKL98"
+      },
+      {
+        "createdAt": "1990-01-02T17:53:59.752+0000",
+        "finishedAt": "1990-01-02T12:04:27.953+0000",
+        "id": "20160630175359TZdyT"
+      },
+      {
+        "createdAt": "1990-01-02T17:47:59.685+0000",
+        "finishedAt": "1990-01-02T17:48:19.871+0000",
+        "id": "20160630174759UbC9N"
+      }
+    ]
+  }
+}

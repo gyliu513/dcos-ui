@@ -3,6 +3,7 @@ import React from 'react';
 
 import ClickToSelect from '../ClickToSelect';
 import Config from '../../config/Config';
+import ModalHeading from '../modals/ModalHeading';
 
 var VersionsModal = React.createClass({
 
@@ -13,11 +14,11 @@ var VersionsModal = React.createClass({
     versionDump: React.PropTypes.object.isRequired
   },
 
-  onClose: function () {
+  onClose() {
     this.props.onClose();
   },
 
-  getContent: function () {
+  getContent() {
     var string = JSON.stringify(this.props.versionDump, null, 2);
     return (
       <div className="versions-modal-content">
@@ -26,19 +27,20 @@ var VersionsModal = React.createClass({
     );
   },
 
-  render: function () {
+  render() {
+    let header = (
+      <ModalHeading>
+        {Config.productName} Info
+      </ModalHeading>
+    );
+
     return (
       <Modal
-        maxHeightPercentage={0.9}
         onClose={this.onClose}
         open={this.props.open}
-        showCloseButton={false}
         showHeader={true}
-        showFooter={false}
-        size="large"
-        titleClass="modal-header-title text-align-center flush-top
-          flush-bottom"
-        titleText={`${Config.productName} Info`}>
+        header={header}
+        size="large">
         <ClickToSelect>
           {this.getContent()}
         </ClickToSelect>

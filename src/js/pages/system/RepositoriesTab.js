@@ -8,6 +8,7 @@ import AddRepositoryFormModal from '../../components/modals/AddRepositoryFormMod
 import CosmosPackagesStore from '../../stores/CosmosPackagesStore';
 import FilterBar from '../../components/FilterBar';
 import FilterInputText from '../../components/FilterInputText';
+import Loader from '../../components/Loader';
 import RepositoriesTable from '../../components/RepositoriesTable';
 import RequestErrorMsg from '../../components/RequestErrorMsg';
 
@@ -24,17 +25,15 @@ class RepositoriesTab extends mixin(StoreMixin) {
     this.state = {
       addRepositoryModalOpen: false,
       hasError: false,
-      isLoading: true
+      isLoading: true,
+      searchString: ''
     };
 
     this.store_listeners = [
       {
         name: 'cosmosPackages',
         events: ['repositoriesSuccess', 'repositoriesError'],
-        unmountWhen: function () {
-          return true;
-        },
-        listenAlways: true
+        suppressUpdate: true
       }
     ];
 
@@ -64,7 +63,7 @@ class RepositoriesTab extends mixin(StoreMixin) {
     this.setState({hasError: false, isLoading: false});
   }
 
-  handleSearchStringChange(searchString) {
+  handleSearchStringChange(searchString = '') {
     this.setState({searchString});
   }
 
@@ -73,15 +72,7 @@ class RepositoriesTab extends mixin(StoreMixin) {
   }
 
   getLoadingScreen() {
-    return (
-      <div className="container-pod text-align-center vertical-center inverse">
-        <div className="row">
-          <div className="ball-scale">
-            <div />
-          </div>
-        </div>
-      </div>
-    );
+    return <Loader />;
   }
 
   render() {
@@ -110,12 +101,11 @@ class RepositoriesTab extends mixin(StoreMixin) {
             className="flush-bottom"
             placeholder="Search"
             searchString={searchString}
-            handleFilterChange={this.handleSearchStringChange}
-            inverseStyle={true} />
+            handleFilterChange={this.handleSearchStringChange} />
           <button
             className="button button-success"
             onClick={this.handleOpenAddRepository}>
-            + Add Repository
+            Add Repository
           </button>
         </FilterBar>
         <RepositoriesTable repositories={repositories} filter={searchString} />
@@ -127,5 +117,10 @@ class RepositoriesTab extends mixin(StoreMixin) {
     );
   }
 }
+
+RepositoriesTab.routeConfig = {
+  label: 'Repositories',
+  matches: /^\/settings\/repositories/
+};
 
 module.exports = RepositoriesTab;

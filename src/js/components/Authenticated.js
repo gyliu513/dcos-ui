@@ -1,7 +1,7 @@
 import React from 'react';
+import PluginSDK from 'PluginSDK';
 
 import AuthStore from '../stores/AuthStore';
-import PluginSDK from 'PluginSDK';
 /*
  * Exports a higher-order component that checks if user is logged in using the
  * AuthStore. If the user is logged in, the component will render.
@@ -10,9 +10,9 @@ import PluginSDK from 'PluginSDK';
 module.exports = function (ComposedComponent) {
   return class Authenticated extends React.Component {
 
-    static willTransitionTo(transition) {
+    static willTransitionTo(nextState, replace) {
       if (!AuthStore.isLoggedIn()) {
-        PluginSDK.Hooks.doAction('redirectToLogin', transition);
+        PluginSDK.Hooks.doAction('redirectToLogin', nextState, replace);
       }
     }
 

@@ -1,5 +1,5 @@
-var CompositeState = require('../CompositeState');
-var NodesList = require('../NodesList');
+const CompositeState = require('../CompositeState');
+const NodesList = require('../NodesList');
 
 describe('CompositeState', function () {
 
@@ -157,6 +157,10 @@ describe('CompositeState', function () {
         expect(CompositeState.data.slaves[0].health).toEqual(6);
       }
     );
+
+    it('handles null data gracefully', function () {
+      expect(CompositeState.addNodeHealth).not.toThrow();
+    });
 
   });
 

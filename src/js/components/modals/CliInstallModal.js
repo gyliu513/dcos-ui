@@ -1,135 +1,191 @@
-var browserInfo = require('browser-info');
-var classNames = require('classnames');
-import {Hooks} from 'PluginSDK';
+import browserInfo from 'browser-info';
+import classNames from 'classnames';
 import {Modal} from 'reactjs-components';
-var React = require('react');
+import React from 'react';
 
 import ClickToSelect from '../ClickToSelect';
-import Config from '../../config/Config';
+import Icon from '../Icon';
 import MetadataStore from '../../stores/MetadataStore';
+import ModalHeading from '../modals/ModalHeading';
 
-var CliInstructionsModal = React.createClass({
+const METHODS_TO_BIND = ['onClose'];
+const osTypes = {
+  'Windows': 'windows',
+  'OS X': 'darwin',
+  'Linux': 'linux'
+};
 
-  displayName: 'CliInstructionsModal',
+class CliInstallModal extends React.Component {
+  constructor() {
+    super(...arguments);
 
-  propTypes: {
-    title: React.PropTypes.string.isRequired,
-    subHeaderContent: React.PropTypes.string,
-    showFooter: React.PropTypes.bool.isRequired,
-    footer: React.PropTypes.node,
-    onClose: React.PropTypes.func.isRequired,
-    additionalContent: React.PropTypes.element
-  },
+    let selectedOS = browserInfo().os;
+    if (!Object.keys(osTypes).includes(selectedOS)) {
+      selectedOS = 'Linux';
+    }
 
-  onClose: function () {
+    this.state = {selectedOS};
+
+    METHODS_TO_BIND.forEach((method) => {
+      this[method] = this[method].bind(this);
+    });
+  }
+
+  handleSelectedOSChange(selectedOS) {
+    this.setState({selectedOS});
+  }
+
+  onClose() {
     this.props.onClose();
-  },
+  }
 
-  getSubHeader: function () {
+  getSubHeader() {
     if (!this.props.subHeaderContent) {
       return false;
     }
 
     return (
-      <p className="text-align-center inverse flush-bottom">
+      <p className="text-align-center flush-bottom">
         {this.props.subHeaderContent}
       </p>
     );
-  },
+  }
 
-  getCliInstructions: function () {
-    var hostname = window.location.hostname;
-    var OS = browserInfo().os;
-    var requirements = '';
-    var cliSnippet = '';
-
-    if (OS === 'Windows') {
-      let appendText = Hooks.applyFilter(
-        'installCLIModalAppendInstructions', ''
+  getCliInstructions() {
+    // TODO (DCOS-8495): Binary cli links have hardcoded version, these should
+    // be updated to a /latest endpoint, when that becomes available.
+    // Binary cli links are also all pointing to the open version, which is
+    // intentional.
+    let hostname = global.location.hostname;
+    let protocol = global.location.protocol.replace(/[^\w]/g, '');
+    let port = '';
+    if (global.location.port) {
+      port = ':' + global.location.port;
+    }
+    let clusterUrl = `${protocol}://${hostname}${port}`;
+    let {selectedOS} = this.state;
+    let version = MetadataStore.parsedVersion;
+    // Prepend 'dcos-' to any version other than latest
+    if (version !== 'latest') {
+      version = `dcos-${version}`;
+    }
+    let downloadUrl = `https://downloads.dcos.io/binaries/cli/${osTypes[selectedOS]}/x86-64/${version}/dcos`;
+    if (selectedOS === 'Windows') {
+      return (
+        <ol>
+          <li>
+            Download and install: <a href={downloadUrl + '.exe'}>
+              <Icon family="mini" id="download" size="mini" /> Download dcos.exe
+            </a>.
+          </li>
+          <li>
+            <p className="short-bottom">In Terminal, enter</p>
+            <div className="flush-top snippet-wrapper">
+              <ClickToSelect>
+                <pre className="prettyprint flush-bottom prettyprinted">
+                  cd path/to/download/directory
+                </pre>
+              </ClickToSelect>
+            </div>
+          </li>
+          <li>
+            <p className="short-bottom">Enter</p>
+            <div className="flush-top snippet-wrapper">
+              <ClickToSelect>
+                <pre className="prettyprint flush-bottom prettyprinted">
+                  dcos config set core.dcos_url <a href={clusterUrl}>{clusterUrl}</a>
+                </pre>
+              </ClickToSelect>
+            </div>
+          </li>
+          <li>
+            <p className="short-bottom">Enter</p>
+            <div className="flush-top snippet-wrapper">
+              <ClickToSelect>
+                <pre className="prettyprint flush-bottom prettyprinted">
+                  dcos
+                </pre>
+              </ClickToSelect>
+            </div>
+          </li>
+        </ol>
       );
-      requirements = (
-        <p>
-          Install the {Config.productName} command-line interface (CLI) tool on your local system by following <a href={MetadataStore.buildDocsURI('/usage/cli/install/#windows')} target="_blank">these instructions</a>. You must install the CLI to administer your DCOS cluster. {appendText}
-        </p>
-      );
-    } else {
-      requirements = (
-        <div>
-          <h4 className="flush-top">Prerequisites:</h4>
-          <ul>
-            <li>A command-line environment, such as Terminal.</li>
-            <li>
-              Python 2.7.9 or 3.4.x. (Python 3.5.x will not work.)
-            </li>
-            <li>
-            <a href="http://curl.haxx.se/download.html" target="_blank">cURL</a>, <a href="https://pip.pypa.io/en/latest/installing.html#install-pip" target="_blank">pip</a>, and <a href="https://virtualenv.pypa.io/en/latest/installation.html" target="_blank">virtualenv</a>.
-            </li>
-          </ul>
-        </div>
-      );
-      let cliInstallScriptUrl = Hooks.applyFilter(
-        'installCLIModalCLIInstallURL',
-        `${Config.downloadsURI}/dcos-cli/install-optout.sh`
-      );
-      let cliInstallOutputScript = Hooks.applyFilter(
-        'installCLIModalCLIInstallScript', './install-optout.sh'
-      );
-      let protocol = global.location.protocol.replace(/[^\w]/g, '');
-      cliSnippet = `mkdir -p dcos && cd dcos && \n  curl -O ${cliInstallScriptUrl} && \n  bash ${cliInstallOutputScript} . ${protocol}://${hostname} && \n  source ./bin/env-setup`;
     }
 
-    if (cliSnippet) {
-      cliSnippet = (
-        <div>
-          <h4 className="snippet-description">To install the CLI, copy and paste into your terminal:</h4>
-          <div className="flush-top snippet-wrapper">
-            <ClickToSelect>
-              <pre className="mute prettyprint flush-bottom prettyprinted">{cliSnippet}</pre>
-            </ClickToSelect>
-          </div>
-        </div>
-      );
-    }
-
-    return {requirements, cliSnippet};
-  },
-
-  getContent: function () {
-    var instructions = this.getCliInstructions();
     return (
-      <div className="install-cli-modal-content">
-        {instructions.requirements}
-        {instructions.cliSnippet}
+      <div>
+        <p className="short-bottom">Copy and paste the code snippet into the terminal:</p>
+        <div className="flush-top snippet-wrapper">
+          <ClickToSelect>
+            <pre className="prettyprint flush-bottom">
+              {`curl ${downloadUrl} -o dcos && \n sudo mv dcos /usr/local/bin && \n sudo chmod +x /usr/local/bin/dcos && \n dcos config set core.dcos_url ${clusterUrl} && \n dcos`}
+            </pre>
+          </ClickToSelect>
+        </div>
       </div>
     );
-  },
+  }
 
-  render: function () {
-    let isWindows = (browserInfo().os === 'Windows');
-    let titleClass = classNames({
-      'modal-header-title': true,
-      'text-align-center': true,
-      'flush-top': !isWindows,
-      'flush': isWindows
+  getOSButtons() {
+    let {selectedOS} = this.state;
+
+    return Object.keys(osTypes).map((name, index) => {
+      let classSet = classNames({
+        'button button-stroke': true,
+        'active': name === selectedOS
+      });
+
+      return (
+        <button
+          className={classSet}
+          key={index}
+          onClick={this.handleSelectedOSChange.bind(this, name)}>
+          {name}
+        </button>
+      );
     });
+  }
+
+  getContent() {
+    return (
+      <div className="install-cli-modal-content">
+        <h4 className="flush-top">Installation</h4>
+        <p>Choose your operating system and follow the instructions. For any issues or questions, please refer to our <a href={MetadataStore.buildDocsURI('/usage/cli/install')} target="_blank">documentation</a>.</p>
+        <div className="button-group">
+          {this.getOSButtons()}
+        </div>
+        {this.getCliInstructions()}
+      </div>
+    );
+  }
+
+  render() {
+    let {footer, open, showFooter, title} = this.props;
+    let header = <ModalHeading align="left" level={5}>{title}</ModalHeading>;
 
     return (
       <Modal
-        footer={this.props.footer}
-        maxHeightPercentage={0.9}
+        header={header}
+        footer={footer}
         modalClass="modal"
         onClose={this.onClose}
-        open={this.props.open}
-        showCloseButton={false}
+        open={open}
         showHeader={true}
-        showFooter={this.props.showFooter}
-        subHeader={this.getSubHeader()}
-        titleClass={titleClass}
-        titleText={this.props.title}>
+        showFooter={showFooter}
+        subHeader={this.getSubHeader()}>
         {this.getContent()}
       </Modal>
     );
   }
-});
+}
 
-module.exports = CliInstructionsModal;
+CliInstallModal.propTypes = {
+  title: React.PropTypes.string.isRequired,
+  subHeaderContent: React.PropTypes.string,
+  showFooter: React.PropTypes.bool.isRequired,
+  footer: React.PropTypes.node,
+  onClose: React.PropTypes.func.isRequired,
+  additionalContent: React.PropTypes.element
+};
+
+module.exports = CliInstallModal;

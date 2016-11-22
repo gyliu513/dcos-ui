@@ -1,22 +1,8 @@
 import Item from './Item';
-import FrameworkUtil from '../utils/FrameworkUtil';
+import FrameworkUtil from '../../../plugins/services/src/js/utils/FrameworkUtil';
 import Util from '../utils/Util';
 
-// TODO (John): Remove all randomized data.
-function randomBoolean() {
-  return Math.floor(Math.random() * 10) >= 5;
-}
-
 class UniversePackage extends Item {
-  constructor() {
-    super(...arguments);
-
-    this._isDecisionPointActive = randomBoolean();
-    this._isUpgradeAvailable = randomBoolean();
-    this._isUpgradePaused = randomBoolean();
-    this._isUpgrading = randomBoolean();
-  }
-
   getActiveBlock() {
     return Math.floor(Math.random() * 10) + 1;
   }
@@ -43,22 +29,26 @@ class UniversePackage extends Item {
     return this.getActiveBlock() + 10;
   }
 
+  getConfig() {
+    return this.get('config');
+  }
+
+  getDescription() {
+    return this.get('description');
+  }
+
   getDecisionPointCount() {
     return this.getActiveBlock() + 10;
   }
 
   getIcons() {
     return FrameworkUtil.getServiceImages(
-      this.get('images') ||
-      Util.findNestedPropertyInObject(
-        this.get('resourceDefinition'), 'images'
-      ) ||
       Util.findNestedPropertyInObject(this.get('resource'), 'images')
     );
   }
 
   getName() {
-    return this.get('packageDefinition').name;
+    return this.get('name');
   }
 
   getScreenshots() {
@@ -68,65 +58,47 @@ class UniversePackage extends Item {
     );
   }
 
-  isSelected() {
-    if (this.get('package') && this.get('package').hasOwnProperty('selected')) {
-      return this.get('package').selected;
-    }
-
-    return this.get('selected');
+  getLicenses() {
+    return this.get('licenses') || [];
   }
 
   getMaintainer() {
-    return Util.findNestedPropertyInObject(
-      this.get('package'),
-      'maintainer'
-    );
+    return this.get('maintainer');
   }
 
-  getPreinstallNotes() {
-    return Util.findNestedPropertyInObject(
-      this.get('package'),
-      'preInstallNotes'
-    );
+  getPreInstallNotes() {
+    return this.get('preInstallNotes');
   }
 
   getPostInstallNotes() {
-    return Util.findNestedPropertyInObject(
-      this.get('package'),
-      'postInstallNotes'
-    );
+    return this.get('postInstallNotes');
   }
 
   getPostUninstallNotes() {
-    return Util.findNestedPropertyInObject(
-      this.get('packageDefinition'),
-      'postUninstallNotes'
-    );
+    return this.get('postUninstallNotes');
   }
 
-  // TODO (John): Use actual data.
-  getUpgradeVersions() {
-    return ['0.1.0', '0.1.5', '0.2.0', '0.2.5'];
+  getSCM() {
+    return this.get('scm');
   }
 
   getCurrentVersion() {
-    return this.get('packageDefinition').version;
+    return this.get('currentVersion');
   }
 
-  isDecisionPointActive() {
-    return this._isDecisionPointActive;
+  getTags() {
+    return this.get('tags') || [];
   }
 
-  isUpgradeAvailable() {
-    return this._isUpgradeAvailable;
+  isCLIOnly() {
+    return !Util.findNestedPropertyInObject(
+      this.get('marathon'),
+      'v2AppMustacheTemplate'
+    );
   }
 
-  isUpgradePaused() {
-    return this._isUpgradePaused;
-  }
-
-  isUpgrading() {
-    return this._isUpgrading;
+  isSelected() {
+    return this.get('selected');
   }
 }
 

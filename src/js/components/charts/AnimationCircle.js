@@ -1,6 +1,6 @@
-var d3 = require('d3');
-var React = require('react');
-var ReactDOM = require('react-dom');
+import d3 from 'd3';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 var AnitmationCircle = React.createClass({
 
@@ -15,12 +15,12 @@ var AnitmationCircle = React.createClass({
     cy: React.PropTypes.number
   },
 
-  getInitialState: function () {
+  getInitialState() {
     return {
       didRenderBefore: false
     };
   },
-  getDefaultProps: function () {
+  getDefaultProps() {
     return {
       radius: 4,
       cx: 0,
@@ -28,12 +28,12 @@ var AnitmationCircle = React.createClass({
     };
   },
 
-  componentDidMount: function () {
+  componentDidMount() {
     d3.select(ReactDOM.findDOMNode(this))
       .attr('transform', 'translate(' + this.props.position + ')');
   },
 
-  componentWillReceiveProps: function (nextProps) {
+  componentWillReceiveProps(nextProps) {
     let node = ReactDOM.findDOMNode(this);
 
     // Handle first position to not animate into position
@@ -54,7 +54,7 @@ var AnitmationCircle = React.createClass({
       .attr('transform', 'translate(' + nextProps.position + ')');
   },
 
-  render: function () {
+  render() {
     var props = this.props;
     var radius = props.radius;
     var className = props.className;

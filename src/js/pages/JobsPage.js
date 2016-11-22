@@ -1,62 +1,30 @@
-import mixin from 'reactjs-mixin';
 import React from 'react';
-import {RouteHandler} from 'react-router';
+import {routerShape} from 'react-router';
 
+import Icon from '../components/Icon';
 import Page from '../components/Page';
 import SidebarActions from '../events/SidebarActions';
-import TabsMixin from '../mixins/TabsMixin';
 
-class JobsPage extends mixin(TabsMixin) {
-  constructor() {
-    super(...arguments);
-
-    this.tabs_tabs = {'jobs-page': 'Jobs'};
-    this.state = {currentTab: 'jobs-page'};
-  }
-
-  componentWillMount() {
-    this.updateCurrentTab();
-  }
-
-  componentWillReceiveProps() {
-    super.componentWillReceiveProps(...arguments);
-    this.updateCurrentTab();
-  }
-
-  updateCurrentTab() {
-    let routes = this.context.router.getCurrentRoutes();
-    let currentTab = routes[routes.length - 1].name;
-    if (currentTab != null) {
-      this.setState({currentTab});
-    }
-  }
-
-  getNavigation() {
-    return (
-      <ul className="tabs list-inline flush-bottom inverse">
-        {this.tabs_getRoutedTabs()}
-      </ul>
-    );
-  }
-
+class JobsPage extends React.Component {
   render() {
+    let {routes, children} = this.props;
     return (
       <Page
-        navigation={this.getNavigation()}
+        dontScroll={routes[routes.length - 1].dontScroll}
         title="Jobs">
-        <RouteHandler />
+        {children}
       </Page>
     );
   }
 }
 
 JobsPage.contextTypes = {
-  router: React.PropTypes.func
+  router: routerShape
 };
 
 JobsPage.routeConfig = {
   label: 'Jobs',
-  icon: 'jobs',
+  icon: <Icon id="pages-code-inverse" size="small" family="small" />,
   matches: /^\/jobs/
 };
 

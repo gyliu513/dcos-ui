@@ -1,8 +1,7 @@
 import {Dropdown} from 'reactjs-components';
-import mixin from 'reactjs-mixin';
+import PureRender from 'react-addons-pure-render-mixin';
 import React from 'react';
 
-import InternalStorageMixin from '../mixins/InternalStorageMixin';
 import UnitHealthStatus from '../constants/UnitHealthStatus';
 
 const DEFAULT_ITEM = {
@@ -11,9 +10,11 @@ const DEFAULT_ITEM = {
   selectedHtml: 'All Health Checks'
 };
 
-class UnitHealthDropdown extends mixin(InternalStorageMixin) {
-  componentWillMount() {
-    this.internalStorage_set({dropdownItems: this.getDropdownItems()});
+class UnitHealthDropdown extends React.Component {
+  constructor() {
+    super(...arguments);
+    this.shouldComponentUpdate = PureRender.shouldComponentUpdate.bind(this);
+    this.state = {dropdownItems: this.getDropdownItems()};
   }
 
   getDropdownItems() {
@@ -33,8 +34,15 @@ class UnitHealthDropdown extends mixin(InternalStorageMixin) {
     return items;
   }
 
+  setDropdownValue(id) {
+    this.dropdown.setState({
+      selectedID: id
+    });
+  }
+
   render() {
     let {className, dropdownMenuClassName, initialID, onHealthSelection} = this.props;
+    let {dropdownItems} = this.state;
 
     return (
       <Dropdown
@@ -42,8 +50,11 @@ class UnitHealthDropdown extends mixin(InternalStorageMixin) {
         dropdownMenuClassName={dropdownMenuClassName}
         dropdownMenuListClassName="dropdown-menu-list"
         initialID={initialID}
-        items={this.internalStorage_get().dropdownItems}
+        items={dropdownItems}
         onItemSelection={onHealthSelection}
+        ref={(ref) => this.dropdown = ref}
+        scrollContainer=".gm-scroll-view"
+        scrollContainerParentSelector=".gm-prevented"
         transition={true}
         wrapperClassName="dropdown" />
     );

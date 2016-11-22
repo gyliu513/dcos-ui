@@ -1,3 +1,6 @@
+import FormUtil from './FormUtil';
+import Util from './Util';
+
 function getValueFromSchemaProperty(fieldProps) {
   let value = '';
 
@@ -15,7 +18,7 @@ function getValueFromSchemaProperty(fieldProps) {
   return value;
 }
 
-function getLabelFromSchemaProperty(fieldName, fieldProps, isRequired, renderLabel) {
+function setLabelFromSchemaProperty(fieldName, fieldProps, isRequired, renderLabel, definition) {
   let label = fieldProps.title || fieldName;
 
   if (isRequired) {
@@ -23,33 +26,69 @@ function getLabelFromSchemaProperty(fieldName, fieldProps, isRequired, renderLab
   }
 
   if (renderLabel && fieldProps.description) {
-    return renderLabel(fieldProps.description, label);
+    label = renderLabel(fieldProps.description, label, fieldProps.type);
   }
 
-  return label;
+  // Set the label property of checkboxes if a label is defined.
+  if (fieldProps.type === 'boolean') {
+    definition.label = fieldProps.label || label;
+    return;
+  }
+
+  definition.showLabel = label;
 }
 
-function schemaToFieldDefinition(fieldName, fieldProps, formParent, isRequired, renderLabel) {
+function schemaToFieldDefinition(options) {
+  let {
+    fieldName,
+    fieldProps,
+    formParent,
+    isRequired,
+    renderLabel,
+    renderRemove
+  } = options;
   let value = getValueFromSchemaProperty(fieldProps);
-  let label = getLabelFromSchemaProperty(fieldName, fieldProps, isRequired, renderLabel);
 
   let definition = {
     fieldType: 'text',
-    formParent,
+    focused: false,
     name: fieldName,
     placeholder: '',
     isRequired,
     required: false,
     showError: false,
-    showLabel: label,
     writeType: 'input',
-    validation: function () { return true; },
+    validation() { return true; },
+    externalValidator: fieldProps.externalValidator,
     value,
     valueType: fieldProps.type
   };
 
+  if (fieldProps.className != null) {
+    definition.labelClass = fieldProps.className;
+  }
+
+  setLabelFromSchemaProperty(fieldName, fieldProps, isRequired, renderLabel, definition);
+
   if (typeof value === 'boolean') {
     definition.checked = value;
+  }
+
+  if (fieldProps.type === 'number') {
+    definition.fieldType = 'number';
+  }
+
+  if (fieldProps.focused) {
+    definition.focused = true;
+  }
+
+  if (fieldProps.fieldType === 'select') {
+    definition.fieldType = 'select';
+    definition.options = fieldProps.options;
+  }
+
+  if (fieldProps.helpBlock) {
+    definition.helpBlock = fieldProps.helpBlock;
   }
 
   if (fieldProps.type === 'boolean') {
@@ -61,20 +100,86 @@ function schemaToFieldDefinition(fieldName, fieldProps, formParent, isRequired, 
     definition.fieldType = 'textarea';
   }
 
+  if (fieldProps.formElementClass) {
+    definition.formElementClass = fieldProps.formElementClass;
+  }
+
+  if (fieldProps.inputClass) {
+    definition.inputClass = fieldProps.inputClass;
+  }
+
+  if (fieldProps.filterProperties) {
+    definition.filterProperties = fieldProps.filterProperties;
+  }
+
+  if (fieldProps.duplicable === true && fieldProps.itemShape) {
+    let itemShape = nestedSchemaToFieldDefinition({
+      fieldName,
+      fieldProps: fieldProps.itemShape,
+      renderSubheader: renderLabel,
+      renderLabel,
+      filterProperties: fieldProps.filterProperties
+    });
+    let propID = Util.uniqueID(fieldName);
+
+    definition = FormUtil.getMultipleFieldDefinition(
+      fieldName,
+      propID,
+      itemShape.definition
+    );
+
+    if (fieldProps.filterProperties) {
+      itemShape.filterProperties = fieldProps.filterProperties;
+    }
+
+    if (fieldProps.getTitle) {
+      itemShape.getTitle = fieldProps.getTitle;
+    }
+
+    if (renderRemove) {
+      let arrayAction = 'push';
+      if (fieldProps.deleteButtonTop) {
+        itemShape.deleteButtonTop = true;
+        arrayAction = 'unshift';
+      }
+      let title = null;
+      if (itemShape.getTitle) {
+        title = itemShape.getTitle();
+      }
+
+      definition[arrayAction](renderRemove(formParent, fieldName, propID, title));
+    }
+
+    if (formParent.itemShapes == null) {
+      formParent.itemShapes = {};
+    }
+
+    formParent.itemShapes[fieldName] = itemShape;
+
+    return definition;
+  }
+
   return definition;
 }
 
-function nestedSchemaToFieldDefinition(fieldName, fieldProps, topLevelProp, renderSubheader, renderLabel) {
+function nestedSchemaToFieldDefinition(options) {
+  let {
+    fieldName,
+    fieldProps,
+    renderSubheader,
+    renderLabel,
+    filterProperties,
+    levelsDeep = 0
+  } = options;
   let nestedDefinition = {
     name: fieldName,
-    formParent: topLevelProp,
     render: null,
     fieldType: 'object',
     definition: []
   };
 
   if (typeof renderSubheader === 'function') {
-    nestedDefinition.render = renderSubheader.bind(null, fieldName);
+    nestedDefinition.render = renderSubheader.bind(null, fieldName, fieldProps.description, levelsDeep);
   }
 
   let properties = fieldProps.properties;
@@ -82,35 +187,59 @@ function nestedSchemaToFieldDefinition(fieldName, fieldProps, topLevelProp, rend
 
   Object.keys(properties).forEach(function (nestedFieldName) {
     let nestedPropertyValue = properties[nestedFieldName];
-
     if (nestedPropertyValue.properties) {
       nestedDefinition.definition.push(
-        nestedSchemaToFieldDefinition(
-          nestedFieldName,
-          nestedPropertyValue,
-          nestedFieldName,
+        nestedSchemaToFieldDefinition({
+          fieldName: nestedFieldName,
+          fieldProps: nestedPropertyValue,
           renderSubheader,
-          renderLabel
-        )
+          renderLabel,
+          filterProperties,
+          levelsDeep: levelsDeep + 1
+        })
       );
     } else {
       nestedDefinition.definition.push(
-        schemaToFieldDefinition(
-          nestedFieldName,
-          nestedPropertyValue,
-          nestedFieldName,
-          requiredProps && requiredProps.indexOf(nestedFieldName) > -1,
+        schemaToFieldDefinition({
+          fieldName: nestedFieldName,
+          fieldProps: nestedPropertyValue,
+          formParent: nestedDefinition.definition,
+          isRequired: requiredProps && requiredProps.indexOf(nestedFieldName) > -1,
           renderLabel
-        )
+        })
       );
     }
   });
+
+  if (filterProperties) {
+    filterProperties({}, nestedDefinition.definition);
+  }
 
   return nestedDefinition;
 }
 
 let SchemaUtil = {
-  schemaToMultipleDefinition: function (schema, renderSubheader, renderLabel) {
+  /**
+   * Turns a JSON Schema into a Form definition.
+   *
+   * @param {Object} options Object containing properties for transforming a
+   * schema into a form definition. The following properties are:
+   * {Object} schema Schema to transform.
+   * {Function} renderSubheader Function used to render a subheader. We render subheaders for properties that are nested.
+   * {Function} renderLabel Function used to render a label.
+   * {Function} renderRemove Function used to render a remove button for duplicable rows.
+   * {Function} renderAdd Function used to render an add button for duplicable rows.
+   *
+   * @return {Object} multipleDefinition The form definition.
+   */
+  schemaToMultipleDefinition(options) {
+    let {
+      schema,
+      renderSubheader,
+      renderLabel,
+      renderRemove,
+      renderAdd
+    } = options;
     let multipleDefinition = {};
     let schemaProperties = schema.properties;
 
@@ -120,30 +249,79 @@ let SchemaUtil = {
       let requiredProps = topLevelPropertyObject.required;
       let definitionForm = multipleDefinition[topLevelProp] = {};
 
-      definitionForm.title = topLevelProp;
+      definitionForm.title = topLevelPropertyObject.title || topLevelProp;
+      definitionForm.selectValue = topLevelProp;
       definitionForm.description = topLevelPropertyObject.description;
       definitionForm.definition = [];
       Object.keys(secondLevelProperties).forEach(function (secondLevelProp) {
         let secondLevelObject = secondLevelProperties[secondLevelProp];
         let fieldDefinition;
 
-        if (secondLevelObject.properties == null) {
-          fieldDefinition = schemaToFieldDefinition(
-            secondLevelProp,
-            secondLevelObject,
-            topLevelProp,
-            requiredProps && requiredProps.indexOf(secondLevelProp) > -1,
-            renderLabel
-          );
+        if (secondLevelObject.type === 'group' && secondLevelObject.properties != null) {
+          fieldDefinition = Object.keys(secondLevelObject.properties).map(function (key) {
+            let field = secondLevelObject.properties[key];
+
+            return schemaToFieldDefinition({
+              fieldName: key,
+              fieldProps: field,
+              formParent: topLevelProp,
+              isRequired: requiredProps && requiredProps.indexOf(secondLevelProp) > -1,
+              renderLabel
+            });
+          });
+        } else if (secondLevelObject.properties == null) {
+          fieldDefinition = schemaToFieldDefinition({
+            fieldName: secondLevelProp,
+            fieldProps: secondLevelObject,
+            formParent: definitionForm.definition,
+            isRequired: requiredProps && requiredProps.indexOf(secondLevelProp) > -1,
+            renderLabel,
+            renderRemove
+          });
         } else {
-          fieldDefinition = nestedSchemaToFieldDefinition(
-            secondLevelProp,
-            secondLevelObject,
-            topLevelProp,
+          fieldDefinition = nestedSchemaToFieldDefinition({
+            fieldName: secondLevelProp,
+            fieldProps: secondLevelObject,
             renderSubheader,
-            renderLabel
-          );
+            renderLabel,
+            filterProperties: secondLevelObject.filterProperties
+          });
         }
+
+        if (secondLevelObject.duplicable === true) {
+          let itemShape = nestedSchemaToFieldDefinition({
+            fieldName: secondLevelProp,
+            fieldProps: secondLevelObject.itemShape,
+            renderLabel,
+            renderLabel,
+            filterProperties: secondLevelObject.filterProperties
+          });
+
+          if (secondLevelObject.title) {
+            definitionForm.definition.push(
+              renderSubheader(secondLevelObject.title, secondLevelObject.description)
+            );
+          }
+          definitionForm.definition.push(fieldDefinition);
+
+          if (renderAdd) {
+            definitionForm.definition.push(
+              {
+                render: renderAdd.bind(
+                  null,
+                  secondLevelProp,
+                  definitionForm.definition,
+                  itemShape.definition,
+                  secondLevelProperties[secondLevelProp].addLabel
+                ),
+                prop: secondLevelProp
+              }
+            );
+          }
+
+          return;
+        }
+
         definitionForm.definition.push(fieldDefinition);
       });
 
@@ -152,7 +330,14 @@ let SchemaUtil = {
     return multipleDefinition;
   },
 
-  definitionToJSONDocument: function (definition) {
+  /**
+   * Turns a form definition into a model.
+   *
+   * @param {Object} definition Form definition to convert to model.
+   *
+   * @return {Object} multipleDefinition The form definition.
+   */
+  definitionToJSONDocument(definition) {
     let jsonDocument = {};
 
     Object.keys(definition).forEach(function (topLevelProp) {
@@ -183,10 +368,17 @@ let SchemaUtil = {
     return jsonDocument;
   },
 
-  validateSchema: function (schema) {
+  /**
+   * Checks to see if object is a valid JSON schema.
+   *
+   * @param {Object} schema Schema to validate.
+   *
+   * @return {Boolean} isValidSchema Whether the schema is valid.
+   */
+  validateSchema(schema) {
     try {
       SchemaUtil.definitionToJSONDocument(
-        SchemaUtil.schemaToMultipleDefinition(schema)
+        SchemaUtil.schemaToMultipleDefinition({schema})
       );
       return true;
     } catch (e) {

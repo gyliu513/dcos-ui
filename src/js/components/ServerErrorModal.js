@@ -8,6 +8,8 @@ import {StoreMixin} from 'mesosphere-shared-reactjs';
 
 import {Hooks} from 'PluginSDK';
 
+import ModalHeading from './modals/ModalHeading';
+
 const METHODS_TO_BIND = ['handleModalClose', 'handleServerError'];
 
 function getEventsFromStoreListeners(storeListeners) {
@@ -31,7 +33,13 @@ module.exports = class ServerErrorModal extends mixin(StoreMixin) {
       errors: []
     };
 
-    this.store_listeners = Hooks.applyFilter('serverErrorModalListeners', []);
+    this.store_listeners = Hooks.applyFilter('serverErrorModalListeners', [
+      {
+        name: 'marathon',
+        events: ['serviceDeleteError'],
+        suppressUpdate: false
+      }
+    ]);
 
     METHODS_TO_BIND.forEach((method) => {
       this[method] = this[method].bind(this);
@@ -55,11 +63,13 @@ module.exports = class ServerErrorModal extends mixin(StoreMixin) {
       throw 'No error message defined!';
     }
 
+    const isLocked = errorMessage && /force=true/.test(errorMessage);
+
     let errors = this.state.errors.concat([errorMessage]);
 
     this.setState({
       errors,
-      isOpen: true
+      isOpen: !isLocked
     });
   }
 
@@ -90,26 +100,29 @@ module.exports = class ServerErrorModal extends mixin(StoreMixin) {
     });
 
     return (
-      <div className="container container-pod container-pod-short">
+      <div className="pod pod-short flush-right flush-left">
         {errorMessages}
       </div>
     );
   }
 
   render() {
+    let header = (
+      <ModalHeading level={5}>
+        An error has occurred
+      </ModalHeading>
+    );
+
     return (
       <Modal
         modalWrapperClass="modal-generic-error"
         modalClass="modal"
-        maxHeightPercentage={0.9}
         onClose={this.handleModalClose}
         open={this.state.isOpen}
-        showCloseButton={false}
         showHeader={true}
         showFooter={true}
         footer={this.getFooter()}
-        titleClass="modal-header-title text-align-center flush"
-        titleText="An error has occurred">
+        header={header}>
         {this.getContent()}
       </Modal>
     );

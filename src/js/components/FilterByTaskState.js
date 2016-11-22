@@ -17,9 +17,7 @@ class FilterByTaskState extends React.Component {
 
   getItemHtml(item) {
     return (
-      <span className="inverse">
-        <span>{item.name}</span>
-      </span>
+      <span>{item.name}</span>
     );
   }
 
@@ -68,6 +66,8 @@ class FilterByTaskState extends React.Component {
         items={this.getDropdownItems()}
         onItemSelection={this.onItemSelection}
         persistentID={currentStatus}
+        scrollContainer=".gm-scroll-view"
+        scrollContainerParentSelector=".gm-prevented"
         transition={true}
         transitionName="dropdown-menu" />
     );
@@ -86,7 +86,7 @@ FilterByTaskState.propTypes = {
 
 FilterByTaskState.defaultProps = {
   currentStatus: defaultID,
-  handleFilterChange: function () {},
+  handleFilterChange() {},
   statuses: [],
   totalHostsCount: 0,
 

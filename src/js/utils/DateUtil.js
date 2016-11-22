@@ -1,54 +1,44 @@
 import moment from 'moment';
 
 const DateUtil = {
-  msToDateStr: function (ms) {
-    let date = new Date(ms);
-    let dateStr = '';
-
-    if (isNaN(date.getTime())) {
-      return dateStr;
-    }
-
-    dateStr += date.getMonth() + 1 + '-';
-    dateStr += date.getDate() + '-';
-    dateStr += date.getFullYear() % 100 + ' at ';
-    dateStr += DateUtil.formatAMPM(date);
-
-    return dateStr;
+  /**
+   * Creates a time string from time provided
+   * @param  {Date|Number} ms number to convert to time string
+   * @return {String} time string with the format 'MM-DD-YYYY [at] h:mma'
+   */
+  msToDateStr(ms) {
+    return moment(ms).format('MM-DD-YYYY [at] h:mma');
   },
 
-  msToRelativeTime: function (ms) {
-    return moment.unix(ms).fromNow();
+  /**
+   * Creates a UTC time string from time provided
+   * @param  {Date|Number} ms number to convert to UTC time string
+   * @return {String} time string with the format 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]'
+   */
+  msToUTCDate(ms) {
+    return moment(ms).utc().format('YYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
   },
 
-   /**
-    * @param  {Date} date Date object to turn into relative time.
-    * @return {String} The relative time.
-    */
-  dateToRelativeTime: function (date) {
-    return moment(date.getTime()).fromNow()
+  /**
+   * Creates relative time based on now and the time provided
+   * @param  {Date|Number} ms number to convert to relative time string
+   * @param  {Boolean} suppressRelativeTime whether to remove 'ago' from string
+   * @return {String} time string relative from now
+   */
+  msToRelativeTime(ms, suppressRelativeTime = false) {
+    return moment(ms).fromNow(suppressRelativeTime);
   },
 
-  formatAMPM: function (date) {
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-
-    let meridiem = 'am';
-    if (hours >= 12) {
-      meridiem = 'pm';
+  strToMs(str) {
+    if (str == null) {
+      return null;
     }
 
-    hours = hours % 12;
-    if (hours === 0) {
-      hours = 12;
-    }
+    return moment(str).valueOf();
+  },
 
-    if (minutes < 10) {
-      minutes = `0${minutes}`;
-    }
-
-    var strTime = `${hours}:${minutes} ${meridiem}`;
-    return strTime;
+  getDuration(time, formatKey = 'seconds') {
+    return moment.duration(time, formatKey).humanize();
   }
 };
 

@@ -1,6 +1,6 @@
 jest.dontMock('../StringUtil');
 
-var StringUtil = require('../StringUtil');
+const StringUtil = require('../StringUtil');
 
 describe('StringUtil', function () {
 
@@ -198,6 +198,50 @@ describe('StringUtil', function () {
       expect(StringUtil.capitalize(capitalizedString))
         .toEqual(capitalizedString);
     });
+  });
+
+  describe('#lowercase', function () {
+
+    it('formats the string with the correct case', function () {
+      expect(StringUtil.lowercase('Every')).toEqual('every');
+    });
+
+    it('returns null if input is not a string', function () {
+      expect(StringUtil.lowercase(10)).toEqual(null);
+    });
+
+    it('does nothing if string is already lowercase', function () {
+      var lowercaseString = 'every';
+      expect(StringUtil.lowercase(lowercaseString))
+        .toEqual(lowercaseString);
+    });
+  });
+
+  describe('#humanizeArray', function () {
+
+    it('returns an empty string for a 0-length array', function () {
+      expect(StringUtil.humanizeArray([])).toEqual('');
+    });
+
+    it('returns the sole member of a 1-length array', function () {
+      expect(StringUtil.humanizeArray(['one'])).toEqual('one');
+    });
+
+    it('joins a 2-length array with \'and\'', function () {
+      expect(StringUtil.humanizeArray(['one', 'two'])).toEqual('one and two');
+    });
+
+    it('joins a 3-length array with commas and \'and\'', function () {
+      expect(StringUtil.humanizeArray(['one', 'two', 'three']))
+        .toEqual('one, two, and three');
+    });
+
+    it('allows the user to disable the serial comma', function () {
+      expect(StringUtil.humanizeArray(['one', 'two', 'three'], {
+        serialComma: false
+      })).toEqual('one, two and three');
+    });
+
   });
 
 });

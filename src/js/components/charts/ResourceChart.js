@@ -3,6 +3,9 @@ import React from 'react';
 import BarChart from '../../components/charts/BarChart';
 import Chart from '../../components/charts/Chart';
 import Config from '../../config/Config';
+import Icon from '../Icon';
+import ResourceColors from '../../constants/ResourceColors';
+import ResourceIcons from '../../constants/ResourceIcons';
 import ResourcesUtil from '../../utils/ResourcesUtil';
 import Units from '../../utils/Units';
 import Util from '../../utils/Util';
@@ -23,8 +26,10 @@ class ResourceChart extends React.Component {
     let resourceValue = Units.formatResource(
       resource, Util.last(totalResources[resource]).value
     );
-    let resourceIconClasses = `icon icon-sprite icon-sprite-medium
-      icon-sprite-medium-color icon-resources-${resourceLabel.toLowerCase()}`;
+
+    let resourceKey = resourceLabel.toLowerCase();
+    let iconID = ResourceIcons[resourceKey];
+    let iconColor = ResourceColors[resourceKey];
 
     let axisConfiguration = {
       x: {hideMatch: /^0$/},
@@ -45,18 +50,14 @@ class ResourceChart extends React.Component {
     maxY = Math.min(100, maxY); // Don't let it be greater than 100%
 
     return (
-      <div key={resource} className="column-12
-        flex-box-align-vertical-center
-        container-pod
-        container-pod-super-short
-        flush-top">
-        <div className="media-object-spacing-wrapper media-object-offset">
+      <div key={resource} className="column-12">
+        <div className="media-object-spacing-wrapper media-object-spacing-narrow media-object-offset">
           <div className="media-object media-object-align-middle">
             <div className="media-object-item">
-              <i className={resourceIconClasses}></i>
+              <Icon color={iconColor} id={iconID} />
             </div>
             <div className="media-object-item">
-              <h4 className="flush-top flush-bottom inverse">
+              <h4 className="flush-top flush-bottom">
                 {resourceValue}
               </h4>
               <span className={`side-panel-resource-label
@@ -72,7 +73,6 @@ class ResourceChart extends React.Component {
           <BarChart
             axisConfiguration={axisConfiguration}
             data={resourceData}
-            inverseStyle={true}
             margin={{top: 0, left: 43, right: 10, bottom: 40}}
             maxY={maxY}
             refreshRate={Config.getRefreshRate()}
@@ -98,7 +98,7 @@ class ResourceChart extends React.Component {
 }
 
 ResourceChart.defaultProps = {
-  className: 'column-12 column-mini-4'
+  className: 'column-12 column-small-4'
 };
 
 ResourceChart.propTypes = {

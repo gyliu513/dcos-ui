@@ -1,5 +1,5 @@
 import NodesList from './NodesList';
-import ServicesList from './ServicesList';
+import ServicesList from '../../../plugins/services/src/js/structs/ServicesList';
 
 const BLANK_NODE = {
   health: 3
@@ -36,7 +36,7 @@ let mergeObjectsById = function (newData, data = []) {
   return newData.map(function (newDatum) {
     let oldDatum = data.find(function (datum) {
       return datum.id === newDatum.id;
-    })
+    });
 
     // These objects don't need to be deeply merged.
     return Object.assign({}, oldDatum, newDatum);
@@ -65,6 +65,10 @@ class CompositeState {
   }
 
   addNodeHealth(data) {
+    if (data == null) {
+      return;
+    }
+
     let oldData = this.data.slaves || [];
     let dataByIP = {};
 
@@ -100,4 +104,4 @@ class CompositeState {
   }
 }
 
-module.exports = new CompositeState();
+module.exports = new CompositeState({frameworks: [], slaves: []});

@@ -1,4 +1,5 @@
-import BaseStore from './BaseStore';
+import PluginSDK from 'PluginSDK';
+
 import {
   SERVER_ACTION,
   REQUEST_HEALTH_UNITS_SUCCESS,
@@ -23,11 +24,12 @@ import {
 } from '../constants/EventTypes';
 import AppDispatcher from '../events/AppDispatcher';
 import Config from '../config/Config';
-import UnitHealthActions from '../events/UnitHealthActions';
+import GetSetBaseStore from './GetSetBaseStore';
 import HealthUnit from '../structs/HealthUnit';
 import HealthUnitsList from '../structs/HealthUnitsList';
 import Node from '../structs/Node';
 import NodesList from '../structs/NodesList';
+import UnitHealthActions from '../events/UnitHealthActions';
 import VisibilityStore from './VisibilityStore';
 
 let requestInterval = null;
@@ -48,7 +50,7 @@ function stopPolling() {
   }
 }
 
-class UnitHealthStore extends BaseStore {
+class UnitHealthStore extends GetSetBaseStore {
   constructor() {
     super(...arguments);
 
@@ -58,6 +60,25 @@ class UnitHealthStore extends BaseStore {
       nodesByUnitID: {},
       nodesByID: {}
     };
+
+    PluginSDK.addStoreConfig({
+      store: this,
+      storeID: this.storeID,
+      events: {
+        success: HEALTH_UNITS_CHANGE,
+        error: HEALTH_UNITS_ERROR,
+        unitSuccess: HEALTH_UNIT_SUCCESS,
+        unitError: HEALTH_UNIT_ERROR,
+        nodesSuccess: HEALTH_UNIT_NODES_SUCCESS,
+        nodesError: HEALTH_UNIT_NODES_ERROR,
+        nodeSuccess: HEALTH_UNIT_NODE_SUCCESS,
+        nodeError: HEALTH_UNIT_NODE_ERROR
+      },
+      unmountWhen() {
+        return true;
+      },
+      listenAlways: true
+    });
 
     this.dispatcherIndex = AppDispatcher.register((payload) => {
       if (payload.source !== SERVER_ACTION) {
@@ -148,11 +169,11 @@ class UnitHealthStore extends BaseStore {
   }
 
   getNode(nodeID) {
-    return new Node(this.get('nodesByID')[nodeID] || []);
+    return new Node(this.get('nodesByID')[nodeID] || {});
   }
 
   getDownloadURL() {
-    return `${Config.rootUrl}${Config.unitHealthAPIPrefix}\/report`;
+    return `${Config.rootUrl}${Config.unitHealthAPIPrefix}\/report\/download`;
   }
 
   fetchUnits() {

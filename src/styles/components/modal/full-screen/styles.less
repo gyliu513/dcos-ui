@@ -1,0 +1,219 @@
+& when (@full-screen-modal-enabled) {
+
+  .modal-full-screen {
+    border-radius: 0;
+    height: 100%;
+    left: 0;
+    max-height: none;
+    max-width: none;
+    top: 0;
+    transform: none;
+    width: 100%;
+
+    .modal-header {
+      background: color-lighten(@neutral, 95%);
+      padding: 0;
+    }
+
+    .modal-body-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-body {
+      display: flex;
+      flex: 1 0 auto;
+      min-height: 100%;
+      overflow: hidden;
+    }
+  }
+
+  .modal-full-screen-enter,
+  .modal-full-screen-appear {
+
+    .modal {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+
+    .modal-backdrop {
+      opacity: 0;
+    }
+
+    &.modal-full-screen-enter-active,
+    &.modal-full-screen-appear-active {
+
+      .modal {
+        opacity: 1;
+        transform: scale(1);
+        transition: transform @modal-animation-duration @modal-animation-easing, opacity @modal-animation-duration @modal-animation-easing;
+      }
+
+      .modal-backdrop {
+        opacity: 1;
+        transition: opacity @modal-animation-duration @modal-animation-easing;
+      }
+    }
+  }
+
+  .modal-full-screen-leave {
+
+    .modal {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .modal-backdrop {
+      opacity: 1;
+    }
+
+    &.modal-full-screen-leave-active {
+
+      .modal {
+        opacity: 0;
+        transform: scale(0.9);
+        transition: transform @modal-animation-duration @modal-animation-easing, opacity @modal-animation-duration @modal-animation-easing;
+      }
+
+      .modal-backdrop {
+        opacity: 0;
+        transition: opacity @modal-animation-duration @modal-animation-easing;
+      }
+    }
+  }
+
+  .modal-full-screen-header {
+    align-items: center;
+    display: flex;
+  }
+
+  .modal-full-screen-header-title {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+
+  .modal-full-screen-actions {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+  }
+
+  .modal-full-screen-actions-primary {
+    margin-left: @base-spacing-unit * 1/2;
+  }
+
+  .modal-full-screen-actions-secondary {
+    margin-right: @base-spacing-unit * 1/2;
+  }
+
+  .modal-full-screen-side-panel {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    transform: translateX(100%);
+    transition: transform 0.35s;
+    width: 100%;
+    z-index: @z-index-modal-side-panel;
+
+    &.is-visible {
+      transform: translateX(0);
+    }
+  }
+
+  .modal-full-screen-side-panel-placeholder {
+    display: none;
+  }
+}
+
+& when (@full-screen-modal-enabled) and (@layout-screen-small-enabled) {
+
+  @media (min-width: @layout-screen-small-min-width) {
+
+    .modal-full-screen-actions {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .modal-full-screen-actions-primary {
+      margin-left: 0;
+      right: @pod-margin-right-screen-small;
+    }
+
+    .modal-full-screen-actions-secondary {
+      left: @pod-margin-left-screen-small;
+      margin-right: 0;
+    }
+  }
+}
+
+& when (@full-screen-modal-enabled) and (@layout-screen-medium-enabled) {
+
+  @media (min-width: @layout-screen-medium-min-width) {
+
+    .modal-full-screen-actions-primary {
+      right: @pod-margin-right-screen-medium;
+    }
+
+    .modal-full-screen-actions-secondary {
+      left: @pod-margin-left-screen-medium;
+    }
+  }
+}
+
+& when (@full-screen-modal-enabled) and (@layout-screen-large-enabled) {
+
+  @media (min-width: @layout-screen-large-min-width) {
+
+    .modal-full-screen-actions-primary {
+      right: @pod-margin-right-screen-large;
+    }
+
+    .modal-full-screen-actions-secondary {
+      left: @pod-margin-left-screen-large;
+    }
+
+    .modal-full-screen-side-panel {
+      left: auto;
+      right: 0;
+      width: 400px;
+    }
+
+    .modal-full-screen-side-panel-placeholder {
+      display: block;
+      flex-shrink: 0;
+      transition: width 0.35s;
+      width: 0;
+
+      &.is-visible {
+        width: 400px;
+      }
+    }
+  }
+}
+
+& when (@full-screen-modal-enabled) and (@layout-screen-jumbo-enabled) {
+
+  @media (min-width: @layout-screen-jumbo-min-width) {
+
+    .modal-full-screen-actions-primary {
+      right: @pod-margin-right-screen-jumbo;
+    }
+
+    .modal-full-screen-actions-secondary {
+      left: @pod-margin-left-screen-jumbo;
+    }
+
+    .modal-full-screen-side-panel {
+      width: 500px;
+    }
+
+    .modal-full-screen-side-panel-placeholder {
+
+      &.is-visible {
+        width: 500px;
+      }
+    }
+  }
+}

@@ -1,8 +1,11 @@
 import deepEqual from 'deep-equal';
-var md5 = require('md5');
-var RouterLocation = require('react-router').HashLocation;
+import md5 from 'md5';
+import {hashHistory, match} from 'react-router';
+
+import RouterUtil from '../../../src/js/utils/RouterUtil';
 
 let SDK = require('../SDK').getSDK();
+
 let {Config, Util} = SDK.get(['Config', 'Util']);
 
 var Actions = {
@@ -10,7 +13,7 @@ var Actions = {
 
   dcosMetadata: null,
 
-  applicationRouter: null,
+  routes: null,
 
   logQueue: [],
 
@@ -21,8 +24,8 @@ var Actions = {
     'logFakePageView'
   ],
 
-  initialize: function () {
-    this.actions.forEach(action => {
+  initialize() {
+    this.actions.forEach((action) => {
       SDK.Hooks.addAction(action, this[action].bind(this));
     });
 
@@ -30,7 +33,7 @@ var Actions = {
     this.start();
   },
 
-  metadataLoaded: function () {
+  metadataLoaded() {
     let metadata = SDK.Store.getAppState().metadata;
     return (metadata &&
       metadata.dcosMetadata &&
@@ -38,7 +41,7 @@ var Actions = {
       metadata.metadata.CLUSTER_ID);
   },
 
-  listenForDcosMetadata: function () {
+  listenForDcosMetadata() {
     if (!this.metadataLoaded()) {
       let unSubscribe = SDK.Store.subscribe(() => {
         if (this.metadataLoaded()) {
@@ -51,12 +54,12 @@ var Actions = {
     }
   },
 
-  mergeMetaData: function () {
+  mergeMetaData() {
     return Object.assign({}, SDK.Store.getAppState().metadata.dcosMetadata,
       {clusterId: SDK.Store.getAppState().metadata.metadata.CLUSTER_ID});
   },
 
-  setDcosMetadata: function (metadata) {
+  setDcosMetadata(metadata) {
     this.dcosMetadata = metadata;
 
     if (this.canLog()) {
@@ -64,23 +67,21 @@ var Actions = {
     }
   },
 
-  setApplicationRouter: function (applicationRouter) {
-    this.applicationRouter = applicationRouter;
+  setRoutes(routes) {
+    this.routes = routes;
 
     if (this.canLog()) {
       this.drainQueue();
     }
   },
 
-  start: function () {
+  start() {
     this.createdAt = Date.now();
     this.lastLogDate = this.createdAt;
     this.stintID = md5(`session_${this.createdAt}`);
 
-    this.setActivePage(RouterLocation.getCurrentPath());
-
-    RouterLocation.addChangeListener(Util.debounce(function (data) {
-      Actions.setActivePage(data.path);
+    hashHistory.listen(Util.debounce(function (location) {
+      Actions.setActivePage(location.pathname + location.search);
     }, 200));
 
     // Poll to deplete queue
@@ -96,26 +97,26 @@ var Actions = {
     checkAnalyticsReady();
   },
 
-  canLog: function () {
+  canLog() {
     return !!(global.analytics
       && global.analytics.initialized
       && this.dcosMetadata != null
-      && this.applicationRouter != null);
+      && this.routes != null);
   },
 
-  drainQueue: function () {
-    this.logQueue.forEach(log => {
+  drainQueue() {
+    this.logQueue.forEach((log) => {
       this.log(log);
     });
     this.logQueue = [];
 
-    this.pageQueue.forEach(path => {
+    this.pageQueue.forEach((path) => {
       this.logPage(path);
     });
     this.pageQueue = [];
   },
 
-  logFakePageView: function (fakePageLog) {
+  logFakePageView(fakePageLog) {
     if (!this.canLog()) {
       this.logQueue.push(fakePageLog);
       return;
@@ -129,7 +130,7 @@ var Actions = {
     this.previousFakePageLog = fakePageLog;
   },
 
-  setActivePage: function (path) {
+  setActivePage(path) {
     if (path[path.length - 1] === '/') {
       path = path.substring(0, path.length - 1);
     }
@@ -142,18 +143,18 @@ var Actions = {
     this.logPage(path);
   },
 
-  getStintID: function () {
+  getStintID() {
     return this.stintID;
   },
 
-  getLogData: function () {
+  getLogData() {
     return Object.assign({
       appVersion: Config.version,
       version: '@@VERSION'
     }, this.dcosMetadata);
   },
 
-  identify: function (uid) {
+  identify(uid) {
     if (!this.canLog()) {
       // Try again
       setTimeout(() => {
@@ -175,33 +176,39 @@ var Actions = {
     this.log('dcos_login');
   },
 
-  logPage: function (path) {
+  logPage(path) {
     if (!this.canLog()) {
       this.pageQueue.push(path);
       return;
     }
 
-    let pathIsString = typeof path === 'string';
-    let match = pathIsString && this.applicationRouter.match(path);
-    if (match) {
-      let route = match.routes[match.routes.length - 1];
-      let pathMatcher = route.path;
+    if (typeof path === 'string') {
+      match({ history: hashHistory, routes: this.routes },
+        (error, redirectLocation, nextState) => {
+          if (!error && nextState) {
+            let pathMatcher = RouterUtil.reconstructPathFromRoutes(nextState.routes);
+            if (nextState.params) {
+              Object.keys(nextState.params).forEach(function (param) {
+                pathMatcher = pathMatcher.replace(`:${param}?`, `[${param}]`);
+                pathMatcher = pathMatcher.replace(`:${param}`, `[${param}]`);
+              });
+            }
 
-      if (route.paramNames && route.paramNames.length) {
-        route.paramNames.forEach(function (param) {
-          pathMatcher = pathMatcher.replace(`:${param}?`, `[${param}]`);
-          pathMatcher = pathMatcher.replace(`:${param}`, `[${param}]`);
-        });
-      }
+            // Replaces '/?/' and '/?' with '/'
+            path = pathMatcher.replace(/\/\?\/?/g, '/');
+          } else {
+            path = '/unknown';
+          }
 
-      // Replaces '/?/' and '/?' with '/'
-      path = pathMatcher.replace(/\/\?\/?/g, '/');
-    } else {
-      if (pathIsString) {
-        path = '/unknown';
-      }
+          this.submitToAnalytics(path);
+        }
+      );
     }
 
+    this.submitToAnalytics(path);
+  },
+
+  submitToAnalytics(path) {
     global.analytics.page(Object.assign(
       this.getLogData(),
       this.getAnonymizingKeys().page,
@@ -213,7 +220,7 @@ var Actions = {
    * Logs arbitriary data
    * @param  {String} eventID
    */
-  log: function (eventID) {
+  log(eventID) {
     if (!this.canLog()) {
       this.logQueue.push(eventID);
       return;
@@ -225,7 +232,7 @@ var Actions = {
     global.analytics.track(eventID, log, this.getAnonymizingKeys());
   },
 
-  getAnonymizingKeys: function () {
+  getAnonymizingKeys() {
     return {
       page: {
         // Anonymize

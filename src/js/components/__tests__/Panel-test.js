@@ -1,11 +1,11 @@
 jest.dontMock('../Panel');
 /* eslint-disable no-unused-vars */
-var React = require('react');
+const React = require('react');
 /* eslint-enable no-unused-vars */
-var ReactDOM = require('react-dom');
-var TestUtils = require('react-addons-test-utils');
+const ReactDOM = require('react-dom');
+const TestUtils = require('react-addons-test-utils');
 
-var Panel = require('../Panel');
+const Panel = require('../Panel');
 
 describe('Panel', function () {
   beforeEach(function () {
@@ -41,7 +41,7 @@ describe('Panel', function () {
       var panel =
         TestUtils.findRenderedComponentWithType(this.instance, Panel);
       var node = ReactDOM.findDOMNode(panel);
-      expect(node.className).toBe('foo');
+      expect(node.className).toContain('foo');
     });
 
     it('should override className to content node', function () {
@@ -50,7 +50,7 @@ describe('Panel', function () {
         'bar'
       );
       var node = ReactDOM.findDOMNode(content);
-      expect(node.className).toBe('bar');
+      expect(node.className).toContain('bar');
     });
 
     it('should use default className to content node', function () {
@@ -59,7 +59,7 @@ describe('Panel', function () {
         'panel-content'
       );
       var node = ReactDOM.findDOMNode(content);
-      expect(node.className).toBe('panel-content');
+      expect(node.className).toContain('panel-content');
     });
 
     it('should override className to footer node', function () {
@@ -68,7 +68,7 @@ describe('Panel', function () {
         'bar'
       );
       var node = ReactDOM.findDOMNode(footer);
-      expect(node.className).toBe('bar');
+      expect(node.className).toContain('bar');
     });
 
     it('should use default className to footer node', function () {
@@ -77,7 +77,7 @@ describe('Panel', function () {
         'panel-footer'
       );
       var node = ReactDOM.findDOMNode(footer);
-      expect(node.className).toBe('panel-footer');
+      expect(node.className).toContain('panel-footer');
     });
 
     it('should not render footer when none is given', function () {
@@ -94,7 +94,7 @@ describe('Panel', function () {
         'bar'
       );
       var node = ReactDOM.findDOMNode(heading);
-      expect(node.className).toBe('bar');
+      expect(node.className).toContain('bar');
     });
 
     it('should use default className to heading node', function () {
@@ -103,7 +103,7 @@ describe('Panel', function () {
         'panel-header'
       );
       var node = ReactDOM.findDOMNode(heading);
-      expect(node.className).toBe('panel-header');
+      expect(node.className).toContain('panel-header');
     });
 
     it('should not render heading when none is given', function () {

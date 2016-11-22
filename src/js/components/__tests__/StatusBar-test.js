@@ -1,11 +1,11 @@
 jest.dontMock('../StatusBar');
 
 /* eslint-disable no-unused-vars */
-var React = require('react');
+const React = require('react');
 /* eslint-enable no-unused-vars */
-let ReactDOM = require('react-dom');
+const ReactDOM = require('react-dom');
 
-let StatusBar = require('../StatusBar');
+const StatusBar = require('../StatusBar');
 
 const testData = [
   {
@@ -96,10 +96,10 @@ describe('#StatusBar', function () {
   });
 
   describe('className', function () {
-    it('should contain progress-bar (default)', function () {
+    it('should contain status-bar (default)', function () {
       expect(
         this.container.querySelector('div')
-          .classList.contains('progress-bar')
+          .classList.contains('status-bar')
       ).toBeTruthy();
     });
 
@@ -144,11 +144,11 @@ describe('#StatusBar', function () {
           ).toBeTruthy();
         });
 
-      it('should have a transform of scaleX(0.4)', function () {
+      it('should have a width of 40%', function () {
         expect(
           this.container.querySelector('.bar:first-child')
-            .style.transform
-        ).toEqual('scaleX(0.4)');
+            .style.width
+        ).toEqual('40%');
       });
     });
 
@@ -161,12 +161,67 @@ describe('#StatusBar', function () {
         ).toBeTruthy();
       });
 
-      it('should have a transform of scaleX(0.6)', function () {
+      it('should have a width of 60%', function () {
         expect(
           this.container.querySelector('.bar:nth-child(2)')
-            .style.transform
-        ).toEqual('scaleX(0.6)');
+            .style.width
+        ).toEqual('60%');
       });
     });
+
+    describe('Growing small .bar portions to be visible when below threshold',
+      function () {
+
+        it('should not have .bar elements < 7% width', function () {
+          ReactDOM.render(
+            <StatusBar
+              data={[
+                {
+                  value: 99
+                },
+                {
+                  value: 1
+                }
+              ]}
+              className="test-bar"/>,
+            this.container
+          );
+          let percentages = [];
+          [].slice.call(this.container.querySelectorAll('.bar')).forEach(function (el) {
+            percentages.push(parseInt(el.style.width.replace('%', '')));
+          });
+          expect(percentages.length).toBe(2);
+          expect(percentages.filter((percent) => percent < 7).length).toBe(0);
+        });
+
+        it('should not have .bar elements < 7% width when using scale', function () {
+          ReactDOM.render(
+            <StatusBar
+              data={[
+                {
+                  value: 0
+                },
+                {
+                  value: 1
+                },
+                {
+                  value: 1
+                },
+                {
+                  value: 6
+                }
+              ]}
+              scale={100}
+              className="test-bar"/>,
+            this.container
+          );
+          let percentages = [];
+          [].slice.call(this.container.querySelectorAll('.bar')).forEach(function (el) {
+            percentages.push(parseInt(el.style.width.replace('%', '')));
+          });
+          expect(percentages.length).toBe(3);
+          expect(percentages.filter((percent) => percent < 7).length).toBe(0);
+        });
+      });
   });
 });

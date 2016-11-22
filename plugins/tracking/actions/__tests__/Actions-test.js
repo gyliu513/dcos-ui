@@ -1,25 +1,27 @@
 jest.dontMock('../Actions');
 
 jest.setMock('react-router', {
-  HashLocation: {
-    getCurrentPath: function () { return '/foo'; },
-    addChangeListener: function () {}
+  hashHistory: {
+    location: '/foo',
+    listen() {}
+  },
+  match() {
+
   }
 });
 
-import PluginTestUtils from 'PluginTestUtils';
+const PluginTestUtils = require('PluginTestUtils');
 
 let SDK = PluginTestUtils.getSDK('tracking', {enabled: true});
 require('../../SDK').setSDK(SDK);
+const Actions = require('../Actions');
 
 PluginTestUtils.dontMock(['Util']);
 
-var Actions = require('../Actions');
-
 global.analytics = {
   initialized: true,
-  page: function () {},
-  track: function () {}
+  page() {},
+  track() {}
 };
 
 var DCOS_METADATA = {
@@ -28,15 +30,9 @@ var DCOS_METADATA = {
   'bootstrap-id': 'bootstrap'
 };
 
-var router = {
-  match: function () {
-    return {
-      routes: [
-        {path: '/foo'}
-      ]
-    }
-  }
-};
+var routes = [
+  {path: '/foo'}
+];
 
 describe('Actions', function () {
 
@@ -54,21 +50,21 @@ describe('Actions', function () {
 
     it('calls analytics#track', function () {
       Actions.setDcosMetadata(DCOS_METADATA);
-      Actions.setApplicationRouter(router);
+      Actions.setRoutes(routes);
       Actions.log('foo');
       expect(global.analytics.track.calls.count()).toEqual(1);
     });
 
     it('calls analytics#track with correct eventID', function () {
       Actions.setDcosMetadata(DCOS_METADATA);
-      Actions.setApplicationRouter(router);
+      Actions.setRoutes(routes);
       Actions.log('baz');
       expect(global.analytics.track.calls.mostRecent().args[0]).toEqual('baz');
     });
 
     it('calls analytics#track with correct log', function () {
       Actions.setDcosMetadata(DCOS_METADATA);
-      Actions.setApplicationRouter(router);
+      Actions.setRoutes(routes);
       Actions.log('foo');
 
       var args = global.analytics.track.calls.mostRecent().args[1];
@@ -95,7 +91,7 @@ describe('Actions', function () {
 
     it('sets the dcosMetadata', function () {
       Actions.setDcosMetadata(DCOS_METADATA);
-      Actions.setApplicationRouter(router);
+      Actions.setRoutes(routes);
       expect(Actions.dcosMetadata).toEqual(DCOS_METADATA);
     });
 
@@ -105,7 +101,7 @@ describe('Actions', function () {
       Actions.log('baz');
       spyOn(Actions, 'log');
       Actions.setDcosMetadata(DCOS_METADATA);
-      Actions.setApplicationRouter(router);
+      Actions.setRoutes(routes);
       expect(Actions.log.calls.count()).toEqual(3);
       var calls = Actions.log.calls.all();
       ['foo', 'bar', 'baz'].forEach(function (log, i) {
@@ -115,11 +111,11 @@ describe('Actions', function () {
 
   });
 
-  describe('#setApplicationRouter', function () {
+  describe('#setRoutes', function () {
 
     beforeEach(function () {
       Actions.dcosMetadata = null;
-      Actions.applicationRouter = null;
+      Actions.routes = null;
       spyOn(global.analytics, 'track');
     });
 
@@ -128,12 +124,12 @@ describe('Actions', function () {
       expect(global.analytics.track).not.toHaveBeenCalled();
     });
 
-    it('sets the applicationRouter', function () {
+    it('sets the routes', function () {
       Actions.setDcosMetadata(DCOS_METADATA);
-      Actions.setApplicationRouter(router);
-      expect(Actions.applicationRouter.match()).toEqual({
-        routes: [{path: '/foo'}]
-      });
+      Actions.setRoutes(routes);
+      expect(Actions.routes).toEqual(
+        [{path: '/foo'}]
+      );
     });
 
     it('runs queued logs when metadata is set', function () {
@@ -142,7 +138,7 @@ describe('Actions', function () {
       Actions.log('baz');
       spyOn(Actions, 'log');
       Actions.setDcosMetadata(DCOS_METADATA);
-      Actions.setApplicationRouter(router);
+      Actions.setRoutes(routes);
       expect(Actions.log.calls.count()).toEqual(3);
       var calls = Actions.log.calls.all();
       ['foo', 'bar', 'baz'].forEach(function (log, i) {

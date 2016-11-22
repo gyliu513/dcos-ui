@@ -33,24 +33,19 @@ module.exports = class AccessDeniedPage extends React.Component {
 
   render() {
     return (
-      <div className="flex-container-col fill-height">
-        <div className="page-content container-scrollable inverse">
-          <div className="container container-fluid container-pod
-            flex-container-col">
-            <AlertPanel
-              footer={this.getFooter()}
-              iconClassName="icon icon-sprite icon-sprite-jumbo
-                icon-sprite-jumbo-white icon-lost-planet flush-top"
-              title="Access Denied">
-              <p>
-                You do not have access to this service. <br />
-                Please contact your {Config.productName} administrator.
-              </p>
-              <p className="flush-bottom">
-                See the <a href={MetadataStore.buildDocsURI('/administration/security-and-authentication/')} target="_blank">Security and Authentication</a> documentation for more information.
-              </p>
-            </AlertPanel>
-          </div>
+      <div className="page flex flex-direction-top-to-bottom flex-item-grow-1">
+        <div className="page-body-content flex flex-direction-top-to-bottom flex-item-grow-1 horizontal-center vertical-center">
+          <AlertPanel
+            footer={this.getFooter()}
+            title="Access Denied">
+            <p>
+              You do not have access to this service. <br />
+              Please contact your {Config.productName} administrator.
+            </p>
+            <p className="flush-bottom">
+              See the security <a href={MetadataStore.buildDocsURI('/administration/id-and-access-mgt/')} target="_blank">documentation</a> for more information.
+            </p>
+          </AlertPanel>
         </div>
       </div>
     );

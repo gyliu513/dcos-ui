@@ -15,13 +15,13 @@ const TabsUtil = {
    * @param  {Function} getElement render function to render each element
    * @return {Array} of tabs to render
    */
-  getTabs: function (tabs, currentTab, getElement) {
+  getTabs(tabs, currentTab, getElement) {
     let tabSet = Object.keys(tabs);
 
     return tabSet.map(function (tab, index) {
       let tabClass = classNames({
-        'tab-item': true,
-        'active': currentTab.startsWith(tab)
+        'menu-tabbed-item': true,
+        'active': !!currentTab && currentTab.startsWith(tab)
       });
 
       return (
@@ -37,13 +37,13 @@ const TabsUtil = {
    * @param  {Object} tabs - tabs with a key for each tab to render
    * @return {Object}      tabs Object with sorted insertion order
    */
-  sortTabs: function (tabs) {
+  sortTabs(tabs) {
     let comparator = (a, b) => b[1] - a[1];
 
     return Object.keys(tabs)
-      .map(key => [key, tabs[key].priority || 0])
+      .map((key) => [key, tabs[key].priority || 0])
       .sort(comparator)
-      .map(val => val[0])
+      .map((val) => val[0])
       .reduce((acc, curr) => {
         acc[curr] = tabs[curr].content;
         return acc;

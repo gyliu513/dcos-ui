@@ -1,37 +1,61 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
 /* eslint-enable no-unused-vars */
-import {Route} from 'react-router';
+import {Redirect, Route, hashHistory} from 'react-router';
 import {StoreMixin} from 'mesosphere-shared-reactjs';
 
 import LoginPage from './components/LoginPage';
-import UserDropup from './components/UserDropup';
 
 let SDK = require('./SDK').getSDK();
 
-let {AccessDeniedPage, Authenticated, ConfigStore, CookieUtils} = SDK.get([
-  'AccessDeniedPage', 'Authenticated', 'ConfigStore', 'CookieUtils']);
+let {
+  AccessDeniedPage,
+  ApplicationUtil,
+  Authenticated,
+  AuthStore,
+  ConfigStore,
+  CookieUtils,
+  RouterUtil,
+  UserDropup,
+  UsersTab
+} = SDK.get([
+  'AccessDeniedPage',
+  'ApplicationUtil',
+  'AuthStore',
+  'Authenticated',
+  'ConfigStore',
+  'CookieUtils',
+  'RouterUtil',
+  'UserDropup',
+  'UsersTab'
+]);
 
 let configResponseCallback = null;
+let defaultOrganizationRoute = {
+  routes: []
+};
 
 module.exports = Object.assign({}, StoreMixin, {
   actions: [
     'AJAXRequestError',
+    'userLoginSuccess',
     'userLogoutSuccess',
     'redirectToLogin'
   ],
 
   filters: [
-    'sidebarFooter',
     'applicationRoutes',
+    'delayApplicationLoad',
+    'organizationRoutes',
+    'sidebarFooter',
     'serverErrorModalListeners'
   ],
 
   initialize() {
-    this.filters.forEach(filter => {
+    this.filters.forEach((filter) => {
       SDK.Hooks.addFilter(filter, this[filter].bind(this));
     });
-    this.actions.forEach(action => {
+    this.actions.forEach((action) => {
       SDK.Hooks.addAction(action, this[action].bind(this));
     });
     this.store_initializeListeners([{
@@ -40,8 +64,8 @@ module.exports = Object.assign({}, StoreMixin, {
     }]);
   },
 
-  redirectToLogin(transition) {
-    transition.redirect('/login');
+  redirectToLogin(nextState, replace) {
+    replace('/login');
   },
 
   AJAXRequestError(xhr) {
@@ -89,22 +113,21 @@ module.exports = Object.assign({}, StoreMixin, {
     // Override handler of index to be 'authenticated'
     routes[0].children.forEach(function (child) {
       if (child.id === 'index') {
-        child.handler = new Authenticated(child.handler);
+        child.component = new Authenticated(child.component);
+        child.onEnter = child.component.willTransitionTo;
       }
     });
 
     // Add access denied and login pages
     routes[0].children.unshift(
       {
-        type: Route,
-        name: 'access-denied',
-        path: 'access-denied',
-        handler: AccessDeniedPage
+        component: AccessDeniedPage,
+        path: '/access-denied',
+        type: Route
       },
       {
-        handler: LoginPage,
-        name: 'login',
-        path: 'login',
+        component: LoginPage,
+        path: '/login',
         type: Route
       }
     );
@@ -125,11 +148,85 @@ module.exports = Object.assign({}, StoreMixin, {
     }
   },
 
+  // Ensure user route under organization
+  organizationRoutes(routeDefinition = defaultOrganizationRoute) {
+    let userRoute = {
+      type: Route,
+      path: 'users',
+      component: UsersTab,
+      buildBreadCrumb() {
+        return {
+          parentCrumb: '/organization',
+          getCrumbs() {
+            return [
+              {
+                label: 'Users',
+                route: {to: '/organization/users'}
+              }
+            ];
+          }
+        };
+      }
+    };
+    let usersRouteIndex = routeDefinition.routes.findIndex(function (route) {
+      return route.name === userRoute.name;
+    });
+    // Replace by new definition
+    if (usersRouteIndex !== -1) {
+      routeDefinition.routes.splice(usersRouteIndex, 1, userRoute);
+    }
+
+    // Add user route if not already present
+    if (usersRouteIndex === -1) {
+      routeDefinition.routes.push(userRoute);
+    }
+
+    routeDefinition.redirect = {
+      type: Redirect,
+      from: '/organization',
+      to: '/organization/users'
+    };
+
+    return routeDefinition;
+  },
+
+  userLoginSuccess() {
+    let redirectTo = RouterUtil.getRedirectTo();
+
+    if (redirectTo) {
+      window.location.href = redirectTo;
+    } else {
+      ApplicationUtil.beginTemporaryPolling(() => {
+        let loginRedirectRoute = AuthStore.get('loginRedirectRoute');
+
+        if (loginRedirectRoute) {
+          // Go to redirect route if it is present
+          hashHistory.push(loginRedirectRoute);
+        } else {
+          // Go to home
+          hashHistory.push('/');
+        }
+      });
+    }
+  },
+
   userLogoutSuccess() {
     // Reload configuration because we need to get 'firstUser' which is
     // dynamically set based on number of users
     configResponseCallback = this.navigateToLoginPage;
     ConfigStore.fetchConfig();
+  },
+
+  delayApplicationLoad(value) {
+    let user = AuthStore.getUser();
+
+    // If user is logged in, then let's let the app do its thing
+    if (user) {
+      return value;
+    }
+
+    // Let's wait till login and then we'll request mesos summary before render
+    return false;
   },
 
   navigateToLoginPage() {

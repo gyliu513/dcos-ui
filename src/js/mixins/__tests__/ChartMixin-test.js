@@ -1,5 +1,6 @@
 jest.dontMock('../ChartMixin');
-var ChartMixin = require('../ChartMixin');
+
+const ChartMixin = require('../ChartMixin');
 
 describe('ChartMixin', function () {
 
@@ -19,7 +20,7 @@ describe('ChartMixin', function () {
     }];
 
     this.props = {
-      data: data,
+      data,
       margin: {
         left: 0,
         right: 0,

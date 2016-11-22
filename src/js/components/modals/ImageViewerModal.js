@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import {Modal} from 'reactjs-components';
 import React from 'react';
 
-import IconChevron from '../icons/IconChevron';
+import Icon from '../Icon';
 import {keyCodes} from '../../utils/KeyboardUtil';
 
 const METHODS_TO_BIND = [
@@ -93,15 +93,23 @@ class ImageViewerModal extends React.Component {
       <div onKeyPress={this.handleKeyPress}>
         <span
           onClick={this.handleClick.bind(this, 'left')}
-          className="clickable arrow-container">
-          <IconChevron className="icon icon-back icon-small arrow"
-            isForward={false} />
+          className="modal-image-viewer-arrow-container clickable backward">
+          <Icon
+            className="arrow"
+            color="white"
+            family="small"
+            id="caret-left"
+            size="small" />
         </span>
         <span
-          className="clickable arrow-container forward"
+          className="modal-image-viewer-arrow-container clickable forward"
           onClick={this.handleClick.bind(this, 'left')}>
-          <IconChevron
-            className="icon icon-back icon-small arrow" />
+          <Icon
+            className="arrow"
+            color="white"
+            family="small"
+            id="caret-right"
+            size="small" />
         </span>
       </div>
     );
@@ -109,6 +117,7 @@ class ImageViewerModal extends React.Component {
 
   render() {
     let {props, state} = this;
+    let closeIcon = <Icon family="mini" id="close" size="mini" />;
     let modalClasses = classNames('modal modal-image-viewer', {
       hidden: state.isLoadingImage
     });
@@ -116,14 +125,13 @@ class ImageViewerModal extends React.Component {
     return (
       <Modal
         footer={this.getFooter()}
-        innerBodyClass=""
-        maxHeightPercentage={0.9}
         modalClass={modalClasses}
         onClose={props.onClose}
         open={props.open}
-        showCloseButton={true}
+        scrollContainerClass=""
+        closeButton={closeIcon}
         showFooter={props.images && props.images.length > 1}
-        showHeader={true}
+        showHeader={false}
         useGemini={false}>
         {this.getSelectedImage()}
       </Modal>

@@ -1,11 +1,11 @@
 jest.dontMock('../ChartStripes');
 /* eslint-disable no-unused-vars */
-var React = require('react');
+const React = require('react');
 /* eslint-enable no-unused-vars */
-var ReactDOM = require('react-dom');
-var TestUtils = require('react-addons-test-utils');
+const ReactDOM = require('react-dom');
+const TestUtils = require('react-addons-test-utils');
 
-var ChartStripes = require('../ChartStripes');
+const ChartStripes = require('../ChartStripes');
 
 describe('ChartStripes', function () {
 
@@ -49,7 +49,7 @@ describe('ChartStripes', function () {
 
     stripes.forEach(function (stripe, i) {
       expect(parseInt(ReactDOM.findDOMNode(stripe).attributes.x.value, 10))
-        .toEqual(25 + i * 50);
+        .toEqual(25 + (i * 50));
     });
   });
 
@@ -79,7 +79,7 @@ describe('ChartStripes', function () {
 
     stripes.forEach(function (stripe, i) {
       expect(parseInt(ReactDOM.findDOMNode(stripe).attributes.x.value, 10))
-        .toEqual(30 + i * 60);
+        .toEqual(30 + (i * 60));
     });
   });
 

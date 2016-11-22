@@ -1,10 +1,11 @@
-var classNames = require('classnames');
+import classNames from 'classnames';
 import {Modal} from 'reactjs-components';
-var React = require('react');
+import React from 'react';
 
 import Config from '../../config/Config';
-var InternalStorageMixin = require('../../mixins/InternalStorageMixin');
-var Validator = require('../../utils/Validator');
+import InternalStorageMixin from '../../mixins/InternalStorageMixin';
+import ModalHeading from '../modals/ModalHeading';
+import ValidatorUtil from '../../utils/ValidatorUtil';
 
 var IdentifyModal = React.createClass({
 
@@ -16,22 +17,22 @@ var IdentifyModal = React.createClass({
 
   mixins: [InternalStorageMixin],
 
-  componentWillMount: function () {
+  componentWillMount() {
     this.internalStorage_set({
       emailHasError: false,
       email: ''
     });
   },
 
-  handleSubmit: function (e) {
+  handleSubmit(e) {
     e.preventDefault();
 
     var email = this.refs.email.value.toLowerCase();
 
-    if (!Validator.isEmail(email)) {
+    if (!ValidatorUtil.isEmail(email)) {
       this.internalStorage_update({
         emailHasError: true,
-        email: email
+        email
       });
 
       this.forceUpdate();
@@ -42,7 +43,7 @@ var IdentifyModal = React.createClass({
     this.props.onLogin(email);
   },
 
-  getFooter: function () {
+  getFooter() {
     return (
       <div className="button-collection button-collection-align-horizontal-center flush-bottom">
         <button className="button button-primary button-large button-wide-below-screen-mini"
@@ -53,16 +54,24 @@ var IdentifyModal = React.createClass({
     );
   },
 
-  getSubHeader: function () {
+  getHeader() {
     return (
-      <p className="text-align-center inverse">
+      <ModalHeading level={5}>
+        {Config.productName}
+      </ModalHeading>
+    );
+  },
+
+  getSubHeader() {
+    return (
+      <p className="text-align-center">
         Your feedback means a lot to us. Please provide an email address below
         that we can use to respond to your comments and suggestions.
       </p>
     );
   },
 
-  render: function () {
+  render() {
     var data = this.internalStorage_get();
     var emailClassSet = classNames({
       'form-group': true,
@@ -79,16 +88,13 @@ var IdentifyModal = React.createClass({
       <Modal
         closeByBackdropClick={false}
         footer={this.getFooter()}
-        maxHeightPercentage={0.9}
+        header={this.getHeader()}
         modalClass="modal"
         modalClassName="login-modal"
         open={this.props.open}
-        showCloseButton={false}
         showHeader={true}
         showFooter={true}
-        subHeader={this.getSubHeader()}
-        titleClass="modal-header-title text-align-center flush-top"
-        titleText={Config.productName}>
+        subHeader={this.getSubHeader()}>
         <form className="flush-bottom"
           onSubmit={this.handleSubmit}>
           <div className={emailClassSet}>

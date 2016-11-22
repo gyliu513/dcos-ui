@@ -1,66 +1,83 @@
-import {Route, Redirect, NotFoundRoute} from 'react-router';
-
-import dashboard from './dashboard';
+import {Route, Redirect} from 'react-router';
 import {Hooks} from 'PluginSDK';
+
+import cluster from './cluster';
+import components from './components';
+import dashboard from './dashboard';
 import Index from '../pages/Index';
-import nodes from './nodes';
-import NotFoundPage from '../pages/NotFoundPage';
-import System from './factories/system';
-import services from './services';
 import jobs from './jobs';
+import Network from './factories/network';
+import nodes from '../../../plugins/nodes/src/js/routes/nodes';
+import NotFoundPage from '../pages/NotFoundPage';
+import Organization from './factories/organization';
+import {RoutingService} from '../../../foundation-ui/routing';
+import services from '../../../plugins/services/src/js/routes/services';
+import settings from './settings';
+import styles from './styles'; // eslint-disable-line
 import universe from './universe';
 
-// Statically defined routes
-let applicationRoutes = [
-  dashboard,
-  services,
-  jobs,
-  nodes,
-
-  universe,
-  {
-    type: Redirect,
-    from: '/',
-    to: 'dashboard'
-  },
-  {
-    type: NotFoundRoute,
-    handler: NotFoundPage
-  }
-];
-
 // Modules that produce routes
-let routeFactories = [System];
+let routeFactories = [Organization, Network];
 
 function getApplicationRoutes() {
-  let routes = applicationRoutes.slice();
+  // Statically defined routes
+  let routes = [].concat(
+    {
+      type: Redirect,
+      path: '/',
+      to: Hooks.applyFilter('applicationRedirectRoute', '/dashboard')
+    },
+    dashboard,
+    services,
+    jobs,
+    nodes,
+    universe,
+    cluster,
+    components,
+    settings
+  );
 
   routeFactories.forEach(function (routeFactory) {
-    routes.push(routeFactory.getRoutes());
+    routes = routes.concat(routeFactory.getRoutes());
   });
 
-  return [
+  routes = [
     {
       type: Route,
-      name: 'home',
-      path: '/',
       children: [
         {
           type: Route,
           id: 'index',
-          handler: Index,
+          component: Index,
           children: routes
         }
       ]
+    },
+    {
+      type: Route,
+      path: '*',
+      component: NotFoundPage
     }
   ];
+
+  return routes;
 }
 
 function getRoutes() {
   // Get application routes
   let routes = getApplicationRoutes();
+
   // Provide opportunity for plugins to inject routes
-  return Hooks.applyFilter('applicationRoutes', routes);
+  routes = Hooks.applyFilter('applicationRoutes', routes);
+
+  let indexRoute = routes[0].children.find((route) => route.id === 'index');
+
+  // Register packages
+  indexRoute.children = indexRoute.children.concat(
+    RoutingService.getDefinition()
+  );
+
+  return routes;
 }
 
 module.exports = {

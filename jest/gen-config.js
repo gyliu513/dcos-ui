@@ -3,26 +3,23 @@
  */
 var fs = require('fs');
 var path = require('path');
-var testPaths = ['src', 'plugins'];
+var testPaths = ['src', 'plugins', 'foundation-ui'];
 
 if (process.env.npm_config_externalplugins) {
   testPaths.push(process.env.npm_config_externalplugins);
 }
 
 var config = {
+  'automock': true,
   'name': '', // https://github.com/facebook/jest/issues/955
-  'testDirectoryName': '__tests__',
   'testPathDirs': testPaths,
   'globals': {
     '__DEV__': true
   },
   'scriptPreprocessor': 'jest/preprocessor.js',
   'setupTestFrameworkScriptFile': 'jest/setupTestFramework.js',
-  'setupEnvScriptFile': 'jest/setupEnv.js',
-  'testFileExtensions': [
-    'es6',
-    'js'
-  ],
+  'setupFiles': ['jest/setupEnv.js'],
+  'testRegex': '/__tests__/.*\\-test\\.(es6|js)$',
   'moduleFileExtensions': [
     'js',
     'json',
@@ -33,6 +30,7 @@ var config = {
     '/node_modules/',
     '/.module-cache/'
   ],
+  'timers': 'fake',
   // We need this to override jest's default ['/node_modules/']
   'preprocessorIgnorePatterns' : [],
   'unmockedModulePathPatterns': [
@@ -52,13 +50,13 @@ var config = {
     'mixins/index',
     'src/js/config/',
     'src/js/constants',
-    'src/js/mixins/PluginGetSetMixin',
     'src/js/plugin-bridge/AppReducer',
     'src/js/plugin-bridge/Hooks',
     'src/js/plugin-bridge/middleware',
     'src/js/plugin-bridge/PluginSDK',
     'src/js/plugin-bridge/PluginTestUtils',
     'src/js/stores/BaseStore',
+    'src/js/stores/GetSetBaseStore',
     'src/js/structs',
     'src/js/utils',
     'plugins',

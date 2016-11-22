@@ -1,8 +1,8 @@
 import {Link} from 'react-router';
 import React from 'react';
+import {ResourceTableUtil} from 'foundation-ui';
 import {Table} from 'reactjs-components';
 
-import ResourceTableUtil from '../utils/ResourceTableUtil';
 import StringUtil from '../utils/StringUtil';
 import TableUtil from '../utils/TableUtil';
 import UnitHealthUtil from '../utils/UnitHealthUtil';
@@ -83,11 +83,12 @@ class UnitHealthNodesTable extends React.Component {
   }
 
   getNodeLink(node, linkText) {
-    let params = Object.assign({}, this.props.params, {unitNodeID: node.get('host_ip')});
+    let {unitID} = this.props.params;
+    let unitNodeID = node.get('host_ip');
 
     return (
-      <Link className="emphasize clickable text-overflow" params={params}
-        to="system-overview-units-unit-nodes-node-detail">
+      <Link className="table-cell-link-primary text-overflow"
+        to={`/components/${unitID}/nodes/${unitNodeID}`}>
         {linkText}
       </Link>
     );
@@ -117,7 +118,7 @@ class UnitHealthNodesTable extends React.Component {
     return (
       <Table
         className="table table-borderless-outer
-          table-borderless-inner-columns flush-bottom inverse"
+          table-borderless-inner-columns flush-bottom"
         columns={this.getColumns()}
         colGroup={this.getColGroup()}
         containerSelector=".gm-scroll-view"

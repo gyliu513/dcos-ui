@@ -27,9 +27,9 @@ class ToggleButton extends React.Component {
 
 ToggleButton.defaultProps = {
   checked: false,
-  onChange: function () {},
+  onChange() {},
   checkboxClassName: 'toggle-button'
-}
+};
 
 ToggleButton.propTypes = {
   checked: React.PropTypes.bool,
@@ -46,6 +46,6 @@ ToggleButton.propTypes = {
     React.PropTypes.object,
     React.PropTypes.string
   ])
-}
+};
 
 module.exports = ToggleButton;

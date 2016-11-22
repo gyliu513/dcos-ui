@@ -1,81 +1,39 @@
-import Clipboard from 'clipboard';
-import browserInfo from 'browser-info';
+import mixin from 'reactjs-mixin';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import {Tooltip} from 'reactjs-components';
+import {StoreMixin} from 'mesosphere-shared-reactjs';
 
+import ClipboardTrigger from '../components/ClipboardTrigger';
 import ClusterName from './ClusterName';
 import MetadataStore from '../stores/MetadataStore';
 
-var ClusterHeader = React.createClass({
-  displayName: 'ClusterHeader',
+class ClusterHeader extends mixin(StoreMixin) {
+  constructor() {
+    super(...arguments);
 
-  getDefaultProps: function () {
-    return {
-      useClipboard: true
-    };
-  },
+    this.store_listeners = [
+      {
+        name: 'metadata',
+        events: ['success'],
+        listenAlways: false
+      }
+    ];
+  }
 
-  getInitialState: function () {
-    return {
-      hasCopiedToClipboard: false
-    };
-  },
-
-  componentDidMount() {
-    if (this.refs.copyButton) {
-      this.clipboard = new Clipboard(ReactDOM.findDOMNode(this.refs.copyButton),
-        {
-          text: () => {
-            return this.getPublicIP();
-          }
-        }
-      );
-
-      this.clipboard.on('success', this.handleCopy);
+  shouldComponentUpdate(nextProps) {
+    if (nextProps.useClipboard !== this.props.useClipboard) {
+      return true;
     }
-  },
 
-  componentWillUnmount() {
-    if (this.clipboard) {
-      this.clipboard.destroy();
-    }
-  },
-
-  handleCopy() {
-    this.setState({hasCopiedToClipboard: true});
-  },
-
-  handleCopyIconMouseEnter() {
-    this.setState({hasCopiedToClipboard: false});
-  },
+    return false;
+  }
 
   getFlashButton() {
-    let clipboardIcon = null;
-    let tooltipContent = 'Copy to clipboard';
-
-    if (this.props.useClipboard) {
-      clipboardIcon = (
-        <i className="icon icon-sprite icon-sprite-mini icon-clipboard
-          icon-sprite-mini-color clickable"
-          onMouseEnter={this.handleCopyIconMouseEnter} />
-      );
+    if (!this.props.useClipboard) {
+      return null;
     }
 
-    if (this.state.hasCopiedToClipboard) {
-      tooltipContent = 'Copied!';
-    }
-
-    if (!/safari/i.test(browserInfo().name)) {
-      return (
-        <Tooltip position="bottom" content={tooltipContent} ref="copyButton">
-          {clipboardIcon}
-        </Tooltip>
-      );
-    }
-
-    return null;
-  },
+    return <ClipboardTrigger copyText={this.getPublicIP()} />;
+  }
 
   getPublicIP() {
     let metadata = MetadataStore.get('metadata');
@@ -87,32 +45,40 @@ var ClusterHeader = React.createClass({
     }
 
     return metadata.PUBLIC_IPV4;
-  },
+  }
 
   getHostName() {
     let ip = this.getPublicIP();
 
     return (
-      <div className="sidebar-header-sublabel"
+      <div className="header-subtitle"
         title={ip}>
-        <span className="hostname text-overflow">
+        <p className="hostname text-overflow flush">
           {ip}
-        </span>
-        <span className="sidebar-header-sublabel-action">
+        </p>
+        <span className="header-subtitle-action">
           {this.getFlashButton()}
         </span>
       </div>
     );
-  },
+  }
 
   render() {
     return (
-      <div className="container container-fluid container-fluid-narrow container-pod container-pod-short">
+      <div>
         <ClusterName />
         {this.getHostName()}
       </div>
     );
   }
-});
+}
+
+ClusterHeader.defaultProps = {
+  useClipboard: true
+};
+
+ClusterHeader.propTypes = {
+  useClipboard: React.PropTypes.bool
+};
 
 module.exports = ClusterHeader;

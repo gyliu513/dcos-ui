@@ -1,8 +1,62 @@
 jest.dontMock('../DOMUtils');
 
-var DOMUtils = require('../DOMUtils');
+const DOMUtils = require('../DOMUtils');
 
 describe('DOMUtils', function () {
+
+  describe('#closest', function () {
+
+    it('should return the parent element when provided a selector and ' +
+      'element where the element is a child of the selection', function () {
+      var el = {
+        parentElement: {
+          id: 'something-fake',
+          matches() {
+            return true;
+          }
+        },
+        matches() {
+          return false;
+        }
+      };
+      var match = DOMUtils.closest(el, '.fake-selector');
+
+      expect(match.id).toEqual('something-fake');
+    });
+
+    it('should return null when provided a selector and element where ' +
+      'the element is not a child of the selection', function () {
+      var el = {
+        parentElement: null,
+        matches() {
+          return true;
+        }
+      };
+      var match = DOMUtils.closest(el, '.fake-selector');
+
+      expect(match).toEqual(null);
+    });
+
+    it('should return the provided element when the provided element' +
+      'matches the selector AND has a parent element', function () {
+      var el = {
+        parentElement: {
+          id: 'something-fake',
+          matches() {
+            return false;
+          }
+        },
+        id: 'child-element',
+        matches() {
+          return true;
+        }
+      };
+      var match = DOMUtils.closest(el, '.fake-selector');
+
+      expect(match.id).toEqual('child-element');
+    });
+
+  });
 
   describe('#getComputedWidth', function () {
     function buildElement(style) {
@@ -137,7 +191,7 @@ describe('DOMUtils', function () {
   describe('#isElementOnTop', function () {
     beforeEach(function () {
       this.element = {
-        getBoundingClientRect: function () {
+        getBoundingClientRect() {
           return {
             top: 100,
             left: 200,
@@ -145,10 +199,10 @@ describe('DOMUtils', function () {
             width: 40
           };
         },
-        contains: function (el) {
+        contains(el) {
           return this === el;
         }
-      }
+      };
       this.prevElementFromPoint = global.document.elementFromPoint;
     });
 
@@ -159,7 +213,7 @@ describe('DOMUtils', function () {
     it('should return false if element is not at coord', function () {
       global.document.elementFromPoint = function () {
         return {
-          contains: function () {return false;}
+          contains() { return false; }
         };
       };
 
@@ -180,19 +234,19 @@ describe('DOMUtils', function () {
   describe('#getDistanceFromTopOfParent', function () {
     beforeEach(function () {
       this.element = {
-        getBoundingClientRect: function () {
+        getBoundingClientRect() {
           return {
             top: 300
           };
         },
         parentNode: {
-          getBoundingClientRect: function () {
+          getBoundingClientRect() {
             return {
               top: 200
             };
           }
         }
-      }
+      };
     });
 
     it('gets the correct distance from parent top', function () {

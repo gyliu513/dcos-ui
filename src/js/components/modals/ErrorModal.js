@@ -1,6 +1,8 @@
-var React = require('react');
+import React from 'react';
 
 import {Modal} from 'reactjs-components';
+
+import ModalHeading from '../modals/ModalHeading';
 
 var ErrorModal = React.createClass({
 
@@ -11,23 +13,24 @@ var ErrorModal = React.createClass({
     errorMsg: React.PropTypes.element
   },
 
-  onClose: function () {
+  onClose() {
     this.props.onClose();
   },
 
-  render: function () {
+  render() {
+    let header = (
+      <ModalHeading>
+        Looks Like Something is Wrong
+      </ModalHeading>
+    );
+
     return (
       <Modal
-        maxHeightPercentage={0.9}
         modalClass="modal"
         onClose={this.onClose}
         open={this.props.open}
-        showCloseButton={false}
         showHeader={true}
-        showFooter={false}
-        subHeader=""
-        titleClass="modal-header-title text-align-center flush-top flush-bottom"
-        titleText="Looks Like Something is Wrong">
+        header={header}>
         {this.props.errorMsg}
       </Modal>
     );

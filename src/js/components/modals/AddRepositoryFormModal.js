@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import mixin from 'reactjs-mixin';
 /* eslint-disable no-unused-vars */
 import React from 'react';
@@ -7,6 +6,8 @@ import {StoreMixin} from 'mesosphere-shared-reactjs';
 
 import CosmosPackagesStore from '../../stores/CosmosPackagesStore';
 import FormModal from '../FormModal';
+import ModalHeading from '../modals/ModalHeading';
+import ValidatorUtil from '../../utils/ValidatorUtil';
 
 const METHODS_TO_BIND = [
   'handleAddRepository',
@@ -58,12 +59,6 @@ class AddRepositoryFormModal extends mixin(StoreMixin) {
     this.resetState();
   }
 
-  getWithinRangeFunction(min, max) {
-    return function (number) {
-      return number >= min && number <= max;
-    };
-  }
-
   getAddRepositoryFormDefinition() {
     let {numberOfRepositories} = this.props;
 
@@ -76,7 +71,7 @@ class AddRepositoryFormModal extends mixin(StoreMixin) {
         showError: false,
         showLabel: false,
         writeType: 'input',
-        validation: function () { return true; },
+        validation() { return true; },
         value: ''
       },
       {
@@ -101,7 +96,10 @@ class AddRepositoryFormModal extends mixin(StoreMixin) {
         validationErrorText: `Must be a positive integer between 0 and ${numberOfRepositories} representing its priority. 0 is the highest and ${numberOfRepositories} denotes the lowest priority.`,
         showLabel: false,
         writeType: 'input',
-        validation: this.getWithinRangeFunction(0, numberOfRepositories),
+        validation(value) {
+          return ValidatorUtil.isDefined(value) &&
+              ValidatorUtil.isNumberInRange(value, {max: numberOfRepositories});
+        },
         value: ''
       }
     ];
@@ -139,24 +137,21 @@ class AddRepositoryFormModal extends mixin(StoreMixin) {
   render() {
     let {props, state} = this;
 
-    let headerClasses = classNames(
-      'modal-header-title text-align-center flush-top',
-      {'short-bottom': this.state.errorMsg}
-    );
-
     return (
       <FormModal
         definition={this.getAddRepositoryFormDefinition()}
         disabled={state.disableButtons}
         buttonDefinition={this.getButtonDefinition()}
+        modalProps={{
+          header: (
+            <ModalHeading>Add Repository</ModalHeading>
+          ),
+          showHeader: true
+        }}
         onChange={this.resetState}
         onClose={props.onClose}
         onSubmit={this.handleAddRepository}
-        open={props.open}
-        titleText="Add Repository">
-        <h2 className={headerClasses}>
-          Add Repository
-        </h2>
+        open={props.open}>
         {this.getErrorMessage()}
       </FormModal>
     );

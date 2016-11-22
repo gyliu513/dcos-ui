@@ -9,7 +9,7 @@ import {StoreMixin} from 'mesosphere-shared-reactjs';
 import Config from '../../config/Config';
 import CosmosErrorMessage from '../CosmosErrorMessage';
 import CosmosPackagesStore from '../../stores/CosmosPackagesStore';
-import IconCircleCheckmark from '../icons/IconCircleCheckmark';
+import Icon from '../Icon';
 
 const METHODS_TO_BIND = [
   'handleClose',
@@ -30,9 +30,6 @@ class UninstallPackageModal extends mixin(StoreMixin) {
       {
         name: 'cosmosPackages',
         events: ['uninstallError', 'uninstallSuccess'],
-        unmountWhen: function () {
-          return true;
-        },
         listenAlways: true
       }
     ];
@@ -116,9 +113,9 @@ class UninstallPackageModal extends mixin(StoreMixin) {
     let notes = cosmosPackage.getPostUninstallNotes();
 
     return (
-      <div className="container-pod container-pod-short text-align-center">
+      <div className="pod pod-short flush-right flush-left text-align-center">
         <span className="text-success">
-          <IconCircleCheckmark />
+          <Icon id="ring-check" size="jumbo" />
         </span>
         <h3 className="short-top">{`${name} Uninstalled`}</h3>
         <p className="small flush-bottom">
@@ -139,13 +136,18 @@ class UninstallPackageModal extends mixin(StoreMixin) {
       return this.getEmptyNode();
     }
 
+    let errorMessage = this.getErrorMessage();
+    let paragraphTagClasses = classNames({
+      'flush-bottom': errorMessage == null
+    });
+
     return (
-      <div className="container-pod container-pod-short text-align-center">
+      <div className="text-align-center">
         <h3 className="flush-top">Are you sure?</h3>
-        <p>
+        <p className={paragraphTagClasses}>
           {`${cosmosPackage.getAppIdName()} will be uninstalled from ${Config.productName}. All tasks belonging to this package will be killed.`}
         </p>
-        {this.getErrorMessage()}
+        {errorMessage}
       </div>
     );
   }
@@ -165,13 +167,10 @@ class UninstallPackageModal extends mixin(StoreMixin) {
       <Confirm
         closeByBackdropClick={true}
         disabled={pendingUninstallRequest}
-        footerContainerClass="container container-pod container-pod-short
-          container-pod-fluid flush-top flush-bottom"
         open={open}
         onClose={handleClose}
         leftButtonCallback={handleClose}
         leftButtonText="Close"
-        rightButtonClassName={rightButtonClassName}
         rightButtonCallback={this.handleUninstallPackage}
         rightButtonClassName={rightButtonClassName}
         rightButtonText="Uninstall">
@@ -182,16 +181,16 @@ class UninstallPackageModal extends mixin(StoreMixin) {
 }
 
 UninstallPackageModal.defaultProps = {
-  handleUninstallFinish: function () {},
-  onClose: function () {},
+  handleUninstallFinish() {},
+  onClose() {},
   open: false
-}
+};
 
 UninstallPackageModal.propTypes = {
   cosmosPackage: React.PropTypes.object,
   handleUninstallFinish: React.PropTypes.func,
   onClose: React.PropTypes.func,
   open: React.PropTypes.bool
-}
+};
 
 module.exports = UninstallPackageModal;

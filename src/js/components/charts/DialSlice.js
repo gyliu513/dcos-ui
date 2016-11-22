@@ -1,5 +1,5 @@
-var classNames = require('classnames');
-var React = require('react');
+import classNames from 'classnames';
+import React from 'react';
 
 var DialSlice = React.createClass({
 
@@ -10,7 +10,7 @@ var DialSlice = React.createClass({
     path: React.PropTypes.string.isRequired
   },
 
-  render: function () {
+  render() {
     var classes = {
       'arc': true
     };

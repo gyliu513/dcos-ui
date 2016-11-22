@@ -1,14 +1,13 @@
-var browserInfo = require('browser-info');
-var React = require('react');
-
-var CliInstallModal = require('./modals/CliInstallModal');
-import Config from '../config/Config';
-var ErrorModal = require('./modals/ErrorModal');
-import EventTypes from '../constants/EventTypes';
+import React from 'react';
 import {Hooks} from 'PluginSDK';
-var InternalStorageMixin = require('../mixins/InternalStorageMixin');
-var SidebarStore = require('../stores/SidebarStore');
-var VersionsModal = require('./modals/VersionsModal');
+
+import CliInstallModal from './modals/CliInstallModal';
+import Config from '../config/Config';
+import ErrorModal from './modals/ErrorModal';
+import EventTypes from '../constants/EventTypes';
+import InternalStorageMixin from '../mixins/InternalStorageMixin';
+import SidebarStore from '../stores/SidebarStore';
+import VersionsModal from './modals/VersionsModal';
 
 var Modals = React.createClass({
 
@@ -21,14 +20,14 @@ var Modals = React.createClass({
     modalErrorMsg: React.PropTypes.node
   },
 
-  getDefaultProps: function () {
+  getDefaultProps() {
     return {
       showErrorModal: false,
       modalErrorMsg: ''
     };
   },
 
-  getInitialState: function () {
+  getInitialState() {
     var props = this.props;
 
     return {
@@ -39,14 +38,14 @@ var Modals = React.createClass({
     };
   },
 
-  componentWillReceiveProps: function (props) {
+  componentWillReceiveProps(props) {
     this.setState({
       modalErrorMsg: props.modalErrorMsg,
       showErrorModal: props.showErrorModal
     });
   },
 
-  componentDidMount: function () {
+  componentDidMount() {
     SidebarStore.addChangeListener(
       EventTypes.SHOW_CLI_INSTRUCTIONS, this.handleShowCli
     );
@@ -60,7 +59,7 @@ var Modals = React.createClass({
     );
   },
 
-  componentWillUnmount: function () {
+  componentWillUnmount() {
     SidebarStore.removeChangeListener(
       EventTypes.SHOW_CLI_INSTRUCTIONS, this.handleShowCli
     );
@@ -74,11 +73,11 @@ var Modals = React.createClass({
     );
   },
 
-  handleShowVersionsSuccess: function () {
+  handleShowVersionsSuccess() {
     this.setState({showingVersionsModal: true});
   },
 
-  handleShowVersionsError: function () {
+  handleShowVersionsError() {
     this.setState({
       showErrorModal: true,
       modalErrorMsg: (
@@ -89,26 +88,18 @@ var Modals = React.createClass({
     });
   },
 
-  handleShowCli: function () {
+  handleShowCli() {
     this.setState({showingCliModal: true});
   },
 
-  getCliModalOptions: function () {
+  getCliModalOptions() {
     var onClose = function () {
       this.setState({showingCliModal: false});
     }.bind(this);
 
-    let OS = browserInfo().os;
-    let subHeaderContent = '';
-
-    if (OS !== 'Windows') {
-      subHeaderContent = `Install the ${Config.productName} command-line interface (CLI) tool on your local system by copying and pasting the code snippet below into your terminal.`;
-    }
-
     return {
       onClose,
-      title: `Welcome to ${Config.productName}`,
-      subHeaderContent,
+      title: 'Install DC/OS CLI',
       showFooter: true,
       footer: (
         <div>
@@ -122,11 +113,10 @@ var Modals = React.createClass({
     };
   },
 
-  getCliInstallModal: function (showModal) {
+  getCliInstallModal(showModal) {
     var options = {
-      onClose: function () {},
+      onClose() {},
       title: '',
-      subHeaderContent: '',
       showFooter: true,
       footer: <div></div>
     };
@@ -146,7 +136,7 @@ var Modals = React.createClass({
     );
   },
 
-  getVersionsModal: function (showModal) {
+  getVersionsModal(showModal) {
     var onClose = function () {
       this.setState({showingVersionsModal: false});
     }.bind(this);
@@ -160,7 +150,7 @@ var Modals = React.createClass({
     );
   },
 
-  getErrorModal: function (show) {
+  getErrorModal(show) {
     var onClose = function () {
       this.setState({showErrorModal: false});
     }.bind(this);
@@ -178,7 +168,7 @@ var Modals = React.createClass({
     );
   },
 
-  render: function () {
+  render() {
     var showCliModal = this.state.showingCliModal;
 
     return (

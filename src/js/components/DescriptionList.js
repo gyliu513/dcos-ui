@@ -1,6 +1,12 @@
+import PureRender from 'react-addons-pure-render-mixin';
 import React from 'react';
 
 class DescriptionList extends React.Component {
+  constructor() {
+    super(...arguments);
+    this.shouldComponentUpdate = PureRender.shouldComponentUpdate.bind(this);
+  }
+
   getHeadline() {
     let {headline, headlineClassName} = this.props;
     if (!headline) {
@@ -16,9 +22,9 @@ class DescriptionList extends React.Component {
   }
 
   getItems() {
-    let {hash, dtClassName, ddClassName} = this.props;
+    let {dtClassName, ddClassName, hash, renderKeys} = this.props;
 
-    return Object.keys(hash).map(function (key, index) {
+    return Object.keys(hash).map((key, index) => {
       let value = hash[key];
 
       // Check whether we are trying to render an object that is not a
@@ -27,7 +33,11 @@ class DescriptionList extends React.Component {
         value !== null && !React.isValidElement(value)) {
 
         return (
-          <DescriptionList hash={value} key={index} headline={key} />
+          <DescriptionList
+            {...this.props}
+            hash={value}
+            key={index}
+            headline={key} />
         );
       }
 
@@ -35,8 +45,13 @@ class DescriptionList extends React.Component {
         value = value.toString();
       }
 
+      // Check if we need to render a component in the dt
+      if (Object.prototype.hasOwnProperty.call(renderKeys, key)) {
+        key = renderKeys[key];
+      }
+
       return (
-        <dl key={index} className="flex-box row">
+        <dl key={index} className="flex row">
           <dt className={dtClassName}>{key}</dt>
           <dd className={ddClassName}>{value}</dd>
         </dl>
@@ -62,9 +77,10 @@ class DescriptionList extends React.Component {
 DescriptionList.defaultProps = {
   className: '',
   ddClassName: 'column-9 text-overflow-break-word',
-  dtClassName: 'column-3 emphasize',
+  dtClassName: 'column-3 text-mute text-overflow-break-word',
   headlineClassName: 'flush-top',
-  key: ''
+  key: '',
+  renderKeys: {}
 };
 
 DescriptionList.propTypes = {
@@ -74,7 +90,10 @@ DescriptionList.propTypes = {
   headlineClassName: React.PropTypes.string,
   headline: React.PropTypes.node,
   hash: React.PropTypes.object,
-  key: React.PropTypes.string
+  key: React.PropTypes.string,
+  // Optional object with keys consisting of keys in `props.hash` to be
+  // replaced, and with corresponding values of the replacement to be rendered.
+  renderKeys: React.PropTypes.object
 };
 
 module.exports = DescriptionList;

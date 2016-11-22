@@ -1,17 +1,19 @@
-import BaseStore from './BaseStore';
+import PluginSDK from 'PluginSDK';
 
-var AppDispatcher = require('../events/AppDispatcher');
+import AppDispatcher from '../events/AppDispatcher';
 import ActionTypes from '../constants/ActionTypes';
 import CompositeState from '../structs/CompositeState';
-var Config = require('../config/Config');
+import Config from '../config/Config';
+import Framework from '../../../plugins/services/src/js/structs/Framework';
+import GetSetBaseStore from './GetSetBaseStore';
 import {
   MESOS_STATE_CHANGE,
   MESOS_STATE_REQUEST_ERROR,
   VISIBILITY_CHANGE
 } from '../constants/EventTypes';
-var MesosStateActions = require('../events/MesosStateActions');
-var MesosStateUtil = require('../utils/MesosStateUtil');
-import Task from '../structs/Task';
+import MesosStateActions from '../events/MesosStateActions';
+import MesosStateUtil from '../utils/MesosStateUtil';
+import Task from '../../../plugins/services/src/js/structs/Task';
 import VisibilityStore from './VisibilityStore';
 
 var requestInterval = null;
@@ -32,13 +34,29 @@ function stopPolling() {
   }
 }
 
-class MesosStateStore extends BaseStore {
+class MesosStateStore extends GetSetBaseStore {
   constructor() {
     super(...arguments);
 
     this.getSet_data = {
-      lastMesosState: {}
+      lastMesosState: {},
+      taskCache: {}
     };
+
+    PluginSDK.addStoreConfig({
+      store: this,
+      storeID: this.storeID,
+      events: {
+        success: MESOS_STATE_CHANGE,
+        error: MESOS_STATE_REQUEST_ERROR
+      },
+      unmountWhen(store, event) {
+        if (event === 'success') {
+          return Object.keys(store.get('lastMesosState')).length;
+        }
+      },
+      listenAlways: true
+    });
 
     this.dispatcherIndex = AppDispatcher.register((payload) => {
       if (payload.source !== ActionTypes.SERVER_ACTION) {
@@ -96,9 +114,28 @@ class MesosStateStore extends BaseStore {
     return !!this.listeners(MESOS_STATE_CHANGE).length;
   }
 
+  indexTasksByID(lastMesosState) {
+    let taskIndex = {};
+
+    lastMesosState.frameworks.forEach(function (service) {
+      let tasks = service.tasks.concat(service.completed_tasks);
+      tasks.forEach(function (task) {
+        taskIndex[task.id] = task;
+      });
+    });
+
+    return taskIndex;
+  }
+
   getHostResourcesByFramework(filter) {
     return MesosStateUtil.getHostResourcesByFramework(
       this.get('lastMesosState'), filter
+    );
+  }
+
+  getPodHistoricalInstances(pod) {
+    return MesosStateUtil.getPodHistoricalInstances(
+      this.get('lastMesosState'), pod
     );
   }
 
@@ -126,6 +163,18 @@ class MesosStateStore extends BaseStore {
     return null;
   }
 
+  getNodeFromHostname(hostname) {
+    let nodes = this.get('lastMesosState').slaves;
+
+    if (nodes) {
+      return nodes.find(function (node) {
+        return node.hostname === hostname;
+      });
+    }
+
+    return null;
+  }
+
   getTasksFromNodeID(nodeID) {
     let services = this.get('lastMesosState').frameworks || [];
     let memberTasks = {};
@@ -147,23 +196,11 @@ class MesosStateStore extends BaseStore {
   }
 
   getTaskFromTaskID(taskID) {
-    let services = this.get('lastMesosState').frameworks;
-    let foundTask = null;
-
-    services.some(function (service) {
-      let tasks = service.tasks.concat(service.completed_tasks);
-
-      foundTask = tasks.find(function (task) {
-        return task.id === taskID;
-      });
-
-      return foundTask;
-    });
-
+    let taskCache = this.get('taskCache');
+    let foundTask = taskCache[taskID];
     if (foundTask == null) {
       return null;
     }
-
     return new Task(foundTask);
   }
 
@@ -220,12 +257,14 @@ class MesosStateStore extends BaseStore {
     return [];
   }
 
-  getTasksByServiceId(serviceId) {
-    // Convert serviceId to Mesos service name
-    let mesosServiceName = serviceId.split('/').slice(1).reverse().join('.');
+  getTasksByService(service) {
     let frameworks = this.get('lastMesosState').frameworks;
+    let serviceName = service.getName();
 
-    if (mesosServiceName === '' || !frameworks) {
+    // Convert serviceId to Mesos task name
+    let mesosTaskName = service.getMesosId();
+
+    if (!serviceName || !mesosTaskName || !frameworks) {
       return [];
     }
 
@@ -234,8 +273,8 @@ class MesosStateStore extends BaseStore {
     // the scheduler tasks or a list of Marathon application tasks.
     return frameworks.reduce(function (serviceTasks, framework) {
       let {tasks = [], completed_tasks = {}, name} = framework;
-
-      if (name === mesosServiceName) {
+      // Include tasks from framework match, if service is a Framework
+      if (service instanceof Framework && name === serviceName) {
         return serviceTasks.concat(tasks, completed_tasks);
       }
 
@@ -243,7 +282,7 @@ class MesosStateStore extends BaseStore {
       if (name === 'marathon') {
         return tasks.concat(completed_tasks)
           .filter(function ({name}) {
-            return name === mesosServiceName;
+            return name === mesosTaskName;
           }).concat(serviceTasks);
       }
 
@@ -251,9 +290,17 @@ class MesosStateStore extends BaseStore {
     }, []);
   }
 
+  getTasksFromVirtualNetworkName(overlayName) {
+    return MesosStateUtil.getTasksFromVirtualNetworkName(
+      this.get('lastMesosState'),
+      overlayName
+    );
+  }
+
   processStateSuccess(lastMesosState) {
     CompositeState.addState(lastMesosState);
-    this.set({lastMesosState});
+    let taskCache = this.indexTasksByID(lastMesosState);
+    this.set({lastMesosState, taskCache});
     this.emit(MESOS_STATE_CHANGE);
   }
 

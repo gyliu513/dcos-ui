@@ -6,6 +6,7 @@ import {StoreMixin} from 'mesosphere-shared-reactjs';
 
 import CosmosPackagesStore from '../../stores/CosmosPackagesStore';
 import FilterInputText from '../../components/FilterInputText';
+import Loader from '../../components/Loader';
 import PackagesTable from '../../components/PackagesTable';
 import RequestErrorMsg from '../../components/RequestErrorMsg';
 
@@ -19,17 +20,15 @@ class InstalledPackagesTab extends mixin(StoreMixin) {
 
     this.state = {
       hasError: false,
-      isLoading: true
+      isLoading: true,
+      searchString: ''
     };
 
     this.store_listeners = [
       {
         name: 'cosmosPackages',
         events: ['installedError', 'installedSuccess'],
-        unmountWhen: function () {
-          return true;
-        },
-        listenAlways: true
+        suppressUpdate: true
       }
     ];
 
@@ -51,7 +50,7 @@ class InstalledPackagesTab extends mixin(StoreMixin) {
     this.setState({hasError: false, isLoading: false});
   }
 
-  handleSearchStringChange(searchString) {
+  handleSearchStringChange(searchString = '') {
     this.setState({searchString});
   }
 
@@ -60,15 +59,7 @@ class InstalledPackagesTab extends mixin(StoreMixin) {
   }
 
   getLoadingScreen() {
-    return (
-      <div className="container-pod text-align-center vertical-center inverse">
-        <div className="row">
-          <div className="ball-scale">
-            <div />
-          </div>
-        </div>
-      </div>
-    );
+    return <Loader />;
   }
 
   render() {
@@ -92,13 +83,17 @@ class InstalledPackagesTab extends mixin(StoreMixin) {
             className="flex-grow"
             placeholder="Search"
             searchString={searchString}
-            handleFilterChange={this.handleSearchStringChange}
-            inverseStyle={true} />
+            handleFilterChange={this.handleSearchStringChange} />
         </div>
         <PackagesTable packages={packages} filter={searchString} />
       </div>
     );
   }
 }
+
+InstalledPackagesTab.routeConfig = {
+  label: 'Installed',
+  matches: /^\/universe\/installed-packages/
+};
 
 module.exports = InstalledPackagesTab;

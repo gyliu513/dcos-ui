@@ -1,9 +1,9 @@
-var Link = require('react-router').Link;
-var React = require('react');
+import {Link} from 'react-router';
+import React from 'react';
 
-var AlertPanel = require('../components/AlertPanel');
-var Page = require('../components/Page');
-var SidebarActions = require('../events/SidebarActions');
+import AlertPanel from '../components/AlertPanel';
+import Page from '../components/Page';
+import SidebarActions from '../events/SidebarActions';
 
 var NotFoundPage = React.createClass({
 
@@ -14,13 +14,13 @@ var NotFoundPage = React.createClass({
     // 'when a handler is about to render', i.e. on route change:
     // https://github.com/rackt/react-router/
     // blob/master/docs/api/components/RouteHandler.md
-    willTransitionTo: function () {
+    willTransitionTo() {
 
       SidebarActions.close();
     }
   },
 
-  render: function () {
+  render() {
     return (
       <Page title="Page Not Found">
         <AlertPanel
@@ -29,7 +29,7 @@ var NotFoundPage = React.createClass({
             The page you’ve requested cannot be found.
             It’s possible you copied the wrong link.
             Check again, or jump back to your&nbsp;
-            <Link to="dashboard">Dashboard</Link>.
+            <Link to="/dashboard">Dashboard</Link>.
           </p>
         </AlertPanel>
       </Page>

@@ -1,6 +1,6 @@
 jest.dontMock('../SchemaFormUtil');
 
-var SchemaFormUtil = require('../SchemaFormUtil');
+const SchemaFormUtil = require('../SchemaFormUtil');
 
 describe('SchemaFormUtil', function () {
   describe('#getDefinitionFromPath', function () {
@@ -74,7 +74,7 @@ describe('SchemaFormUtil', function () {
       expect(model).toEqual(result);
     });
 
-    it('should replace undefined with null', function () {
+    it('should replace undefined with [] when valueType is array', function () {
       this.definition.valueType = 'array';
       var model = {
         key: undefined,
@@ -82,7 +82,7 @@ describe('SchemaFormUtil', function () {
       };
 
       var result = SchemaFormUtil.processFormModel(model);
-      expect(result.key).toEqual(undefined);
+      expect(result.key).toEqual([]);
     });
 
     it('should omit null values for non-required fields', function () {

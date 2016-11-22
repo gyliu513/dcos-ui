@@ -1,66 +1,62 @@
-var classNames = require('classnames');
-var React = require('react');
+import classNames from 'classnames';
+import PureRender from 'react-addons-pure-render-mixin';
+import React, {PropTypes} from 'react';
 
-var FilterHeadline = React.createClass({
+import StringUtil from '../utils/StringUtil';
 
-  displayName: 'FilterHeadline',
+const METHODS_TO_BIND = [
+  'handleReset'
+];
 
-  propTypes: {
-    onReset: React.PropTypes.func.isRequired,
-    name: React.PropTypes.string.isRequired,
-    currentLength: React.PropTypes.number.isRequired,
-    totalLength: React.PropTypes.number.isRequired,
-    inverseStyle: React.PropTypes.bool
-  },
+class FilterHeadline extends React.Component {
+  constructor() {
+    super(...arguments);
+    this.shouldComponentUpdate = PureRender.shouldComponentUpdate.bind(this);
 
-  getDefaultProps: function () {
-    return {
-      inverseStyle: false
-    };
-  },
+    METHODS_TO_BIND.forEach((method) => {
+      this[method] = this[method].bind(this);
+    });
+  }
 
-  handleReset: function (e) {
+  handleReset(e) {
     e.preventDefault();
     this.props.onReset();
-  },
+  }
 
-  render: function () {
-    var name = this.props.name;
-    var filteredLength = this.props.currentLength;
-    var totalLength = this.props.totalLength;
-    let inverseStyle = this.props.inverseStyle;
+  render() {
+    let {className, currentLength, inverseStyle, isFiltering, name, totalLength} = this.props;
+    let hideFilteredClasses =
+      (isFiltering == null && currentLength === totalLength) ||
+      (isFiltering != null && !isFiltering);
+    name = StringUtil.pluralize(name, totalLength);
 
-    var filteredClassSet = classNames({
-      'h4': true,
+    let filteredClassSet = classNames('flush', {
       'inverse': inverseStyle,
-      'hidden': filteredLength === totalLength
+      'hidden': hideFilteredClasses
     });
 
-    var unfilteredClassSet = classNames({
-      'h4': true,
+    let unfilteredClassSet = classNames('flush', {
       'inverse': inverseStyle,
-      'hidden': filteredLength !== totalLength
+      'hidden': !hideFilteredClasses
     });
 
-    var anchorClassSet = classNames({
-      'h4 clickable': true,
+    let anchorClassSet = classNames('clickable flush-top', {
       'inverse': inverseStyle,
-      'hidden': filteredLength === totalLength
+      'hidden': hideFilteredClasses
     });
 
-    let listClassSet = classNames({
-      'list-unstyled list-inline': true,
+    let listClassSet = classNames('filter-headline list list-unstyled list-inline h4 flush-left flush-top', {
       'inverse': inverseStyle
-    });
+    }, className);
 
     return (
       <ul className={listClassSet}>
         <li className={filteredClassSet}>
-          Showing {filteredLength} of {totalLength} {name}
+          Showing {currentLength} of {totalLength} {name}
         </li>
         <li className={anchorClassSet} onClick={this.handleReset}>
-          <a className="small">
-            (Show all)
+          <a className="small flush">
+            (Clear)
           </a>
         </li>
         <li className={unfilteredClassSet}>
@@ -69,6 +65,22 @@ var FilterHeadline = React.createClass({
       </ul>
     );
   }
-});
+}
+
+FilterHeadline.defaultProps = {
+  inverseStyle: false
+};
+
+FilterHeadline.propTypes = {
+  className: PropTypes.string,
+  currentLength: PropTypes.number.isRequired,
+  inverseStyle: PropTypes.bool,
+  // Optional prop used to force the "Clear" button to show even when n of n
+  // items are currently displayed.
+  isFiltering: PropTypes.bool,
+  name: PropTypes.string.isRequired,
+  onReset: PropTypes.func.isRequired,
+  totalLength: PropTypes.number.isRequired
+};
 
 module.exports = FilterHeadline;

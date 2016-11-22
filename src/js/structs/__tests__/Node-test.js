@@ -1,6 +1,4 @@
-jest.dontMock('../../constants/TaskStates');
-
-let Node = require('../Node');
+const Node = require('../Node');
 
 describe('Node', function () {
 

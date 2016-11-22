@@ -1,9 +1,9 @@
-const classNames = require('classnames');
-const React = require('react');
+import classNames from 'classnames';
+import React from 'react';
 
-const BarChart = require('./BarChart');
-const Chart = require('./Chart');
-const ResourcesUtil = require('../../utils/ResourcesUtil');
+import BarChart from './BarChart';
+import Chart from './Chart';
+import ResourcesUtil from '../../utils/ResourcesUtil';
 
 // number to fit design of width vs. height ratio
 const WIDTH_HEIGHT_RATIO = 4.5;
@@ -22,7 +22,7 @@ let ResourceBarChart = React.createClass({
     totalResources: React.PropTypes.object.isRequired
   },
 
-  getDefaultProps: function () {
+  getDefaultProps() {
     return {
       itemCount: 0,
       totalResources: {},
@@ -32,7 +32,7 @@ let ResourceBarChart = React.createClass({
     };
   },
 
-  getData: function () {
+  getData() {
     let props = this.props;
 
     if (props.itemCount === 0) {
@@ -48,7 +48,7 @@ let ResourceBarChart = React.createClass({
     }];
   },
 
-  getMaxY: function () {
+  getMaxY() {
     if (this.props.totalResources[this.props.selectedResource]) {
       return 100;
     } else {
@@ -56,18 +56,18 @@ let ResourceBarChart = React.createClass({
     }
   },
 
-  handleSelectedResourceChange: function (selectedResource) {
+  handleSelectedResourceChange(selectedResource) {
     this.props.onResourceSelectionChange(selectedResource);
   },
 
-  getModeButtons: function () {
+  getModeButtons() {
     let selectedResource = this.props.selectedResource;
 
     let resourceColors = ResourcesUtil.getResourceColors();
     let resourceLabels = ResourcesUtil.getResourceLabels();
 
     return ResourcesUtil.getDefaultResources().map((resource) => {
-      let classSet = classNames('button button-stroke button-inverse', {
+      let classSet = classNames('button button-stroke', {
         'active': selectedResource === resource
       });
 
@@ -82,7 +82,7 @@ let ResourceBarChart = React.createClass({
     });
   },
 
-  getBarChart: function () {
+  getBarChart() {
     return (
       <Chart calcHeight={function (w) { return w / WIDTH_HEIGHT_RATIO; }}>
         <BarChart
@@ -95,35 +95,37 @@ let ResourceBarChart = React.createClass({
     );
   },
 
-  getHeadline: function (resource) {
+  getHeadline(resource) {
     let label = ResourcesUtil.getResourceLabel(resource);
     let headline = `${label} Allocation Rate`;
 
     return (
       <div>
-        <h4 className="flush inverse">
+        <h4 className="flush">
           {headline}
         </h4>
-        <p className="flush inverse">
+        <p className="flush">
           {this.props.itemCount + ' Total ' + this.props.resourceType}
         </p>
       </div>
     );
   },
 
-  render: function () {
+  render() {
     return (
-      <div className="chart panel panel-inverse">
-        <div className="panel-header panel-header-large no-border flush-bottom">
-          <div className="panel-options button-group flush-bottom">
-            {this.getModeButtons()}
+      <div className="pod flush-top flush-right flush-left">
+        <div className="chart panel">
+          <div className="panel-cell panel-header panel-cell-borderless flush-bottom text-align-center">
+            <div className="panel-options button-group">
+              {this.getModeButtons()}
+            </div>
+            <div>
+              {this.getHeadline(this.props.selectedResource)}
+            </div>
           </div>
-          <div className="inverse">
-            {this.getHeadline(this.props.selectedResource)}
+          <div className="panel-cell panel-content" ref="panelContent">
+            {this.getBarChart()}
           </div>
-        </div>
-        <div className="panel-content" ref="panelContent">
-          {this.getBarChart()}
         </div>
       </div>
     );

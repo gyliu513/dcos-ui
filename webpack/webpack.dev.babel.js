@@ -36,7 +36,7 @@ let entry = [
 
 if (environment === 'development') {
   entry.push('webpack/hot/only-dev-server');
-  devtool = '#eval-source-map';
+  devtool = '#inline-eval-cheap-source-map';
 } else if (environment === 'testing') {
   // Cypress constantly saves fixture files, which causes webpack to detect
   // a filechange and rebuild the application. The problem with this is that
@@ -48,6 +48,12 @@ if (environment === 'development') {
     aggregateTimeout: delayTime,
     poll: delayTime
   };
+}
+
+let reactHotLoader = 'react-hot!';
+
+if (process.env.REACTJS_COMPONENTS_LOCAL) {
+  reactHotLoader = '';
 }
 
 module.exports = Object.assign({}, webpackConfig, {
@@ -62,10 +68,10 @@ module.exports = Object.assign({}, webpackConfig, {
     new StringReplacePlugin(),
 
     new HtmlWebpackPlugin({
-      template: './src/index.html',
+      template: './src/index.html'
     }),
 
-    new ExtractTextPlugin('[name].css'),
+    new ExtractTextPlugin('./[name].css'),
 
     new WebpackNotifierPlugin({alwaysNotify: true})
   ],
@@ -76,7 +82,7 @@ module.exports = Object.assign({}, webpackConfig, {
         test: /\.js$/,
         // Exclude all node_modules except dcos-dygraphs
         exclude: /(?=\/node_modules\/)(?!\/node_modules\/dcos-dygraphs\/)/,
-        loader: 'react-hot!babel?' + JSON.stringify({
+        loader: reactHotLoader + 'babel?' + JSON.stringify({
           cacheDirectory: true,
           // Map through resolve to fix preset loading problem
           presets: [
@@ -91,23 +97,23 @@ module.exports = Object.assign({}, webpackConfig, {
       },
       {
         test: /\.less$/,
-        loader: 'style!css!postcss!less'
+        loader: 'style?sourceMap!css?sourceMap!postcss?sourceMap!less?sourceMap'
       },
       {
         test: /\.png$/,
-        loader: 'file?name=[hash]-[name].[ext]&limit=100000&mimetype=image/png'
+        loader: 'file?name=./[hash]-[name].[ext]&limit=100000&mimetype=image/png'
       },
       {
         test: /\.svg$/,
-        loader: 'file?name=[hash]-[name].[ext]&limit=100000&mimetype=image/svg+xml',
+        loader: 'file?name=./[hash]-[name].[ext]&limit=100000&mimetype=image/svg+xml'
       },
       {
         test: /\.gif$/,
-        loader: 'file?name=[hash]-[name].[ext]&limit=100000&mimetype=image/gif',
+        loader: 'file?name=./[hash]-[name].[ext]&limit=100000&mimetype=image/gif',
       },
       {
         test: /\.jpg$/,
-        loader: 'file?name=[hash]-[name].[ext]',
+        loader: 'file?name=./[hash]-[name].[ext]',
       },
       // Replace @@variables
       {

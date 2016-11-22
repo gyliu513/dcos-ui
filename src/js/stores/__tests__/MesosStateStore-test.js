@@ -1,7 +1,13 @@
 jest.dontMock('../MesosStateStore');
 
-var MesosStateStore = require('../MesosStateStore');
-var Task = require('../../structs/Task');
+const MesosStateUtil = require('../../utils/MesosStateUtil');
+const Pod = require('../../../../plugins/services/src/js/structs/Pod');
+const Framework = require('../../../../plugins/services/src/js/structs/Framework');
+const MesosStateStore = require('../MesosStateStore');
+const Application = require('../../../../plugins/services/src/js/structs/Application');
+const Task = require('../../../../plugins/services/src/js/structs/Task');
+
+const MESOS_STATE_WITH_HISTORY = require('../../utils/__tests__/fixtures/MesosStateWithHistory');
 
 describe('MesosStateStore', function () {
 
@@ -33,7 +39,7 @@ describe('MesosStateStore', function () {
     });
   });
 
-  describe('#getTasksByServiceId', function () {
+  describe('#getTasksByService', function () {
     beforeEach(function () {
       this.get = MesosStateStore.get;
       MesosStateStore.get = function () {
@@ -71,7 +77,9 @@ describe('MesosStateStore', function () {
 
     it('should return matching framework tasks including scheduler tasks',
       function () {
-        var tasks = MesosStateStore.getTasksByServiceId('/spark');
+        var tasks = MesosStateStore.getTasksByService(
+          new Framework({id: '/spark', labels: {DCOS_PACKAGE_FRAMEWORK_NAME: 'spark'}})
+        );
         expect(tasks).toEqual([
           {name: 'spark', id: 'spark.1'},
           {name: '1'},
@@ -82,7 +90,9 @@ describe('MesosStateStore', function () {
     );
 
     it('should return matching application tasks', function () {
-      var tasks = MesosStateStore.getTasksByServiceId('/alpha');
+      var tasks = MesosStateStore.getTasksByService(
+        new Application({id: '/alpha'})
+      );
       expect(tasks).toEqual([
         {name: 'alpha', id: 'alpha.1'},
         {name: 'alpha', id: 'alpha.2'},
@@ -91,7 +101,9 @@ describe('MesosStateStore', function () {
     });
 
     it('should empty task list if no service matches', function () {
-      var tasks = MesosStateStore.getTasksByServiceId('/non-existent');
+      var tasks = MesosStateStore.getTasksByService(
+        new Application({id: '/non-existent'})
+      );
       expect(tasks).toEqual([]);
     });
   });
@@ -127,18 +139,29 @@ describe('MesosStateStore', function () {
   describe('#getTaskFromTaskID', function () {
     beforeEach(function () {
       this.get = MesosStateStore.get;
-      MesosStateStore.get = function () {
-        return {
-          frameworks: [{
-            tasks: [{id: 1}],
-            completed_tasks: [{id: 2}]
-          }]
-        };
+      let data = {
+        frameworks: [{
+          tasks: [{id: 1}],
+          completed_tasks: [{id: 2}]
+        }]
+      };
+      MesosStateStore.processStateSuccess(data);
+      let taskCache = MesosStateStore.indexTasksByID(data);
+      MesosStateStore.get = function (id) {
+        if (id === 'taskCache') {
+          return taskCache;
+        }
+        return data;
       };
     });
 
     afterEach(function () {
       MesosStateStore.get = this.get;
+    });
+
+    it('should return null from an unknown task ID', function () {
+      var result = MesosStateStore.getTaskFromTaskID('not-a-task-id');
+      expect(result).toBeNull();
     });
 
     it('should return an instance of Task', function () {
@@ -148,12 +171,12 @@ describe('MesosStateStore', function () {
 
     it('should find a currently running task', function () {
       var result = MesosStateStore.getTaskFromTaskID(1);
-      expect(result.get()).toEqual({id: 1})
+      expect(result.get()).toEqual({id: 1});
     });
 
     it('should find a completed task', function () {
       var result = MesosStateStore.getTaskFromTaskID(2);
-      expect(result.get()).toEqual({id: 2})
+      expect(result.get()).toEqual({id: 2});
     });
   });
 
@@ -185,6 +208,26 @@ describe('MesosStateStore', function () {
     it('shouldn\'t find a task', function () {
       var result = MesosStateStore.getSchedulerTaskFromServiceName('bar');
       expect(result).toEqual(undefined);
+    });
+  });
+
+  describe('#getPodHistoricalInstances', function () {
+    beforeEach(function () {
+      this.get = MesosStateStore.get;
+      MesosStateStore.get = () => {
+        return MESOS_STATE_WITH_HISTORY;
+      };
+    });
+
+    afterEach(function () {
+      MesosStateStore.get = this.get;
+    });
+
+    it('should pass-through to MesosStateUtil.getPodHistoricalInstances', function () {
+      var pod = new Pod({id: '/pod-p0'});
+      var result = MesosStateStore.getPodHistoricalInstances(pod);
+      var expected = MesosStateUtil.getPodHistoricalInstances(MESOS_STATE_WITH_HISTORY, pod);
+      expect(result).toEqual(expected);
     });
   });
 });

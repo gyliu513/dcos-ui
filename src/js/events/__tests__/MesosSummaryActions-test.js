@@ -4,30 +4,34 @@ jest.dontMock('../../config/Config');
 jest.dontMock('../MesosSummaryActions');
 jest.dontMock('../../constants/TimeScales');
 
+const Hooks = require('PluginSDK').Hooks;
+
 jest.setMock('react-router', {
-  HashLocation: {
-    getCurrentPath: function () { return '/foo'; },
-    addChangeListener: function () {}
+  hashHistory: {
+    location: { pathname: '/foo' },
+    listen() {}
   }
 });
 
-import PluginTestUtils from 'PluginTestUtils';
-import {RequestUtil} from 'mesosphere-shared-reactjs';
+const PluginTestUtils = require('PluginTestUtils');
+const RequestUtil = require('mesosphere-shared-reactjs').RequestUtil;
 
 PluginTestUtils.loadPluginsByName({
   tracking: {enabled: true}
 });
 
-var AppDispatcher = require('../AppDispatcher');
-var Config = require('../../config/Config');
-var MesosSummaryActions = require('../MesosSummaryActions');
-var TimeScales = require('../../constants/TimeScales');
+const AppDispatcher = require('../AppDispatcher');
+const Config = require('../../config/Config');
+const MesosSummaryActions = require('../MesosSummaryActions');
+const TimeScales = require('../../constants/TimeScales');
 
 global.analytics = {
   initialized: true,
-  track: function () {},
-  log: function () {}
+  track() {},
+  log() {}
 };
+
+Hooks.addFilter('hasCapability', function () { return true; });
 
 describe('Mesos State Actions', function () {
 

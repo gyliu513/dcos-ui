@@ -3,29 +3,11 @@ jest.dontMock('../AppDispatcher');
 jest.dontMock('../../config/Config');
 jest.dontMock('../../constants/ActionTypes');
 
-import {RequestUtil} from 'mesosphere-shared-reactjs';
-
-import {
-  REQUEST_COSMOS_PACKAGES_LIST_ERROR,
-  REQUEST_COSMOS_PACKAGES_LIST_SUCCESS,
-  REQUEST_COSMOS_PACKAGES_SEARCH_ERROR,
-  REQUEST_COSMOS_PACKAGES_SEARCH_SUCCESS,
-  REQUEST_COSMOS_PACKAGE_DESCRIBE_ERROR,
-  REQUEST_COSMOS_PACKAGE_DESCRIBE_SUCCESS,
-  REQUEST_COSMOS_PACKAGE_INSTALL_ERROR,
-  REQUEST_COSMOS_PACKAGE_INSTALL_SUCCESS,
-  REQUEST_COSMOS_PACKAGE_UNINSTALL_ERROR,
-  REQUEST_COSMOS_PACKAGE_UNINSTALL_SUCCESS,
-  REQUEST_COSMOS_REPOSITORIES_LIST_ERROR,
-  REQUEST_COSMOS_REPOSITORIES_LIST_SUCCESS,
-  REQUEST_COSMOS_REPOSITORY_ADD_ERROR,
-  REQUEST_COSMOS_REPOSITORY_ADD_SUCCESS,
-  REQUEST_COSMOS_REPOSITORY_DELETE_ERROR,
-  REQUEST_COSMOS_REPOSITORY_DELETE_SUCCESS,
-} from '../../constants/ActionTypes';
-var AppDispatcher = require('../AppDispatcher');
-var CosmosPackagesActions = require('../CosmosPackagesActions');
-var Config = require('../../config/Config');
+const RequestUtil = require('mesosphere-shared-reactjs').RequestUtil;
+const ActionTypes = require('../../constants/ActionTypes');
+const AppDispatcher = require('../AppDispatcher');
+const CosmosPackagesActions = require('../CosmosPackagesActions');
+const Config = require('../../config/Config');
 
 describe('CosmosPackagesActions', function () {
 
@@ -41,7 +23,8 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_PACKAGES_SEARCH_SUCCESS);
+        expect(action.type)
+            .toEqual(ActionTypes.REQUEST_COSMOS_PACKAGES_SEARCH_SUCCESS);
       });
 
       this.configuration.success({packages: [{bar: 'baz'}]});
@@ -51,7 +34,7 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.data).toEqual([{bar: 'baz'}]);
+        expect(action.data).toEqual([{bar: 'baz', resource: {}}]);
       });
 
       this.configuration.success({packages: [{bar: 'baz'}]});
@@ -61,7 +44,8 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_PACKAGES_SEARCH_ERROR);
+        expect(action.type)
+            .toEqual(ActionTypes.REQUEST_COSMOS_PACKAGES_SEARCH_ERROR);
       });
 
       this.configuration.error({responseJSON: {description: 'bar'}});
@@ -115,27 +99,46 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_PACKAGES_LIST_SUCCESS);
+        expect(action.type).toEqual(ActionTypes.REQUEST_COSMOS_PACKAGES_LIST_SUCCESS);
       });
 
-      this.configuration.success({packages: [{bar: 'baz'}]});
+      this.configuration.success({
+        packages: [{
+          appId: 'foo',
+          packageInformation: {
+            packageDefinition: {name: 'bar'},
+            resourceDefinition: {bar: 'baz'}
+          }
+        }]
+      });
     });
 
     it('dispatches with the correct data when successful', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.data).toEqual([{bar: 'baz'}]);
+        expect(action.data).toEqual(
+          [{appId: 'foo', name: 'bar', resource: {bar: 'baz'}}]
+        );
       });
 
-      this.configuration.success({packages: [{bar: 'baz'}]});
+      this.configuration.success({
+        packages: [{
+          appId: 'foo',
+          packageInformation: {
+            packageDefinition: {name: 'bar'},
+            resourceDefinition: {bar: 'baz'}
+          }
+        }]
+      });
     });
 
     it('dispatches the correct action when unsuccessful', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_PACKAGES_LIST_ERROR);
+        expect(action.type)
+            .toEqual(ActionTypes.REQUEST_COSMOS_PACKAGES_LIST_ERROR);
       });
 
       this.configuration.error({responseJSON: {description: 'bar'}});
@@ -190,7 +193,8 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_PACKAGE_DESCRIBE_SUCCESS);
+        expect(action.type)
+            .toEqual(ActionTypes.REQUEST_COSMOS_PACKAGE_DESCRIBE_SUCCESS);
       });
 
       this.configuration.success({bar: 'baz'});
@@ -210,7 +214,8 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_PACKAGE_DESCRIBE_ERROR);
+        expect(action.type)
+            .toEqual(ActionTypes.REQUEST_COSMOS_PACKAGE_DESCRIBE_ERROR);
       });
 
       this.configuration.error({responseJSON: {description: 'bar'}});
@@ -268,7 +273,8 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_PACKAGE_INSTALL_SUCCESS);
+        expect(action.type)
+            .toEqual(ActionTypes.REQUEST_COSMOS_PACKAGE_INSTALL_SUCCESS);
       });
 
       this.configuration.success({bar: 'baz'});
@@ -290,7 +296,8 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_PACKAGE_INSTALL_ERROR);
+        expect(action.type)
+            .toEqual(ActionTypes.REQUEST_COSMOS_PACKAGE_INSTALL_ERROR);
       });
 
       this.configuration.error({responseJSON: {description: 'bar'}});
@@ -350,7 +357,8 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_PACKAGE_UNINSTALL_SUCCESS);
+        expect(action.type)
+            .toEqual(ActionTypes.REQUEST_COSMOS_PACKAGE_UNINSTALL_SUCCESS);
       });
 
       this.configuration.success({bar: 'baz'});
@@ -372,7 +380,8 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_PACKAGE_UNINSTALL_ERROR);
+        expect(action.type)
+            .toEqual(ActionTypes.REQUEST_COSMOS_PACKAGE_UNINSTALL_ERROR);
       });
 
       this.configuration.error({responseJSON: 'bar'});
@@ -431,7 +440,8 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_REPOSITORIES_LIST_SUCCESS);
+        expect(action.type)
+            .toEqual(ActionTypes.REQUEST_COSMOS_REPOSITORIES_LIST_SUCCESS);
       });
 
       this.configuration.success({repositories: [{bar: 'baz'}]});
@@ -451,7 +461,8 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_REPOSITORIES_LIST_ERROR);
+        expect(action.type)
+            .toEqual(ActionTypes.REQUEST_COSMOS_REPOSITORIES_LIST_ERROR);
       });
 
       this.configuration.error({responseJSON: {description: 'bar'}});
@@ -494,7 +505,8 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_REPOSITORY_ADD_SUCCESS);
+        expect(action.type)
+            .toEqual(ActionTypes.REQUEST_COSMOS_REPOSITORY_ADD_SUCCESS);
       });
 
       this.configuration.success({bar: 'baz'});
@@ -516,7 +528,8 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_REPOSITORY_ADD_ERROR);
+        expect(action.type)
+            .toEqual(ActionTypes.REQUEST_COSMOS_REPOSITORY_ADD_ERROR);
       });
 
       this.configuration.error({responseJSON: {description: 'bar'}});
@@ -567,7 +580,8 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_REPOSITORY_DELETE_SUCCESS);
+        expect(action.type)
+            .toEqual(ActionTypes.REQUEST_COSMOS_REPOSITORY_DELETE_SUCCESS);
       });
 
       this.configuration.success({bar: 'baz'});
@@ -589,7 +603,8 @@ describe('CosmosPackagesActions', function () {
       var id = AppDispatcher.register(function (payload) {
         var action = payload.action;
         AppDispatcher.unregister(id);
-        expect(action.type).toEqual(REQUEST_COSMOS_REPOSITORY_DELETE_ERROR);
+        expect(action.type)
+            .toEqual(ActionTypes.REQUEST_COSMOS_REPOSITORY_DELETE_ERROR);
       });
 
       this.configuration.error({responseJSON: {description: 'bar'}});

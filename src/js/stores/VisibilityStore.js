@@ -1,5 +1,7 @@
-import BaseStore from './BaseStore';
+import PluginSDK from 'PluginSDK';
+
 import Config from '../config/Config';
+import GetSetBaseStore from './GetSetBaseStore';
 import {VISIBILITY_CHANGE} from '../constants/EventTypes';
 
 // Use visibility API to check if current tab is active or not
@@ -34,7 +36,7 @@ const Visibility = (function () {
   };
 })();
 
-class VisibilityStore extends BaseStore {
+class VisibilityStore extends GetSetBaseStore {
   constructor() {
     super(...arguments);
 
@@ -45,20 +47,24 @@ class VisibilityStore extends BaseStore {
 
     this.timeOut = null;
 
+    PluginSDK.addStoreConfig({
+      store: this,
+      storeID: this.storeID,
+      events: {
+        change: VISIBILITY_CHANGE
+      },
+      unmountWhen() {
+        return true;
+      },
+      listenAlways: true
+    });
+
     // Listen for visibility change events
     Visibility.addChangeListener(() => {
       // We need setTimeout because browser hasn't yet given us the execution
       // context.
       setTimeout(this.onVisibilityChange.bind(this), 0);
     });
-  }
-
-  removeChangeListener(eventName, callback) {
-    this.removeListener(eventName, callback);
-  }
-
-  addChangeListener(eventName, callback) {
-    return this.on(eventName, callback);
   }
 
   isTabVisible() {
@@ -83,14 +89,16 @@ class VisibilityStore extends BaseStore {
       }, Config.setInactiveAfter || 0);
     }
 
-    if (this.get('isInactive') && isTabVisible) {
+    if (isTabVisible) {
       if (this.timeOut) {
         clearTimeout(this.timeOut);
         this.timeOut = null;
       }
 
-      this.set({isInactive: false});
-      this.emit(VISIBILITY_CHANGE);
+      if (this.get('isInactive')) {
+        this.set({isInactive: false});
+        this.emit(VISIBILITY_CHANGE);
+      }
     }
   }
 

@@ -8,14 +8,29 @@ describe('Jobs Overview', function () {
       cy.visitUrl({url: '/jobs'});
     });
 
-    it('has the right active navigation entry', function () {
-      cy.get('.page-header-navigation .tab-item.active')
-        .should('to.have.text', 'Jobs');
+    it('displays jobs overview page', function () {
+      cy.get('tbody tr:visible').should('to.have.length', 3);
     });
 
-    it('displays empty jobs overview page', function () {
-      cy.get('.page-content .panel-content h3')
-        .should('to.have.text', 'No Jobs Found');
+    it('does not show status or last run for groups', function () {
+      cy.get('tbody tr:visible').should(function ($tableRows) {
+        expect($tableRows[0].children[1].textContent).to.equal('');
+        expect($tableRows[0].children[2].textContent).to.equal('');
+      });
+    });
+
+    it('displays the proper job status', function () {
+      cy.get('tbody tr:visible').should(function ($tableRows) {
+        expect($tableRows[1].children[1].textContent).to.equal('Scheduled');
+        expect($tableRows[2].children[1].textContent).to.equal('Running');
+      });
+    });
+
+    it('displays the proper last run status', function () {
+      cy.get('tbody tr:visible').should(function ($tableRows) {
+        expect($tableRows[1].children[2].textContent).to.equal('Failed');
+        expect($tableRows[2].children[2].textContent).to.equal('Success');
+      });
     });
   });
 });

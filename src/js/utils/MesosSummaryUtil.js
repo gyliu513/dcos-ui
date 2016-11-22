@@ -1,9 +1,9 @@
-var Config = require('../config/Config');
-var Maths = require('../utils/Maths');
+import Config from '../config/Config';
+import Maths from '../utils/Maths';
 
 const MesosSummaryUtil = {
 
-  sumResources: function (resourceList) {
+  sumResources(resourceList) {
     return resourceList.reduce(function (memo, resource) {
       if (resource == null) {
         return memo;
@@ -17,7 +17,7 @@ const MesosSummaryUtil = {
     }, {cpus: 0, mem: 0, disk: 0});
   },
 
-  stateResourcesToResourceStates: function (stateResources) {
+  stateResourcesToResourceStates(stateResources) {
     // Transpose from [{date, resources, totalResources}, ...]
     // to {resource: [{date, value, percentage}, ...], resource: ...}
     let resources = {cpus: [], mem: [], disk: []};
@@ -44,33 +44,40 @@ const MesosSummaryUtil = {
     return resources;
   },
 
-  filterHostsByService: function (hosts, frameworkId) {
+  filterHostsByService(hosts, frameworkId) {
     return hosts.filter(function (host) {
       return host.framework_ids.includes(frameworkId);
     });
   },
 
-  getInitialStates: function () {
+  getInitialStates() {
     var currentDate = Date.now();
     // reverse date range!!!
     let reverseRange = [];
+
     for (let i = Config.historyLength; i > 0; i--) {
       reverseRange.push(-i);
     }
+
     return reverseRange.map(function (i) {
-      return {
-        date: currentDate + (i * Config.getRefreshRate()),
-        frameworks: [],
-        slaves: [],
-        used_resources: {cpus: 0, mem: 0, disk: 0},
-        total_resources: {cpus: 0, mem: 0, disk: 0}
-      };
+      return Object.assign(MesosSummaryUtil.getEmptyState(), {
+        date: currentDate + (i * Config.getRefreshRate())
+      });
     });
   },
 
-  addTimestampsToData: function (data, timeStep) {
+  getEmptyState() {
+    return {
+      frameworks: [],
+      slaves: [],
+      used_resources: {cpus: 0, mem: 0, disk: 0},
+      total_resources: {cpus: 0, mem: 0, disk: 0}
+    };
+  },
+
+  addTimestampsToData(data, timeStep) {
     var length = data.length;
-    var timeNow = Date.now() - timeStep;
+    var timeNow = Date.now() + timeStep;
 
     return data.map(function (datum, i) {
       var timeDelta = (-length + i) * timeStep;

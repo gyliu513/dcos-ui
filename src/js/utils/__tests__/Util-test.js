@@ -1,6 +1,6 @@
 jest.dontMock('../Util');
 
-var Util = require('../Util');
+const Util = require('../Util');
 
 describe('Util', function () {
 
@@ -9,7 +9,7 @@ describe('Util', function () {
     it('should return a unique ID each time it is called', function () {
       let ids = Array(100).fill(null);
       ids.forEach(function (value, index) {
-        ids[index] = Util.uniqueID();
+        ids[index] = Util.uniqueID('100');
       });
 
       let result = ids.every(function (id, index, array) {
@@ -20,9 +20,19 @@ describe('Util', function () {
     });
 
     it('should provide an integer', function () {
-      let id = Util.uniqueID();
+      let id = Util.uniqueID('integerID');
 
       expect(typeof id === 'number' && id % 1 === 0).toBeTruthy();
+    });
+
+    it('should start over from 0 for each namespace', function () {
+      Util.uniqueID('firstNamespace');
+      Util.uniqueID('firstNamespace');
+      let id1 =Util.uniqueID('firstNamespace');
+      let id2 = Util.uniqueID('secondNamespace');
+
+      expect(id1).toEqual(2);
+      expect(id2).toEqual(0);
     });
 
   });
@@ -239,6 +249,153 @@ describe('Util', function () {
       jest.runAllTimers();
 
       expect(this.func.mock.calls[0][1]).toBe('baz');
+    });
+
+  });
+
+  describe('deepCopy', function () {
+
+    it('it returns an actual deep copy', function () {
+      var currentDate = new Date();
+
+      var originalObject = {
+        obj1: {
+          string2: 'string2',
+          number2: 2,
+          func() {
+            return true;
+          },
+          obj2: {
+            string3: 'string3',
+            number3: 3,
+            date: currentDate,
+            obj3: {
+              array2: ['a', 'b'],
+              number3: 3
+            }
+          }
+        },
+        string1: 'string1',
+        number1: 1,
+        array1: [1, 2]
+      };
+
+      var copiedObject = Util.deepCopy(originalObject);
+      expect(copiedObject).toEqual(originalObject);
+    });
+
+    it('mutating the copy does not affect the original', function () {
+      var currentDate = new Date();
+
+      var originalObject = {
+        obj1: {
+          obj2: {
+            string3: 'string3',
+            number3: 3,
+            date: currentDate,
+            obj3: {
+              array2: ['a', 'b'],
+              number3: 3
+            }
+          }
+        },
+        string1: 'string1',
+        number1: 1,
+        array1: [1, 2]
+      };
+
+      // An exact replica of the originalObject
+      var originalObject2 = {
+        obj1: {
+          obj2: {
+            string3: 'string3',
+            number3: 3,
+            date: currentDate,
+            obj3: {
+              array2: ['a', 'b'],
+              number3: 3
+            }
+          }
+        },
+        string1: 'string1',
+        number1: 1,
+        array1: [1, 2]
+      };
+
+      var copiedObject = Util.deepCopy(originalObject);
+      copiedObject.obj1.obj2 = null;
+      expect(copiedObject).not.toEqual(originalObject);
+      expect(originalObject2).toEqual(originalObject);
+    });
+
+    it('does not clone out of bounds arrays', function () {
+      var originalObject = {
+        obj1: {
+          array1: [1, 2]
+        }
+      };
+
+      var number = 83864234234;
+      originalObject.obj1.array1[number] = 3;
+
+      var copiedObject = Util.deepCopy(originalObject);
+      expect(copiedObject).not.toEqual(originalObject);
+    });
+
+    it('does clone an array with normal indices', function () {
+      var originalObject = {
+        array: []
+      };
+      originalObject.array[0] = 'test';
+
+      var expectedObject = {
+        array: []
+      };
+      expectedObject.array[0] = 'test';
+
+      expect(Util.deepCopy(originalObject)).toEqual(expectedObject);
+    });
+
+    it('does clone an array with unusual small indices', function () {
+      var originalObject = {
+        array: []
+      };
+      originalObject.array[2] = 'test';
+
+      var expectedObject = {
+        array: []
+      };
+      expectedObject.array[2] = 'test';
+
+      expect(Util.deepCopy(originalObject)).toEqual(expectedObject);
+    });
+
+  });
+
+  describe('#filterEmptyValues', function () {
+    it('filters empty values from an Object', function () {
+      let expectedObject = {
+        booleanFalse: false,
+        booleanTrue: true,
+        string: 'string',
+        array: [1, 2, 3],
+        object: {a: 1},
+        number: 123
+      };
+
+      expect(Util.filterEmptyValues({
+        booleanFalse: false,
+        booleanTrue: true,
+        emptyString: '',
+        string: 'string',
+        emptyArray: [],
+        array: [1, 2, 3],
+        emptyObject: {},
+        object: {a: 1},
+        number: 123,
+        nullValue: null,
+        undefinedValue: undefined
+      })).toEqual(expectedObject);
     });
 
   });

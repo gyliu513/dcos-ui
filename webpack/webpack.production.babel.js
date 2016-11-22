@@ -25,7 +25,7 @@ module.exports = Object.assign({}, webpackConfig, {
   production: true,
   output: {
     path: './dist',
-    filename: 'index.[hash].js'
+    filename: './index.[hash].js'
   },
   plugins: [
     // Important to keep React file size down
@@ -45,7 +45,7 @@ module.exports = Object.assign({}, webpackConfig, {
       },
     }),
 
-    new ExtractTextPlugin('[name].[hash].css'),
+    new ExtractTextPlugin('./[name].[hash].css'),
 
     new HtmlWebpackPlugin({
       template: './src/index.html',
@@ -54,6 +54,8 @@ module.exports = Object.assign({}, webpackConfig, {
 
     // Don't include images in /icons/_exports
     new webpack.IgnorePlugin(/icons\/_exports\//),
+
+    new webpack.IgnorePlugin(/tests\/_fixtures\//),
 
     new CompressionPlugin({
       asset: '[path].gz[query]',
@@ -80,27 +82,27 @@ module.exports = Object.assign({}, webpackConfig, {
       },
       {
         test: /\.css$/,
-        loader: ExtractTextPlugin.extract('style', 'css!postcss')
+        loader: ExtractTextPlugin.extract('style', 'css?-mergeLonghand!postcss')
       },
       {
         test: /\.less$/,
-        loader: ExtractTextPlugin.extract('style', 'css!postcss!less')
+        loader: ExtractTextPlugin.extract('style', 'css?-mergeLonghand!postcss!less')
       },
       {
         test: /\.png$/,
-        loader: addImageOptimizer('file?name=[hash]-[name].[ext]&limit=100000&mimetype=image/png')
+        loader: addImageOptimizer('file?name=./[hash]-[name].[ext]&limit=100000&mimetype=image/png')
       },
       {
         test: /\.svg$/,
-        loader: addImageOptimizer('file?name=[hash]-[name].[ext]&limit=100000&mimetype=image/svg+xml'),
+        loader: addImageOptimizer('file?name=./[hash]-[name].[ext]&limit=100000&mimetype=image/svg+xml'),
       },
       {
         test: /\.gif$/,
-        loader: addImageOptimizer('file?name=[hash]-[name].[ext]&limit=100000&mimetype=image/gif'),
+        loader: addImageOptimizer('file?name=./[hash]-[name].[ext]&limit=100000&mimetype=image/gif'),
       },
       {
         test: /\.jpg$/,
-        loader: addImageOptimizer('file?name=[hash]-[name].[ext]'),
+        loader: addImageOptimizer('file?name=./[hash]-[name].[ext]'),
       },
       // Replace @@variables
       {

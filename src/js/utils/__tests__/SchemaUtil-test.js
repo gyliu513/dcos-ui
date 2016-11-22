@@ -1,6 +1,6 @@
 jest.dontMock('../SchemaUtil');
 
-var SchemaUtil = require('../SchemaUtil');
+const SchemaUtil = require('../SchemaUtil');
 
 describe('SchemaUtil', function () {
   describe('#schemaToMultipleDefinition', function () {
@@ -14,27 +14,25 @@ describe('SchemaUtil', function () {
                 id: {
                   type: 'string'
                 }
-              }
+              },
+              title: 'Application'
             }
           }
         };
 
         this.subheaderRender = jasmine.createSpy();
-        this.result = SchemaUtil.schemaToMultipleDefinition(
-          schema, this.subheaderRender
-        );
+        this.result = SchemaUtil.schemaToMultipleDefinition({
+          schema,
+          renderSubheader: this.subheaderRender
+        });
       });
 
       it('sets the title of the definition', function () {
-        expect(this.result.application.title).toEqual('application');
+        expect(this.result.application.title).toEqual('Application');
       });
 
       it('creates a field for the property', function () {
         expect(this.result.application).not.toEqual(undefined);
-      });
-
-      it('sets the title correctly', function () {
-        expect(this.result.application.title).toEqual('application');
       });
 
       it('turns a schema to a definition', function () {
@@ -71,9 +69,9 @@ describe('SchemaUtil', function () {
         };
 
         this.subheaderRender = jasmine.createSpy();
-        this.result = SchemaUtil.schemaToMultipleDefinition(
-          schema, this.subheaderRender
-        );
+        this.result = SchemaUtil.schemaToMultipleDefinition({
+          schema, renderSubheader: this.subheaderRender
+        });
       });
 
       it('creates a nested definition correctly', function () {
@@ -103,7 +101,7 @@ describe('SchemaUtil', function () {
               showError: false,
               showLabel: true,
               writeType: 'input',
-              validation: function () { return true; },
+              validation() { return true; },
               value: 'nameValue'
             },
             {
@@ -114,7 +112,7 @@ describe('SchemaUtil', function () {
               showError: false,
               showLabel: true,
               writeType: 'input',
-              validation: function () { return true; },
+              validation() { return true; },
               value: 'CPU Value'
             }
           ]
@@ -150,7 +148,7 @@ describe('SchemaUtil', function () {
                   showError: false,
                   showLabel: true,
                   writeType: 'input',
-                  validation: function () { return true; },
+                  validation() { return true; },
                   value: 'CPU Value'
                 }
               ]

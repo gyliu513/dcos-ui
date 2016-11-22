@@ -1,26 +1,32 @@
 jest.dontMock('../InstallPackageModal');
 jest.dontMock('../../CosmosErrorMessage');
+jest.dontMock('../../Loader');
 jest.dontMock('../../ReviewConfig');
+jest.dontMock('../../SchemaForm');
+jest.dontMock('../../TabForm');
 jest.dontMock('../../../stores/CosmosPackagesStore');
 jest.dontMock('../../../mixins/InternalStorageMixin');
 jest.dontMock('../../../mixins/TabsMixin');
+jest.dontMock('../../../utils/FormUtil');
+jest.dontMock('../../../utils/GeminiUtil');
+jest.dontMock('../../../utils/SchemaFormUtil');
+jest.dontMock('../../../utils/SchemaUtil');
+jest.dontMock('../../../utils/Util');
 
 /* eslint-disable no-unused-vars */
-var React = require('react');
+const React = require('react');
 /* eslint-enable no-unused-vars */
-var ReactDOM = require('react-dom');
-import {RequestUtil} from 'mesosphere-shared-reactjs';
-var TestUtils = require('react-addons-test-utils');
+const ReactDOM = require('react-dom');
+const RequestUtil = require('mesosphere-shared-reactjs').RequestUtil;
+const TestUtils = require('react-addons-test-utils');
 
-var InstallPackageModal = require('../InstallPackageModal');
-var JestUtil = require('../../../utils/JestUtil');
-var JestUtil = require('../../../utils/JestUtil');
+const InstallPackageModal = require('../InstallPackageModal');
+const JestUtil = require('../../../utils/JestUtil');
 var packageDescribeFixture =
   require('../../../../../tests/_fixtures/cosmos/package-describe.json');
-var UniversePackage = require('../../../structs/UniversePackage');
+const UniversePackage = require('../../../structs/UniversePackage');
 
 JestUtil.unMockStores(['CosmosPackagesStore']);
-require('../../../utils/StoreMixinConfig');
 
 describe('InstallPackageModal', function () {
 
@@ -63,7 +69,7 @@ describe('InstallPackageModal', function () {
         this.instance.getModalContents(),
         this.container
       ));
-      var result = node.querySelectorAll('p')[1];
+      var result = node.querySelectorAll('p')[6];
       expect(result.textContent).toEqual('0.11.1');
     });
 
@@ -104,7 +110,7 @@ describe('InstallPackageModal', function () {
       ));
 
       var result = node.querySelector('.h3.text-align-center.flush-top');
-      expect(result.textContent).toEqual('An Error Occured');
+      expect(result.textContent).toEqual('An Error Occurred');
     });
 
     it('should display install success', function () {

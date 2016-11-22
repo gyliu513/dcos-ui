@@ -21,31 +21,42 @@ import {
 } from '../constants/ActionTypes';
 import AppDispatcher from './AppDispatcher';
 import Config from '../config/Config';
+import Util from '../utils/Util';
 
-const REQUEST_TIMEOUT = 10000;
-
-function getContentType(action, actionType) {
-  return `application/vnd.dcos.package.${action}-${actionType}+json;charset=utf-8;version=v1`;
+function getContentType(action, actionType, version = 'v2') {
+  return `application/vnd.dcos.package.${action}-${actionType}+json;charset=utf-8;version=${version}`;
 }
 
 const CosmosPackagesActions = {
 
-  fetchAvailablePackages: function (query) {
+  fetchAvailablePackages(query) {
     RequestUtil.json({
-      contentType: getContentType('search', 'request'),
-      headers: {Accept: getContentType('search', 'response')},
+      contentType: getContentType('search', 'request', 'v1'),
+      headers: {Accept: getContentType('search', 'response', 'v1')},
       method: 'POST',
       url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/search`,
       data: JSON.stringify({query}),
-      timeout: REQUEST_TIMEOUT,
-      success: function (response) {
+      success(response) {
+        let packages = response.packages || [];
+        let data = packages.map(function (cosmosPackage) {
+          if (!cosmosPackage.resource) {
+            cosmosPackage.resource = {};
+          }
+
+          if (cosmosPackage.images) {
+            cosmosPackage.resource.images = cosmosPackage.images;
+            delete cosmosPackage.images;
+          }
+
+          return cosmosPackage;
+        });
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_PACKAGES_SEARCH_SUCCESS,
-          data: response.packages,
+          data,
           query
         });
       },
-      error: function (xhr) {
+      error(xhr) {
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_PACKAGES_SEARCH_ERROR,
           data: RequestUtil.parseResponseBody(xhr),
@@ -55,23 +66,48 @@ const CosmosPackagesActions = {
     });
   },
 
-  fetchInstalledPackages: function (packageName, appId) {
+  fetchInstalledPackages(packageName, appId) {
     RequestUtil.json({
-      contentType: getContentType('list', 'request'),
-      headers: {Accept: getContentType('list', 'response')},
+      contentType: getContentType('list', 'request', 'v1'),
+      headers: {Accept: getContentType('list', 'response', 'v1')},
       method: 'POST',
       url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/list`,
       data: JSON.stringify({packageName, appId}),
-      timeout: REQUEST_TIMEOUT,
-      success: function (response) {
+      success(response) {
+        let packages = response.packages || [];
+        // Map list data to match other endpoint structures
+        let data = packages.map(function (item) {
+          let cosmosPackage = Util.findNestedPropertyInObject(
+            item,
+            'packageInformation.packageDefinition'
+          ) || {};
+          cosmosPackage.appId = item.appId;
+          cosmosPackage.resource = Util.findNestedPropertyInObject(
+            item,
+            'packageInformation.resourceDefinition'
+          ) || {};
+
+          if (cosmosPackage.images) {
+            cosmosPackage.resource.images = cosmosPackage.images;
+            delete cosmosPackage.images;
+          }
+
+          if (!cosmosPackage.currentVersion && cosmosPackage.version) {
+            cosmosPackage.currentVersion = cosmosPackage.version;
+            delete cosmosPackage.version;
+          }
+
+          return cosmosPackage;
+        });
+
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_PACKAGES_LIST_SUCCESS,
-          data: response.packages,
+          data,
           packageName,
           appId
         });
       },
-      error: function (xhr) {
+      error(xhr) {
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_PACKAGES_LIST_ERROR,
           data: RequestUtil.getErrorFromXHR(xhr),
@@ -82,23 +118,26 @@ const CosmosPackagesActions = {
     });
   },
 
-  fetchPackageDescription: function (packageName, packageVersion) {
+  fetchPackageDescription(packageName, packageVersion) {
     RequestUtil.json({
-      contentType: getContentType('describe', 'request'),
+      contentType: getContentType('describe', 'request', 'v1'),
       headers: {Accept: getContentType('describe', 'response')},
       method: 'POST',
       url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/describe`,
       data: JSON.stringify({packageName, packageVersion}),
-      timeout: REQUEST_TIMEOUT,
-      success: function (response) {
+      success(cosmosPackage) {
+        if (!cosmosPackage.currentVersion && cosmosPackage.version) {
+          cosmosPackage.currentVersion = cosmosPackage.version;
+          delete cosmosPackage.version;
+        }
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_PACKAGE_DESCRIBE_SUCCESS,
-          data: response,
+          data: cosmosPackage,
           packageName,
           packageVersion
         });
       },
-      error: function (xhr) {
+      error(xhr) {
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_PACKAGE_DESCRIBE_ERROR,
           data: RequestUtil.getErrorFromXHR(xhr),
@@ -109,15 +148,14 @@ const CosmosPackagesActions = {
     });
   },
 
-  installPackage: function (packageName, packageVersion, options = {}) {
+  installPackage(packageName, packageVersion, options = {}) {
     RequestUtil.json({
-      contentType: getContentType('install', 'request'),
+      contentType: getContentType('install', 'request', 'v1'),
       headers: {Accept: getContentType('install', 'response')},
       method: 'POST',
       url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/install`,
       data: JSON.stringify({packageName, packageVersion, options}),
-      timeout: REQUEST_TIMEOUT,
-      success: function (response) {
+      success(response) {
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_PACKAGE_INSTALL_SUCCESS,
           data: response,
@@ -125,7 +163,7 @@ const CosmosPackagesActions = {
           packageVersion
         });
       },
-      error: function (xhr) {
+      error(xhr) {
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_PACKAGE_INSTALL_ERROR,
           data: RequestUtil.parseResponseBody(xhr),
@@ -136,15 +174,14 @@ const CosmosPackagesActions = {
     });
   },
 
-  uninstallPackage: function (packageName, packageVersion, appId, all = false) {
+  uninstallPackage(packageName, packageVersion, appId, all = false) {
     RequestUtil.json({
-      contentType: getContentType('uninstall', 'request'),
-      headers: {Accept: getContentType('uninstall', 'response')},
+      contentType: getContentType('uninstall', 'request', 'v1'),
+      headers: {Accept: getContentType('uninstall', 'response', 'v1')},
       method: 'POST',
       url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/uninstall`,
       data: JSON.stringify({packageName, packageVersion, appId, all}),
-      timeout: REQUEST_TIMEOUT,
-      success: function (response) {
+      success(response) {
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_PACKAGE_UNINSTALL_SUCCESS,
           data: response,
@@ -153,7 +190,7 @@ const CosmosPackagesActions = {
           appId
         });
       },
-      error: function (xhr) {
+      error(xhr) {
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_PACKAGE_UNINSTALL_ERROR,
           data: RequestUtil.parseResponseBody(xhr),
@@ -165,21 +202,20 @@ const CosmosPackagesActions = {
     });
   },
 
-  fetchRepositories: function (type) {
+  fetchRepositories(type) {
     RequestUtil.json({
-      contentType: getContentType('repository.list', 'request'),
-      headers: {Accept: getContentType('repository.list', 'response')},
+      contentType: getContentType('repository.list', 'request', 'v1'),
+      headers: {Accept: getContentType('repository.list', 'response', 'v1')},
       method: 'POST',
       url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/repository/list`,
       data: JSON.stringify({type}),
-      timeout: REQUEST_TIMEOUT,
-      success: function (response) {
+      success(response) {
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_REPOSITORIES_LIST_SUCCESS,
           data: response.repositories
         });
       },
-      error: function (xhr) {
+      error(xhr) {
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_REPOSITORIES_LIST_ERROR,
           data: RequestUtil.getErrorFromXHR(xhr)
@@ -188,15 +224,14 @@ const CosmosPackagesActions = {
     });
   },
 
-  addRepository: function (name, uri, index) {
+  addRepository(name, uri, index) {
     RequestUtil.json({
-      contentType: getContentType('repository.add', 'request'),
-      headers: {Accept: getContentType('repository.add', 'response')},
+      contentType: getContentType('repository.add', 'request', 'v1'),
+      headers: {Accept: getContentType('repository.add', 'response', 'v1')},
       method: 'POST',
       url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/repository/add`,
       data: JSON.stringify({name, uri, index}),
-      timeout: REQUEST_TIMEOUT,
-      success: function (response) {
+      success(response) {
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_REPOSITORY_ADD_SUCCESS,
           data: response,
@@ -204,7 +239,7 @@ const CosmosPackagesActions = {
           uri
         });
       },
-      error: function (xhr) {
+      error(xhr) {
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_REPOSITORY_ADD_ERROR,
           data: RequestUtil.getErrorFromXHR(xhr),
@@ -215,15 +250,14 @@ const CosmosPackagesActions = {
     });
   },
 
-  deleteRepository: function (name, uri) {
+  deleteRepository(name, uri) {
     RequestUtil.json({
-      contentType: getContentType('repository.delete', 'request'),
-      headers: {Accept: getContentType('repository.delete', 'response')},
+      contentType: getContentType('repository.delete', 'request', 'v1'),
+      headers: {Accept: getContentType('repository.delete', 'response', 'v1')},
       method: 'POST',
       url: `${Config.rootUrl}${Config.cosmosAPIPrefix}/repository/delete`,
       data: JSON.stringify({name, uri}),
-      timeout: REQUEST_TIMEOUT,
-      success: function (response) {
+      success(response) {
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_REPOSITORY_DELETE_SUCCESS,
           data: response,
@@ -231,7 +265,7 @@ const CosmosPackagesActions = {
           uri
         });
       },
-      error: function (xhr) {
+      error(xhr) {
         AppDispatcher.handleServerAction({
           type: REQUEST_COSMOS_REPOSITORY_DELETE_ERROR,
           data: RequestUtil.getErrorFromXHR(xhr),

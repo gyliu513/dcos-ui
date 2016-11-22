@@ -1,7 +1,10 @@
 import marked from 'marked';
+/* eslint-disable no-unused-vars */
+import React from 'react';
+/* eslint-enable no-unused-vars */
 
 const StringUtil = {
-  arrayToJoinedString: function (array=[], separator = ', ') {
+  arrayToJoinedString(array=[], separator = ', ') {
     if (Array.isArray(array)) {
       return array.join(separator);
     }
@@ -9,7 +12,7 @@ const StringUtil = {
     return '';
   },
 
-  filterByString: function (objects, getter, searchString) {
+  filterByString(objects, getter, searchString) {
     var regex = StringUtil.escapeForRegExp(searchString);
     var searchPattern = new RegExp(regex, 'i');
 
@@ -24,15 +27,15 @@ const StringUtil = {
     });
   },
 
-  escapeForRegExp: function (str) {
+  escapeForRegExp(str) {
     return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
   },
 
-  isUrl: function (str) {
+  isUrl(str) {
     return !!str && /^https?:\/\/.+/.test(str);
   },
 
-  isEmail: function (str) {
+  isEmail(str) {
     // https://news.ycombinator.com/item?id=8360786
     return !!str &&
       str.length > 3 &&
@@ -40,7 +43,7 @@ const StringUtil = {
       str.indexOf('.') !== -1;
   },
 
-  pluralize: function (string, arity) {
+  pluralize(string, arity) {
     if (arity == null) {
       arity = 2;
     }
@@ -58,12 +61,79 @@ const StringUtil = {
     return string;
   },
 
-  capitalize: function (string) {
+  capitalize(string) {
     if (typeof string !== 'string') {
       return null;
     }
 
     return string.charAt(0).toUpperCase() + string.slice(1, string.length);
+  },
+
+  lowercase(string) {
+    if (typeof string !== 'string') {
+      return null;
+    }
+
+    return string.charAt(0).toLowerCase() + string.slice(1, string.length);
+  },
+
+  humanizeArray(array, options) {
+    options = Object.assign({
+      serialComma: true,
+      wrapValueFunction: false
+    }, options);
+
+    let length = array.length;
+    let conjunction = ' and ';
+
+    if (length === 0) {
+      return '';
+    }
+
+    if (length === 1) {
+      if (options.wrapValueFunction) {
+        return options.wrapValueFunction(array[0], 0);
+      } else {
+        return array[0];
+      }
+    }
+
+    if (length === 2) {
+      if (options.wrapValueFunction) {
+        return [
+          options.wrapValueFunction(array[0], 0),
+          conjunction,
+          options.wrapValueFunction(array[1], 1)
+        ];
+      } else {
+        return array.join(conjunction);
+      }
+    }
+
+    let head = array.slice(0, -1);
+    let tail = array.slice(-1)[0];
+    if (options.serialComma) {
+      conjunction = ', and ';
+    }
+
+    if (options.wrapValueFunction) {
+      let jsx = head.reduce(function (memo, value, index) {
+        memo.push(options.wrapValueFunction(value, index));
+
+        if (index !== head.length - 1) {
+          memo.push(', ');
+        }
+
+        return memo;
+      }, []);
+
+      jsx.push(conjunction);
+      jsx.push(options.wrapValueFunction(tail, 'tail'));
+
+      return jsx;
+    } else {
+      return head.join(', ') + conjunction + tail;
+    }
   },
 
   parseMarkdown(text) {
@@ -94,7 +164,7 @@ const StringUtil = {
    *                           word tokens.
    * @return {String}        - Human-readable title.
    */
-  idToTitle: function (id, splitBy=[], replace={}, removeConsecutive) {
+  idToTitle(id, splitBy=[], replace={}, removeConsecutive) {
 
     if (splitBy.length === 0) {
       return id.reduce((title, word, i, words) => {

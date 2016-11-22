@@ -1,9 +1,9 @@
-var React = require('react');
+import React from 'react';
 
 import EventTypes from '../constants/EventTypes';
-var InternalStorageMixin = require('../mixins/InternalStorageMixin');
-var SidebarActions = require('../events/SidebarActions');
-var SidebarStore = require('../stores/SidebarStore');
+import InternalStorageMixin from '../mixins/InternalStorageMixin';
+import SidebarActions from '../events/SidebarActions';
+import SidebarStore from '../stores/SidebarStore';
 
 function getSidebarState() {
   return {
@@ -17,30 +17,30 @@ var SidebarToggle = React.createClass({
 
   mixins: [InternalStorageMixin],
 
-  componentWillMount: function () {
+  componentWillMount() {
     this.internalStorage_set(getSidebarState());
   },
 
-  componentDidMount: function () {
+  componentDidMount() {
     SidebarStore.addChangeListener(
       EventTypes.SIDEBAR_CHANGE,
       this.onSidebarStateChange
     );
   },
 
-  componentWillUnmount: function () {
+  componentWillUnmount() {
     SidebarStore.removeChangeListener(
       EventTypes.SIDEBAR_CHANGE,
       this.onSidebarStateChange
     );
   },
 
-  onSidebarStateChange: function () {
+  onSidebarStateChange() {
     this.internalStorage_set(getSidebarState());
     this.forceUpdate();
   },
 
-  onClick: function (e) {
+  onClick(e) {
     var data = this.internalStorage_get();
 
     e.preventDefault();
@@ -53,12 +53,12 @@ var SidebarToggle = React.createClass({
 
   },
 
-  render: function () {
+  render() {
     return (
-      <div className="page-header-sidebar-toggle" onClick={this.onClick}>
-        <i className="page-header-sidebar-toggle-icon icon icon-menu icon-sprite
-          icon-sprite-medium icon-sprite-medium-white"></i>
-        <span className="page-header-sidebar-toggle-label">
+      <div className="page-navigation-sidebar-toggle" onClick={this.onClick}>
+        <span className="page-navigation-sidebar-toggle-icon icon icon-white
+          icon-margin-right icon-margin-right-wide icon-small" />
+        <span className="page-navigation-sidebar-toggle-label">
           Show/Hide Sidebar
         </span>
       </div>
